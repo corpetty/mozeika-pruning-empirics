@@ -39,15 +39,17 @@ def fit_sigmoid(rho_values, hamming_values):
 def main():
     np.random.seed(42)
     
-    # Parameters (smaller for speed)
-    N = 200  # number of parameters  
-    M = 400  # training samples
-    T = 50   # max iterations
-    K_adam = 20  # Adam steps per sweep
+    # Parameters: N=200, M=100 (M/N=0.5) hits phase transition region
+    # At rho=0, algorithm is in random mask region (Hamming ~0.5)
+    # At high rho, algorithm recovers true mask (Hamming ~0.01)
+    N = 200  # number of parameters
+    M = 200  # training samples (M/N=1.0 - harder regime)
+    T = 100   # max iterations (more iterations for better convergence)
+    K_adam = 50  # Adam steps per sweep (more steps for better optimization)
     
-    # Grid parameters
+    # Grid parameters - wider rho sweep to capture transition
     eta_set = np.array([0.0001, 0.0005, 0.001])
-    rho_set = np.linspace(0, 0.002, 25)
+    rho_set = np.linspace(0, 0.02, 41)
     
     # Generate data
     print(f"Generating data: N={N}, M={M}...")
@@ -78,8 +80,9 @@ def main():
             
             w_final, h_final = result['w'], result['h']
             
-            # Compute Hamming distance to ground truth (normalized)
-            Hamming = hamming_distance(h_final.astype(int), h0.astype(int)) / N
+            # Compute Hamming distance to ground truth
+            # Note: hamming_distance already returns normalized value (/N), so no need to divide again
+            Hamming = hamming_distance(h_final.astype(int), h0.astype(int))
             
             # Also track final energy
             E_final = total_energy(w_final, h_final, X, y, eta, 1.0, rho)
