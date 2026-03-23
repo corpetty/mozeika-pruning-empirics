@@ -1,0 +1,23 @@
+Empirical vs Theoretical rho_c Comparison
+==================================================
+
+From Mozeika theory: rho_c ≈ 2*sqrt(alpha * eta)
+
+eta=0.000100:
+  Empirical rho_c: 0.020000
+  Theoretical rho_c: 0.020000
+  Ratio (empirical/theory): 1.000
+  Assessment: Good match
+
+eta=0.000500:
+  Empirical rho_c: 0.020000
+  Theoretical rho_c: 0.044721
+  Ratio (empirical/theory): 0.447
+  Assessment: Discrepancy
+
+eta=0.001000:
+  Empirical rho_c: 0.020000
+  Theoretical rho_c: 0.063246
+  Ratio (empirical/theory): 0.316
+  Assessment: Discrepancy
+

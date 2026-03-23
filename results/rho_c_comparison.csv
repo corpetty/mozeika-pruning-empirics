@@ -1,0 +1,7 @@
+source,rho_c,alpha,eta
+empirical,0.020000,1.0,0.000100
+theoretical,0.020000,1.0,0.000100
+empirical,0.020000,1.0,0.000500
+theoretical,0.044721,1.0,0.000500
+empirical,0.020000,1.0,0.001000
+theoretical,0.063246,1.0,0.001000

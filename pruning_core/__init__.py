@@ -4,3 +4,4 @@ from .dynamics import Glauber, run_glauber, exhaustive_search
 from .regimes import joint_langevin, fast_pruning, fast_learning
 from .data import sample_perceptron
 from .metrics import hamming_distance, mse_w, sparsity, sparsity_ratio
+from .pruner import GlauberPruner, MultiLayerPruner
