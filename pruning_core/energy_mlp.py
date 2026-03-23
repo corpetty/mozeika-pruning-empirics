@@ -212,25 +212,46 @@ def grad_mlp_loss_w(w_list, h_list, X, y, activation='relu'):
     a = X
     for w, h in zip(w_list, h_list):
         w_masked = w * h
-        z = a @ w
+        # handle 1D perceptron (N,) and 2D MLP (N_in, N_out) uniformly
+        if w_masked.ndim == 1:
+            z = a @ w_masked.reshape(-1, 1)
+        else:
+            z = a @ w_masked
+        if z.ndim == 2 and z.shape[1] == 1:
+            z = z.squeeze(1)
         zs.append(z)
         a = phi(z)
         activations.append(a)
-    
+
     a_L = activations[-1]
-    
-    delta = (a_L - y) / M
+    if a_L.ndim == 1:
+        delta = (a_L - y.squeeze()) / M
+    else:
+        delta = (a_L - y) / M
+    if delta.ndim == 1:
+        delta = delta.reshape(-1, 1)
+
     grad_list = []
-    
+
     for l in range(len(w_list) - 1, -1, -1):
-        grad_w = activations[l].T @ delta
-        grad_w = grad_w * h_list[l]
-        grad_list.insert(0, grad_w)
-        
+        a_l = activations[l]
+        if a_l.ndim == 1:
+            a_l = a_l.reshape(-1, 1)
+        grad_w = a_l.T @ delta          # shape matches w_list[l]
+        grad_w = grad_w * h_list[l].reshape(grad_w.shape)
+        # restore original shape if 1D
+        grad_list.insert(0, grad_w.reshape(w_list[l].shape))
+
         if l > 0:
-            delta = (delta @ w_list[l].T) * phi_grad(zs[l - 1])
-            delta = delta * h_list[l - 1]
-    
+            w_l = w_list[l]
+            if w_l.ndim == 1:
+                w_l = w_l.reshape(-1, 1)
+            z_prev = zs[l - 1]
+            if z_prev.ndim == 1:
+                z_prev = z_prev.reshape(-1, 1)
+            delta = (delta @ w_l.T) * phi_grad(z_prev)
+            delta = delta * h_list[l - 1].reshape(delta.shape)
+
     return grad_list
 
 
