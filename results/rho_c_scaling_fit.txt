@@ -1,0 +1,30 @@
+Experiment 18: rho_c Scaling Law Fit
+==================================================
+
+Model: rho_c ~ C × N^a × (M/N)^b × sigma^c × eta^d
+
+Fitted parameters:
+  C       = 0.042516
+  a (N)   = -0.649
+  b (M/N) = -0.832
+  c (σ)   = 0.365
+  d (η)   = 0.235
+
+R² = 0.6440
+Valid data points: 121 / 144
+
+Theory comparison (Mozeika: rho_c ≈ 2√(α·η)):
+  η exponent:   0.235  (theory: 0.5)
+  N exponent:   -0.649  (theory: 0.0)
+  σ exponent:   0.365  (theory: 0.0)
+  M/N exponent: -0.832  (theory: 0.0)
+
+Interpretation:
+  Parameters ranked by importance (|exponent|):
+    M/N: -0.832 (STRONG)
+    N: -0.649 (STRONG)
+    σ: +0.365 (STRONG)
+    η: +0.235 (moderate)
+
+  σ relevance: σ matters — noise affects rho_c
+  N scaling: rho_c depends on N
