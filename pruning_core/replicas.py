@@ -87,22 +87,30 @@ class MultiReplicaGlauber:
             
             # For each layer
             for l in range(n_layers):
-                in_dim, out_dim = h[l].shape
-                N = in_dim * out_dim
-                
+                h_l = h[l]
+                is_1d = h_l.ndim == 1
+                N = h_l.size
+                out_dim = 1 if is_1d else h_l.shape[1]
+
                 # Coordinate updates with random order
                 order = rng.permutation(N)
-                
+
                 for idx in order:
-                    row = idx // out_dim
-                    col = idx % out_dim
-                    
+                    if is_1d:
+                        row, col = idx, 0
+                    else:
+                        row = idx // out_dim
+                        col = idx % out_dim
+
                     # Collect all current weights for this layer
                     w_current = [w[l].copy() for w in w_chains]
-                    
+
                     # Propose flipping bit j
                     h_try = h[l].copy()
-                    h_try[row, col] = 1 - h_try[row, col]
+                    if is_1d:
+                        h_try[row] = 1 - h_try[row]
+                    else:
+                        h_try[row, col] = 1 - h_try[row, col]
                     h_try_list = h.copy()
                     h_try_list[l] = h_try
                     
@@ -196,22 +204,34 @@ class MultiReplicaGlauber:
                 a = z
             a_list.append(a.copy())
         
-        # Backward
+        # Backward — keep gradients in same shape as weights
         grads = []
-        delta = (a_list[-1] - y).flatten()
-        
+        delta = (a_list[-1] - y).flatten()  # (M,)
+
         for l in range(n_layers - 1, -1, -1):
-            a_prev = a_list[l]
-            delta_2d = delta.reshape(-1, 1)
-            grad = a_prev.T @ delta_2d
-            grad = grad * h[l]
-            grads.insert(0, grad)
-            
-            if l > 0:
-                delta_prev = delta_2d @ w[l].T
-                delta_prev = delta_prev * (1 - z_list[l - 1] ** 2)
-                delta = delta_prev.ravel()
-        
+            a_prev = a_list[l]  # (M, d_in)
+            w_l = w[l]
+            h_l = h[l]
+            is_1d = w_l.ndim == 1
+
+            if is_1d:
+                # grad shape (d_in,)
+                grad = a_prev.T @ delta          # (d_in,)
+                grad = grad * h_l                # (d_in,)
+                grads.insert(0, grad)
+                if l > 0:
+                    delta = delta[:, None] @ w_l[None, :]  # (M, d_in)
+                    delta = (delta * (1 - z_list[l-1][:, None] ** 2)).sum(axis=1)
+            else:
+                delta_2d = delta.reshape(-1, 1)  # (M, 1)
+                grad = a_prev.T @ delta_2d       # (d_in, d_out)
+                grad = grad * h_l
+                grads.insert(0, grad)
+                if l > 0:
+                    delta_prev = (delta_2d @ w_l.T)  # (M, d_in)
+                    delta_prev = delta_prev * (1 - z_list[l-1] ** 2)
+                    delta = delta_prev.ravel()
+
         return grads
 
 
