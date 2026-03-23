@@ -235,7 +235,104 @@ class MultiReplicaGlauber:
         return grads
 
 
-def multi_replica_glauber_sweep(N=100, n_list=[1, 2, 5, 10], eta=0.0001, rho=0.0007, 
+# ── Standalone finite-temperature multi-replica functions ──────────────────
+
+def _energy_perceptron(w, h, X, y, eta, rho, alpha=1.0):
+    """Perceptron energy (loss + L2 reg + double-well)."""
+    pred = X @ (w * h)
+    L = 0.5 * np.mean((pred - y) ** 2)
+    reg = 0.5 * eta * np.sum(w ** 2)
+    V = alpha * np.sum(h**2 * (h - 1)**2) + 0.5 * rho * np.sum(h)
+    return L + reg + V
+
+
+def _optimize_w_adam(w, h, X, y, eta, K=30, lr=0.01):
+    """K steps of Adam on the loss w.r.t. w (h fixed). beta2=0.99."""
+    w = w.copy()
+    m = np.zeros_like(w)
+    v = np.zeros_like(w)
+    for k in range(1, K + 1):
+        pred = X @ (w * h)
+        grad = X.T @ ((pred - y) / len(y)) * h + eta * w
+        m = 0.9 * m + 0.1 * grad
+        v = 0.99 * v + 0.01 * grad ** 2
+        m_hat = m / (1 - 0.9 ** k)
+        v_hat = v / (1 - 0.99 ** k)
+        w -= lr * m_hat / (np.sqrt(v_hat) + 1e-8)
+    return w
+
+
+def _ensemble_energy(w_chains, h, X, y, eta, rho, alpha=1.0):
+    """Average energy over replicas."""
+    return np.mean([_energy_perceptron(w, h, X, y, eta, rho, alpha)
+                     for w in w_chains])
+
+
+def multi_replica_glauber_finite_temp(X, y, h0_true, eta, rho, alpha,
+                                       n_replicas, T, T_h, seed):
+    """
+    Multi-replica Glauber dynamics with finite-temperature acceptance.
+
+    n weight chains share one mask h. At each coordinate flip proposal,
+    each chain re-optimizes weights, then accept with probability
+    min(1, exp(-ΔE_ensemble / T_h)).
+
+    Args:
+        X: inputs (M, N)
+        y: targets (M,)
+        h0_true: true mask for Hamming distance evaluation
+        eta: L2 regularization
+        rho: sparsity pressure
+        alpha: double-well barrier
+        n_replicas: number of independent weight chains
+        T: number of Glauber sweeps
+        T_h: temperature for mask flips (T_h→0 = greedy)
+        seed: random seed
+
+    Returns:
+        hamming distance to true mask
+    """
+    from .metrics import hamming_distance
+
+    N = X.shape[1]
+    rng = np.random.default_rng(seed)
+
+    h = np.ones(N, dtype=float)
+    w_chains = [rng.normal(0, 0.1, N) for _ in range(n_replicas)]
+
+    # Initial weight optimization for each replica
+    w_chains = [_optimize_w_adam(w, h, X, y, eta, K=50) for w in w_chains]
+
+    for t in range(T):
+        order = rng.permutation(N)
+        for j in order:
+            h_try = h.copy()
+            h_try[j] = 1.0 - h_try[j]
+
+            w_try_chains = [_optimize_w_adam(w, h_try, X, y, eta, K=15)
+                            for w in w_chains]
+
+            E_curr = _ensemble_energy(w_chains, h, X, y, eta, rho, alpha)
+            E_try = _ensemble_energy(w_try_chains, h_try, X, y, eta, rho, alpha)
+
+            delta = E_try - E_curr
+            if delta < 0:
+                accept = True
+            else:
+                accept = rng.random() < np.exp(-delta / T_h)
+
+            if accept:
+                h = h_try
+                w_chains = w_try_chains
+
+        # Full re-optimization after each sweep
+        w_chains = [_optimize_w_adam(w, h, X, y, eta, K=30)
+                     for w in w_chains]
+
+    return hamming_distance(h, h0_true)
+
+
+def multi_replica_glauber_sweep(N=100, n_list=[1, 2, 5, 10], eta=0.0001, rho=0.0007,
                                   alpha=1.0, T=50, n_seeds=5):
     """
     Run multi-replica sweep at fixed (eta, rho).

@@ -136,6 +136,84 @@ def run_glauber(w_init, h_init, X, y, eta, rho, alpha, T=100, rng=None):
     }
 
 
+def run_glauber_finite_temp(w_init, h_init, X, y, eta, rho, alpha, T=100, T_h=0.01, rng=None):
+    """
+    Run Glauber dynamics with finite-temperature (Metropolis) acceptance.
+
+    Same as run_glauber but accept flip with probability min(1, exp(-ΔE/T_h))
+    instead of greedy accept. At T_h→0, recovers zero-temp (greedy) behavior.
+
+    Args:
+        w_init: initial weights
+        h_init: initial mask (all ones typically)
+        X: inputs (M, N)
+        y: targets (M,)
+        eta: L2 regularization
+        rho: sparsity pressure
+        alpha: double-well barrier
+        T: maximum iterations (default: 100)
+        T_h: temperature for mask flips (default: 0.01)
+        rng: random number generator (optional)
+
+    Returns:
+        dict with w, h, losses, history, iterations
+    """
+    if rng is None:
+        rng = np.random.default_rng()
+
+    w = w_init.copy()
+    h = h_init.copy().astype(float)
+    N = len(h)
+
+    # Initial optimization with full mask
+    w = optimize_w(w, h, X, y, eta, K=100, lr=1e-2)
+
+    losses = []
+    history = {
+        'w': [w.copy()],
+        'h': [h.copy()],
+        'flips': []
+    }
+
+    for it in range(T):
+        flips = 0
+        order = rng.permutation(N)
+
+        for j in order:
+            h_try = h.copy()
+            h_try[j] = 1 - h_try[j]
+
+            w_try = optimize_w(w, h_try, X, y, eta, K=20, lr=1e-2)
+
+            E_current = total_energy(w, h, X, y, eta, alpha, rho)
+            E_try = total_energy(w_try, h_try, X, y, eta, alpha, rho)
+
+            delta = E_try - E_current
+            if delta < 0:
+                accept = True
+            else:
+                accept = rng.random() < np.exp(-delta / T_h)
+
+            if accept:
+                h = h_try
+                w = w_try
+                flips += 1
+
+        E_current = total_energy(w, h, X, y, eta, alpha, rho)
+        losses.append(E_current)
+        history['w'].append(w.copy())
+        history['h'].append(h.copy())
+        history['flips'].append(flips)
+
+    return {
+        'w': w,
+        'h': h,
+        'losses': losses,
+        'history': history,
+        'iterations': T
+    }
+
+
 def exhaustive_search(X, y, eta, rho, alpha, N, K_adam=50):
     """
     Enumerate all 2^N binary masks and find the best.
