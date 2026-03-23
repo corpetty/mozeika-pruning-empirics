@@ -53,7 +53,7 @@ def mlp_forward(w_list, h_list, X, activation='relu'):
         # Apply mask to weights
         w_masked = w * h
         # Linear transformation
-        z = a @ w  # (M, out_features)
+        z = a @ w_masked  # (M, out_features)
         # Activation
         a = phi(z)
         activations.append(a)
