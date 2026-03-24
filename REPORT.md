@@ -1,5 +1,5 @@
 # Pruning Research — Full Status Report
-*Generated 2026-03-23, HEAD 311b92f*
+*Updated 2026-03-24, HEAD ae510fb*
 
 ---
 
@@ -8,8 +8,8 @@
 A complete Python implementation of the Mozeika & Pizzoferrato (2026) statistical mechanics pruning framework, tested empirically against theoretical predictions and extended to the multi-replica (Rényi) regime.
 
 **Repository:** `/home/petty/pruning-research`  
-**Tests:** 23/23 passing  
-**Stages:** 1–6 complete + Experiment 16
+**Tests:** 23/23 passing
+**Stages:** 1–6 complete + Experiments 16–25
 
 ---
 
@@ -145,20 +145,167 @@ From Corey's NN experiment (exhaustive enumeration): eta=0.01, rho=0.004 achieve
 
 ---
 
+### Experiment 20 — MLP Phase Transition + UWSH Jaccard
+Architecture: [N=10 → H=5 (tanh) → 1 (linear)], 55 total mask entries.
+Three regimes: overdetermined (M=60), critical (M=10), underdetermined (M=5).
+4 seeds, 13 rho values from 0 to 0.01.
+
+**Result (mlp_phase_transition.csv):** The sharp phase transition **does not generalize** to MLPs. Hamming stays ~0.43–0.50 across all rho values in all three regimes. The active count decreases monotonically with rho (38→0) but the mask never converges to the ground truth. This is consistent with the non-convex loss landscape: the MLP has multiple local optima, and the Glauber dynamics get trapped in masks that are wrong but locally optimal.
+
+**UWSH Jaccard test (mlp_jaccard.csv):** In the underdetermined regime (M=5), Jaccard similarity *decreases* with rho (0.505 → 0.149), meaning independent runs diverge more at higher sparsity pressure. UWSH is **not supported** for this MLP — there is no universal sparse support that different runs converge to.
+
+---
+
+### Experiment 21 — Mozeika vs Baselines (Magnitude, L1, Random)
+Architecture: 64 → 32 (ReLU) → 1. M=512 (80/20 train/test), sigma=0.05, 8 seeds.
+Target sparsities: [0%, 25%, 50%, 65%, 75%, 85%, 90%].
+
+**Result (baseline_comparison.csv):**
+
+```
+Sparsity     Mozeika   Magnitude  Mag+Retrain       L1     Random
+    0%      0.212       0.212       0.212       0.212      0.212
+   25%      0.192       0.215       0.216       0.205      0.367
+   50%      0.245       0.231       0.231       0.227      0.546
+   65%      0.277       0.397       0.265       0.222      0.718
+   75%      0.305       0.738       0.318       0.224      0.719
+   85%      0.323       0.878       0.726       0.375      0.827
+   90%      0.334       0.891       0.811       0.446      0.824
+```
+
+**Key finding:** Mozeika shows remarkable high-sparsity stability — at 90% sparsity, MSE=0.334 vs Magnitude 0.891 and Mag+Retrain 0.811 (2.4× better). The advantage emerges above 75% sparsity where magnitude-based methods collapse.
+
+**Critical caveat:** Mozeika's sparsity control is poor. Actual achieved sparsity:
+- Target 25% → actual 15% (undershoots badly)
+- Target 50% → actual 59% (overshoots)
+- Target 90% → actual 90% (OK at extreme values)
+
+The rho-grid scan picks the closest match from a geometric grid, but the mapping from rho→sparsity is highly non-linear and seed-dependent. This makes the comparison unfair — at "75% target", Mozeika is actually at 78% while Mag+Retrain is at exactly 75%. **Exp 25 fixes this with iterative rho adjustment.**
+
+L1 is competitive up to 75% (0.224 MSE) and only degrades at 85–90%. It is the strongest baseline at moderate sparsity.
+
+---
+
+### Experiment 22 — CNN/LeNet-300-100 on MNIST
+Architecture: 784 → 300 (ReLU) → 100 (ReLU) → 10 (softmax/CE). ~266K params.
+Dense baseline: 97.57% accuracy.
+
+**Mozeika approach:** Energy-score pruning (fast-learning, T→0 limit): importance_j = |∂L/∂w_j · w_j|, prune if score < ρ/2, binary search on ρ per layer.
+
+**Result (cnn_mnist_mozeika.csv, cnn_mnist_magnitude.csv):**
+
+```
+               Magnitude (after FT)    Mozeika (after FT)
+  0% sparsity:     97.57%                97.57%
+ 25%:              98.04%                97.86%
+ 40%:              98.11%                98.06%
+ 50%:              98.24%                98.05%
+ 60%:              98.14%                98.00%
+ 70%:              98.24%                97.57%
+ 80%:              98.03%                95.65%
+```
+
+**Interpretation:** On MNIST/LeNet, magnitude pruning slightly outperforms Mozeika energy-score pruning, especially at high sparsity (98.0% vs 95.7% at 80%). Magnitude pruning distributes sparsity non-uniformly across layers (82% in layer 1 but only 35% in layer 3), which is more efficient for this architecture. Mozeika applies uniform sparsity per layer, which hurts the smaller output layer.
+
+The phase transition concept **does not transfer** to real architectures — there is no sharp transition, just gradual accuracy degradation. The Mozeika energy score reduces to a sensitivity metric (related to SNIP) that is already known in the pruning literature.
+
+---
+
+### Experiment 23 — Low-Temperature Rényi Window
+N=60, M=180, sigma=0.01. T_h in [0, 1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4, 1e-3]. n in [1, 2, 4, 8]. 12 rho values, 6 seeds.
+
+**Result (low_temp_renyi.csv):** At the MAP baseline (T_h=0), Hamming=0.019 at rho≈4.5e-5 — near-perfect mask recovery. At T_h=1e-6 to 3e-6, results are indistinguishable from MAP. At T_h≥3e-5, the transition blurs and mask recovery degrades (Hamming 0.05–0.22 at the same rho). At T_h≥1e-4, mask recovery effectively breaks (Hamming 0.12–0.29).
+
+**Rényi sharpening:** No improvement from higher n at any temperature. At T_h=1e-6, n=1/2/4/8 all give Hamming≈0.019 at the transition. The predicted sharpening effect does not manifest.
+
+**Conclusion:** The Rényi window does not exist for these parameters. Finite temperature always hurts or is neutral. The MAP (greedy) algorithm is optimal. This closes the finite-temperature direction.
+
+---
+
+### Experiment 24 — rho_c Prediction Accuracy
+50 random parameter combinations, 6 seeds each. Two predictors tested:
+- Mozeika formula: ρ_c = 2√(αη)
+- Empirical fit: ρ_c = 0.043 · N^(-0.65) · (M/N)^(-0.83) · σ^0.37 · η^0.24
+
+**Result (rho_c_prediction.csv):** The Mozeika formula is wildly inaccurate (errors of 100–20,000×). It predicts ρ_c in the 0.01–0.04 range while true values are typically O(10^-5 to 10^-6). The formula ignores N, M/N, and σ dependence entirely.
+
+The empirical fit is much better but still inconsistent — within-2× accuracy for ~40–50% of cases, with failures at large N and high M/N ratios. 9 of 50 combos returned NaN (transition not found), all with α_ratio=1.0 or large σ, where the signal is too weak for the Glauber dynamics to recover the mask at all.
+
+**Practical implication:** There is no reliable closed-form predictor for ρ_c. Any real application would need a calibration sweep, which defeats the purpose of having the theory.
+
+---
+
+### Experiment 25 — Definitive Baseline Comparison (Fixed Sparsity Control)
+Same architecture as Exp 21 (64→32 ReLU→1), M=512, sigma=0.05, 8 seeds.
+FIX: iterative rho adjustment — after each Glauber run, measure actual sparsity,
+binary search on rho until within ±2% of target. Up to 8 iterations per target.
+
+**Sparsity control quality:** 5 of 6 targets within ±2% (max error 2.7% at 25%).
+Much improved from Exp 21's ±10% errors.
+
+**Result (baseline_comparison_fixed.csv):**
+
+```
+Sparsity     Mozeika   Magnitude  Mag+Retrain       L1     Random
+    0%      0.212       0.212       0.212       0.212      0.212
+   25%      0.187       0.215       0.216       0.205      0.367
+   50%      0.234       0.231       0.232       0.227      0.546
+   65%      0.260       0.397       0.265       0.222      0.718
+   75%      0.318       0.738       0.318       0.224      0.719
+   85%      0.328       0.878       0.726       0.375      0.827
+   90%      0.354       0.891       0.811       0.446      0.824
+```
+
+**Head-to-head vs Mag+Retrain (at matched sparsity):**
+- 25%: Mozeika=0.187 vs MR=0.216 → **MOZEIKA** (ratio=0.87)
+- 50%: Mozeika=0.234 vs MR=0.232 → TIE (ratio=1.01)
+- 65%: Mozeika=0.260 vs MR=0.265 → TIE (ratio=0.98)
+- 75%: Mozeika=0.318 vs MR=0.318 → TIE (ratio=1.00)
+- 85%: **Mozeika=0.328 vs MR=0.726** → **MOZEIKA** (ratio=0.45, 2.2× better)
+- 90%: **Mozeika=0.354 vs MR=0.811** → **MOZEIKA** (ratio=0.44, 2.3× better)
+
+**Score:** Mozeika wins 3, Mag+Retrain wins 0, Ties 3.
+
+**VERDICT: POSITIVE.** The high-sparsity advantage is real and survives proper sparsity matching. At 85–90% sparsity, Mozeika degrades gracefully (MSE ~0.33–0.35) while Mag+Retrain collapses (MSE ~0.73–0.81). The rho energy penalty produces qualitatively different masks.
+
+**However:** L1 regularization beats Mozeika at 65–75% (0.222 vs 0.260–0.318), and Mozeika only wins vs L1 at 85–90% where L1 also degrades. The advantage is specifically in the extreme sparsity regime (>80%) where all other methods collapse.
+
+---
+
+## Updated Key Scientific Findings
+
+### Confirmed (positive)
+1. **Phase transition in linear perceptrons** — sharp Hamming drop at ρ_c, reproducible across N, M/N, σ regimes.
+2. **Mozeika high-sparsity stability** — the rho energy penalty produces masks that degrade gracefully at 85–90% sparsity where magnitude pruning collapses (Exp 21). Needs confirmation with matched sparsity (Exp 25).
+3. **Implicit regularization from pruning** — optimal (η, ρ) sweet spot exists where pruning improves generalization (Corey's exhaustive enumeration).
+
+### Confirmed (negative)
+4. **Phase transition does NOT generalize to MLPs** — non-convex loss landscape traps Glauber in wrong-but-locally-optimal masks (Exp 20).
+5. **Phase transition does NOT generalize to CNNs/real architectures** — no sharp transition on MNIST/LeNet, just gradual degradation (Exp 22).
+6. **Rényi sharpening does NOT exist** — neither multi-replica (Exp 16) nor finite-temperature (Exp 23) improves over MAP.
+7. **rho_c formula is not predictive** — Mozeika formula off by 100–20,000×, empirical fit unreliable (Exp 24).
+8. **UWSH not supported** — Jaccard similarity decreases with ρ in MLPs; no universal sparse subspace (Exp 20).
+
+### Confirmed (positive, Exp 25)
+9. **Mozeika's high-sparsity advantage is real.** At 85–90% sparsity with matched control (±2%), Mozeika MSE=0.33–0.35 vs Mag+Retrain MSE=0.73–0.81 (2.2–2.3× better). The rho energy penalty produces masks that degrade gracefully where magnitude-based methods collapse. The advantage is specific to extreme sparsity (>80%).
+
+---
+
 ## Open Questions / Next Steps
 
-**High priority (theory):**
-- Run finite-temperature Rényi sweep: vary T_h/T_w rather than n, look for sharpening
-- Validate rho_c formula across different N, M/N ratios to pin down the correct scaling
-- UWSH connection: compute principal angles between pruned weight subspaces — does pruning near rho_c carve the universal subspace?
+**Immediate (Exp 25):**
+- Fix sparsity control in Mozeika baseline comparison: iterative rho adjustment until within ±2% of target
+- If Mozeika still beats Mag+Retrain at matched sparsity above 75%: the rho energy penalty has practical value as a pruning objective
+- If not: the framework has no practical advantage over existing methods
 
-**Medium priority (practical):**
-- Extend to real PyTorch model (small transformer or ResNet layer)
-- Compare against magnitude pruning baseline: does the Mozeika approach find better sparse solutions?
+**Conditional on Exp 25 positive:**
+- Pivot to "rho as a pruning objective" framing
+- Test on GPT-2 attention heads: can the Mozeika energy identify which heads to prune?
+- Write up as "energy-based pruning" paper, not "phase transition" paper
 
-**Speculative (high reward):**
-- The replica parameter n = β_h/β_w is the Rényi entropy order — n=1 is standard Bayesian, n→∞ is minimax. No one has written this connection explicitly in the pruning literature.
-- Mozeika's Langevin energy may *explain* why UWSH emerges: if all models are pruned toward similar sparse supports by the same statistical mechanics, the surviving weights live in a shared low-dim subspace.
+**Conditional on Exp 25 negative:**
+- Write negative result paper: phase transition is real but limited to linear perceptrons
+- Stop further development
 
 ---
 
@@ -191,6 +338,12 @@ experiments/
   14_replica_comparison.py    — multi-replica (single rho, broken — superseded)
   15_rho_c_comparison.py      — empirical vs theoretical rho_c
   16_replica_rho_sweep.py     — (n, rho) grid sweep (final, correct)
+  20_mlp_uwsh.py              — MLP phase transition + UWSH Jaccard support overlap
+  21_baseline_comparison.py   — Mozeika vs magnitude/L1/random (sparsity control broken)
+  22_cnn_mnist.py             — LeNet-300-100 on MNIST, Mozeika vs magnitude
+  23_low_temp_renyi.py        — low-temp Rényi window search
+  24_rho_c_prediction.py      — rho_c prediction accuracy (Mozeika vs empirical fit)
+  25_sparsity_control_fix.py  — DEFINITIVE: Mozeika vs baselines with matched sparsity
 
 results/
   phase_diagram.csv, finite_size.csv, regime_comparison.csv
@@ -199,6 +352,13 @@ results/
   replica_comparison.csv (old, single-rho, low quality)
   replica_rho_sweep.csv (exp 16, correct, (n, rho) grid)
   rho_c_comparison.csv, rho_c_detailed.txt
+  mlp_phase_transition.csv, mlp_layerwise_transition.csv (exp 20)
+  mlp_jaccard.csv (exp 20, UWSH test)
+  baseline_comparison.csv, baseline_comparison_detail.csv (exp 21)
+  cnn_mnist_mozeika.csv, cnn_mnist_magnitude.csv (exp 22)
+  low_temp_renyi.csv (exp 23)
+  rho_c_prediction.csv (exp 24)
+  baseline_comparison_fixed.csv (exp 25, definitive)
 
 tests/
   test_energy.py, test_dynamics.py, test_data.py
@@ -210,6 +370,11 @@ tests/
 
 ## Git Log
 ```
+ae510fb Exp 21: Mozeika vs magnitude/L1/random baseline comparison
+0ea54fb Exp 23+24: low-temp Rényi window + rho_c prediction accuracy
+e63648d Exp 20: MLP phase transition + UWSH Jaccard support overlap
+995084c Exp 22: CNN/LeNet on MNIST — real architecture test
+61c5f44 Exp 17: finite-temperature Rényi sweep
 311b92f Exp 16: replica rho sweep — fix sigma=0.01, 1D mask handling, results saved
 81b693b Stage 5-6 complete: replica knob, rho_c comparison, GlauberPruner API — 23/23 tests
 cad055d Fix grad_mlp_loss_w: use w_masked in forward pass, handle 1D/2D shapes correctly
