@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mozeika Pruning — Experimental Results</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    padding: 32px;
+    line-height: 1.6;
+  }
+  h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; color: #f8fafc; }
+  h2 { font-size: 1.1rem; font-weight: 600; color: #94a3b8; margin-bottom: 4px; }
+  .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 40px; }
+  .section { margin-bottom: 56px; }
+  .section-header { margin-bottom: 20px; border-left: 3px solid #3b82f6; padding-left: 14px; }
+  .verdict {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .positive { background: #14532d; color: #86efac; }
+  .negative { background: #450a0a; color: #fca5a5; }
+  .mixed { background: #431407; color: #fdba74; }
+  .note {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 10px;
+    font-style: italic;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-1 { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  .chart-box {
+    background: #1e2333;
+    border: 1px solid #2d3748;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .chart-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 4px;
+  }
+  .chart-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 14px;
+  }
+  canvas { width: 100% !important; }
+  .key-finding {
+    background: #1a2234;
+    border: 1px solid #2d3748;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 0.83rem;
+    color: #94a3b8;
+  }
+  .key-finding strong { color: #e2e8f0; }
+  hr { border: none; border-top: 1px solid #1e2333; margin: 40px 0; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>Mozeika & Pizzoferrato Pruning Framework — Empirical Evaluation</h1>
+<div class="subtitle">25 experiments · Python implementation · Prepared for discussion with Mozeika group · 2026-03-24</div>
+
+<!-- ── 1. PERCEPTRON PHASE TRANSITION ────────────────────────────── -->
+<div class="section">
+  <div class="section-header">
+    <h2>1. Linear Perceptron Phase Transition <span class="verdict positive">✓ CONFIRMED</span></h2>
+    <div class="note">N=200, M=200, σ=0.01. Glauber MAP dynamics, 3 η values.</div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-box">
+      <div class="chart-title">Hamming Distance vs ρ (Phase Diagram)</div>
+      <div class="chart-sub">Sharp transition from random guessing (~0.47) to near-perfect recovery</div>
+      <canvas id="phaseDiagram"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Rényi Replica Sweep — n = 1, 2, 4, 8</div>
+      <div class="chart-sub">N=60, M=180, σ=0.01, T=0 (MAP). Predicted: higher n → sharper transition.</div>
+      <canvas id="replicaSweep"></canvas>
+    </div>
+  </div>
+  <div class="key-finding">
+    <strong>Phase diagram:</strong> At ρ=0 (no sparsity pressure), Hamming ≈ 0.47 (random). A sharp drop appears at ρ_c ≈ 0.0005 for η=0.0001. Formula works at small η; breaks down at larger η (rho_c formula off by 2–3× at η=0.001).<br><br>
+    <strong>Replica sweep:</strong> All four n values give identical curves. No sharpening. <em>Why:</em> We're in the MAP (T=0) limit. The Rényi effect requires finite-temperature stochastic acceptance — different n values produce different Boltzmann distributions over masks, but at T→0 all distributions collapse to the same MAP point regardless of n.
+  </div>
+</div>
+
+<!-- ── 2. FINITE TEMPERATURE ────────────────────────────────────── -->
+<div class="section">
+  <div class="section-header">
+    <h2>2. Finite-Temperature Rényi Window <span class="verdict negative">✗ NULL RESULT</span></h2>
+    <div class="note">T_h swept {1e-6 to 1e-3}. Energy signal scale ≈ σ²/N ≈ 10⁻⁵.</div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-box">
+      <div class="chart-title">Hamming vs ρ at Different Temperatures</div>
+      <div class="chart-sub">n=1. MAP (T_h=0) achieves Hamming≈0.02. Any finite temperature hurts.</div>
+      <canvas id="finiteTemp"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">rho_c Prediction: Theory vs Empirical</div>
+      <div class="chart-sub">Formula ρ_c = 2√(αη). Selected well-conditioned cases (no NaN).</div>
+      <canvas id="rhocPred"></canvas>
+    </div>
+  </div>
+  <div class="key-finding">
+    <strong>Temperature:</strong> MAP (T_h=0) is optimal. At T_h=3×10⁻⁵, recovery degrades; at T_h≥10⁻⁴ it breaks. Thermal noise O(T_h) swamps energy signal O(σ²/N)≈10⁻⁵. The Rényi window, if it exists, is not accessible with practical algorithms.<br><br>
+    <strong>rho_c formula:</strong> Works at small η. Off by 100–20,000× across general parameter regimes (ignores N, M/N, σ dependence entirely). Empirical fit R²=0.64 — not reliable enough for practical use.
+  </div>
+</div>
+
+<!-- ── 3. MLP GENERALIZATION ────────────────────────────────────── -->
+<div class="section">
+  <div class="section-header">
+    <h2>3. Multi-Layer Extension <span class="verdict negative">✗ NO TRANSITION</span></h2>
+    <div class="note">Architecture: [10 → 5 (tanh) → 1]. Three regimes: over/critical/underdetermined.</div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-box">
+      <div class="chart-title">MLP: Hamming vs ρ (3 Regimes)</div>
+      <div class="chart-sub">Compare to perceptron: sharp drop never appears. Hamming stays ~0.45–0.51.</div>
+      <canvas id="mlpTransition"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Layer Collapse: Active Fraction by Layer</div>
+      <div class="chart-sub">Last layer (layer 2) collapses to 0% active even at ρ=0.</div>
+      <canvas id="layerCollapse"></canvas>
+    </div>
+  </div>
+  <div class="key-finding">
+    <strong>No phase transition in MLPs.</strong> The non-convex loss landscape has many local minima. Glauber coordinate descent gets trapped in masks that are locally energy-optimal but globally wrong.<br><br>
+    <strong>Mean-field interpretation:</strong> The perceptron has a dense bipartite interaction graph (every weight → every output), where mean-field theory is exact. Hidden layers create a sparse, layered graph — exactly the regime where mean-field breaks down in spin-glass physics. The transition smears out for the same reason glass transitions smear in finite-dimensional models vs. the Sherrington-Kirkpatrick mean-field model.
+  </div>
+</div>
+
+<!-- ── 4. CNN / REAL ARCHITECTURE ───────────────────────────────── -->
+<div class="section">
+  <div class="section-header">
+    <h2>4. CNN / LeNet-300-100 on MNIST <span class="verdict negative">✗ NO ADVANTAGE</span></h2>
+    <div class="note">784→300→100→10, ~266K params. Dense baseline: 97.57% accuracy.</div>
+  </div>
+  <div class="grid-1">
+    <div class="chart-box">
+      <div class="chart-title">Accuracy After Fine-Tuning: Mozeika vs Magnitude Pruning</div>
+      <div class="chart-sub">Mozeika uses energy-score importance (T→0 fast-learning limit). Magnitude uses |w|.</div>
+      <canvas id="cnnMnist"></canvas>
+    </div>
+  </div>
+  <div class="key-finding">
+    <strong>Magnitude pruning wins at every sparsity level.</strong> It distributes sparsity non-uniformly across layers (82% in layer 1, 35% in layer 3), concentrating pruning where it hurts least. Mozeika applies uniform pressure per layer — a structural disadvantage.<br><br>
+    The Mozeika energy score in the T→0 limit reduces to a sensitivity metric related to SNIP (Lee et al. 2019), which is already known to be competitive with but not superior to magnitude pruning on standard benchmarks.
+  </div>
+</div>
+
+<!-- ── 5. BASELINE COMPARISON ────────────────────────────────────── -->
+<div class="section">
+  <div class="section-header">
+    <h2>5. Definitive Baseline Comparison — Matched Sparsity <span class="verdict mixed">⚠ MIXED</span></h2>
+    <div class="note">64→32 (ReLU)→1, M=512, σ=0.05, 8 seeds. Iterative ρ adjustment ±2% sparsity control.</div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-box">
+      <div class="chart-title">Test MSE vs Sparsity: All Methods</div>
+      <div class="chart-sub">Lower is better. Error bars = ±1 std (8 seeds).</div>
+      <canvas id="baseline"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Mozeika vs L1 vs Mag+Retrain (High Sparsity Focus)</div>
+      <div class="chart-sub">The interesting regime: ≥75% sparsity where methods diverge sharply.</div>
+      <canvas id="baselineZoom"></canvas>
+    </div>
+  </div>
+  <div class="key-finding">
+    <strong>High-sparsity stability is real (≥85%):</strong> Mozeika MSE=0.33–0.35 vs Mag+Retrain MSE=0.73–0.81 — a 2.2–2.3× advantage. The double-well energy penalty produces qualitatively different masks that degrade gracefully at extreme sparsity.<br><br>
+    <strong>However, L1 regularization is competitive throughout.</strong> At 65–75% sparsity, L1 beats Mozeika (0.22 vs 0.26–0.32). At 85–90%, L1 also degrades but less dramatically than magnitude pruning. Mozeika only strictly wins vs all baselines at ≥85% sparsity — and L1 achieves similar stability without the coordinate search overhead.<br><br>
+    <strong>Bottom line:</strong> The ρ energy penalty encodes something real about high-sparsity structure. The double-well potential V(h) = αh²(h-1)² + ρ/2·h may have standalone value as a differentiable mask regularizer, independent of the statistical mechanics framing.
+  </div>
+</div>
+
+<!-- ── SUMMARY TABLE ─────────────────────────────────────────────── -->
+<hr>
+<div class="section">
+  <div class="section-header">
+    <h2>Summary</h2>
+  </div>
+  <div class="chart-box">
+    <canvas id="summaryBar" style="max-height:320px"></canvas>
+  </div>
+  <div class="key-finding" style="margin-top:20px">
+    <strong>The phase transition is a mean-field result:</strong> exact for dense bipartite graphs (linear perceptrons), breaks down in sparse layered graphs (MLPs, CNNs). This is the same physics as the Sherrington-Kirkpatrick → Edwards-Anderson transition in spin glasses. The natural extension is belief propagation on the factor graph (Mézard & Montanari, 2009), not Glauber mean-field. The double-well energy penalty is separately interesting as a practical pruning regularizer in the extreme-sparsity regime.
+  </div>
+</div>
+
+<script>
+const COLORS = {
+  blue:   '#3b82f6',
+  red:    '#ef4444',
+  green:  '#22c55e',
+  orange: '#f97316',
+  purple: '#a855f7',
+  teal:   '#14b8a6',
+  gray:   '#64748b',
+  yellow: '#eab308',
+};
+
+const CHART_DEFAULTS = {
+  responsive: true,
+  animation: { duration: 400 },
+  plugins: {
+    legend: {
+      labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 14, padding: 12 }
+    },
+    tooltip: {
+      backgroundColor: '#1e2333',
+      borderColor: '#2d3748',
+      borderWidth: 1,
+      titleColor: '#e2e8f0',
+      bodyColor: '#94a3b8',
+    }
+  },
+  scales: {
+    x: {
+      ticks: { color: '#64748b', font: { size: 10 } },
+      grid: { color: '#1e2333' },
+    },
+    y: {
+      ticks: { color: '#64748b', font: { size: 10 } },
+      grid: { color: '#1e2333' },
+    }
+  }
+};
+
+function mkChart(id, config) {
+  const ctx = document.getElementById(id).getContext('2d');
+  return new Chart(ctx, {
+    ...config,
+    options: {
+      ...CHART_DEFAULTS,
+      ...(config.options || {}),
+      plugins: { ...CHART_DEFAULTS.plugins, ...(config.options?.plugins || {}) },
+      scales: { ...CHART_DEFAULTS.scales, ...(config.options?.scales || {}) }
+    }
+  });
+}
+
+// ── 1a. PHASE DIAGRAM ────────────────────────────────────────────────────
+const phaseDiagramData = {
+  eta0001: {
+    rho: [0.0, 0.0005, 0.001, 0.0015, 0.002, 0.0025, 0.003, 0.0035, 0.004, 0.0045, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01],
+    hamming: [0.47, 0.19, 0.235, 0.295, 0.315, 0.33, 0.335, 0.375, 0.37, 0.37, 0.405, 0.41, 0.425, 0.42, 0.46, 0.455]
+  },
+  eta0005: {
+    rho: [0.0, 0.0005, 0.001, 0.0015, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01],
+    hamming: [0.48, 0.455, 0.465, 0.485, 0.475, 0.48, 0.415, 0.36, 0.35, 0.335, 0.34, 0.355, 0.35]
+  },
+  eta001: {
+    rho: [0.0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01],
+    hamming: [0.465, 0.465, 0.44, 0.45, 0.465, 0.455, 0.475, 0.44, 0.45, 0.43, 0.46]
+  }
+};
+
+mkChart('phaseDiagram', {
+  type: 'line',
+  data: {
+    datasets: [
+      {
+        label: 'η=0.0001 (sharp transition)',
+        data: phaseDiagramData.eta0001.rho.map((r,i) => ({x: r, y: phaseDiagramData.eta0001.hamming[i]})),
+        borderColor: COLORS.blue, backgroundColor: COLORS.blue+'33',
+        pointRadius: 3, tension: 0.3, borderWidth: 2,
+      },
+      {
+        label: 'η=0.0005',
+        data: phaseDiagramData.eta0005.rho.map((r,i) => ({x: r, y: phaseDiagramData.eta0005.hamming[i]})),
+        borderColor: COLORS.orange, backgroundColor: COLORS.orange+'33',
+        pointRadius: 3, tension: 0.3, borderWidth: 2,
+      },
+      {
+        label: 'η=0.001 (no transition)',
+        data: phaseDiagramData.eta001.rho.map((r,i) => ({x: r, y: phaseDiagramData.eta001.hamming[i]})),
+        borderColor: COLORS.red, backgroundColor: COLORS.red+'33',
+        pointRadius: 3, tension: 0.3, borderWidth: 2,
+      },
+      {
+        label: 'Random baseline (0.47)',
+        data: [{x:0, y:0.47},{x:0.01, y:0.47}],
+        borderColor: COLORS.gray, borderDash: [4,4], borderWidth: 1.5,
+        pointRadius: 0, fill: false,
+      }
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, type: 'linear', title: { display: true, text: 'ρ (sparsity penalty)', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 0.6, title: { display: true, text: 'Hamming Distance', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 1b. REPLICA SWEEP ────────────────────────────────────────────────────
+const replicaRho = [0, 0.000158, 0.000316, 0.000474, 0.000632, 0.000789, 0.000947, 0.001105, 0.001263, 0.001421, 0.001579, 0.001737, 0.001895, 0.002053, 0.002211, 0.002368, 0.002526, 0.002684, 0.002842, 0.003];
+const replicaData = {
+  1: [0.468, 0.460, 0.468, 0.483, 0.478, 0.468, 0.473, 0.458, 0.483, 0.467, 0.483, 0.495, 0.468, 0.478, 0.465, 0.487, 0.455, 0.478, 0.453, 0.477],
+  2: [0.462, 0.473, 0.475, 0.482, 0.453, 0.460, 0.480, 0.468, 0.468, 0.462, 0.473, 0.487, 0.475, 0.470, 0.468, 0.462, 0.468, 0.475, 0.478, 0.465],
+  4: [0.472, 0.467, 0.468, 0.463, 0.462, 0.465, 0.468, 0.455, 0.467, 0.467, 0.473, 0.485, 0.470, 0.472, 0.462, 0.472, 0.463, 0.480, 0.465, 0.468],
+  8: [0.468, 0.468, 0.467, 0.460, 0.467, 0.465, 0.470, 0.462, 0.468, 0.462, 0.468, 0.480, 0.475, 0.470, 0.468, 0.462, 0.468, 0.472, 0.463, 0.468],
+};
+
+mkChart('replicaSweep', {
+  type: 'line',
+  data: {
+    datasets: [
+      { label: 'n=1', data: replicaRho.map((r,i) => ({x:r, y:replicaData[1][i]})), borderColor: COLORS.blue, pointRadius: 2, tension: 0.3, borderWidth: 2 },
+      { label: 'n=2', data: replicaRho.map((r,i) => ({x:r, y:replicaData[2][i]})), borderColor: COLORS.green, pointRadius: 2, tension: 0.3, borderWidth: 2 },
+      { label: 'n=4', data: replicaRho.map((r,i) => ({x:r, y:replicaData[4][i]})), borderColor: COLORS.orange, pointRadius: 2, tension: 0.3, borderWidth: 2 },
+      { label: 'n=8', data: replicaRho.map((r,i) => ({x:r, y:replicaData[8][i]})), borderColor: COLORS.red, pointRadius: 2, tension: 0.3, borderWidth: 2 },
+      { label: 'Predicted: higher n → lower threshold', data: [{x:0, y:0.47},{x:0.003, y:0.47}], borderColor: COLORS.gray, borderDash: [4,4], borderWidth: 1.5, pointRadius: 0 }
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, type: 'linear', title: { display: true, text: 'ρ', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 0.3, max: 0.6, title: { display: true, text: 'Hamming Distance', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 2a. FINITE TEMPERATURE ───────────────────────────────────────────────
+const ftRho = [0, 0.000133, 0.000267, 0.0004, 0.000533, 0.000667, 0.0008, 0.000933, 0.001067, 0.0012, 0.001333, 0.001467, 0.0016, 0.001733, 0.001867, 0.002];
+const ftData = {
+  'MAP (T=0)': [0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019, 0.019],
+  '1e-3': [0.546, 0.454, 0.396, 0.35, 0.296, 0.34, 0.335, 0.327, 0.302, 0.335, 0.310, 0.321, 0.327, 0.319, 0.358, 0.321],
+  '1e-4': [0.46, 0.42, 0.39, 0.35, 0.33, 0.32, 0.31, 0.30, 0.29, 0.28, 0.27, 0.27, 0.27, 0.26, 0.26, 0.26],
+  '3e-5': [0.215, 0.195, 0.18, 0.16, 0.155, 0.15, 0.145, 0.14, 0.135, 0.133, 0.13, 0.128, 0.125, 0.123, 0.12, 0.118],
+  '1e-5': [0.045, 0.042, 0.04, 0.038, 0.036, 0.035, 0.034, 0.033, 0.032, 0.031, 0.030, 0.030, 0.029, 0.029, 0.028, 0.028],
+};
+
+mkChart('finiteTemp', {
+  type: 'line',
+  data: {
+    datasets: [
+      { label: 'MAP (T_h=0)', data: ftRho.map((r,i)=>({x:r,y:ftData['MAP (T=0)'][i]})), borderColor: COLORS.green, pointRadius: 0, borderWidth: 2.5, borderDash: [6,3] },
+      { label: 'T_h=1e-5', data: ftRho.map((r,i)=>({x:r,y:ftData['1e-5'][i]})), borderColor: COLORS.blue, pointRadius: 0, borderWidth: 2, tension: 0.3 },
+      { label: 'T_h=3e-5', data: ftRho.map((r,i)=>({x:r,y:ftData['3e-5'][i]})), borderColor: COLORS.teal, pointRadius: 0, borderWidth: 2, tension: 0.3 },
+      { label: 'T_h=1e-4', data: ftRho.map((r,i)=>({x:r,y:ftData['1e-4'][i]})), borderColor: COLORS.orange, pointRadius: 0, borderWidth: 2, tension: 0.3 },
+      { label: 'T_h=1e-3 (breaks)', data: ftRho.map((r,i)=>({x:r,y:ftData['1e-3'][i]})), borderColor: COLORS.red, pointRadius: 0, borderWidth: 2, tension: 0.3 },
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, type: 'linear', title: { display: true, text: 'ρ', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 0.65, title: { display: true, text: 'Hamming Distance', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 2b. rho_c PREDICTION ─────────────────────────────────────────────────
+const rhocTrue = [1.27e-5, 8.14e-6, 5.65e-6, 2.24e-5, 1.87e-5, 5.46e-6, 2.79e-5, 9.76e-7, 1.76e-5, 1.96e-5, 8.37e-6, 7.64e-6, 1.27e-5, 2.92e-5];
+const rhocMozeika = [0.02, 0.0447, 0.0447, 0.0447, 0.0447, 0.0141, 0.0141, 0.02, 0.02, 0.0447, 0.0141, 0.0141, 0.0447, 0.02];
+
+mkChart('rhocPred', {
+  type: 'scatter',
+  data: {
+    datasets: [
+      {
+        label: 'Mozeika formula ρ_c = 2√(αη)',
+        data: rhocTrue.map((t,i) => ({x: Math.log10(t), y: Math.log10(rhocMozeika[i])})),
+        backgroundColor: COLORS.red+'99', pointRadius: 6,
+      },
+      {
+        label: 'Perfect prediction (y=x)',
+        data: [{x:-7, y:-7},{x:-3, y:-3}],
+        type: 'line', borderColor: COLORS.green, borderDash: [5,3], borderWidth: 1.5, pointRadius: 0
+      }
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, type: 'linear', title: { display: true, text: 'log₁₀(ρ_c empirical)', color: '#64748b', font: { size: 10 } }, min: -7, max: -3 },
+      y: { ...CHART_DEFAULTS.scales.y, title: { display: true, text: 'log₁₀(ρ_c predicted)', color: '#64748b', font: { size: 10 } }, min: -7, max: -1 }
+    }
+  }
+});
+
+// ── 3a. MLP TRANSITION ───────────────────────────────────────────────────
+const mlpRho = [0, 1e-6, 2.31e-6, 5.34e-6, 1.23e-5, 2.85e-5, 6.58e-5, 1.52e-4, 3.52e-4, 8.13e-4, 1.88e-3, 4.34e-3, 0.01];
+const mlpHamming = {
+  overdetermined: [0.459, 0.436, 0.432, 0.441, 0.423, 0.405, 0.400, 0.427, 0.450, 0.468, 0.477, 0.490, 0.500],
+  critical: [0.455, 0.450, 0.446, 0.450, 0.459, 0.455, 0.468, 0.473, 0.477, 0.485, 0.491, 0.495, 0.500],
+  underdetermined: [0.459, 0.455, 0.450, 0.455, 0.463, 0.468, 0.477, 0.482, 0.486, 0.491, 0.495, 0.498, 0.500],
+};
+
+// Reference: what the perceptron looks like (scaled)
+const percRho = [0, 0.00005, 0.0001, 0.0002, 0.0005, 0.001];
+const percHamming = [0.47, 0.47, 0.02, 0.04, 0.2, 0.3];
+
+mkChart('mlpTransition', {
+  type: 'line',
+  data: {
+    datasets: [
+      { label: 'MLP: overdetermined (M=60)', data: mlpRho.map((r,i)=>({x:Math.log10(r+1e-7),y:mlpHamming.overdetermined[i]})), borderColor: COLORS.red, pointRadius: 3, tension: 0.3, borderWidth: 2 },
+      { label: 'MLP: critical (M=10)', data: mlpRho.map((r,i)=>({x:Math.log10(r+1e-7),y:mlpHamming.critical[i]})), borderColor: COLORS.orange, pointRadius: 3, tension: 0.3, borderWidth: 2 },
+      { label: 'MLP: underdetermined (M=5)', data: mlpRho.map((r,i)=>({x:Math.log10(r+1e-7),y:mlpHamming.underdetermined[i]})), borderColor: COLORS.yellow, pointRadius: 3, tension: 0.3, borderWidth: 2 },
+      { label: 'Perceptron (reference)', data: percRho.map((r,i)=>({x:Math.log10(r+1e-7),y:percHamming[i]})), borderColor: COLORS.green, pointRadius: 3, tension: 0, borderWidth: 2, borderDash: [5,3] },
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, type: 'linear', title: { display: true, text: 'log₁₀(ρ)', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 0.6, title: { display: true, text: 'Hamming Distance', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 3b. LAYER COLLAPSE ───────────────────────────────────────────────────
+const lcRho = [0, 0.000556, 0.001111, 0.001667, 0.002222, 0.002778, 0.003333, 0.003889, 0.004444, 0.005];
+const lcData = {
+  'Layer 0 (input)': [1.0, 1.0, 1.0, 1.0, 1.0, 0.875, 0.875, 0.75, 0.75, 0.75],
+  'Layer 1 (hidden)': [1.0, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.25, 0.50],
+  'Layer 2 (output)': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+};
+
+mkChart('layerCollapse', {
+  type: 'line',
+  data: {
+    datasets: [
+      { label: 'Layer 0 (input)', data: lcRho.map((r,i)=>({x:r,y:lcData['Layer 0 (input)'][i]})), borderColor: COLORS.blue, pointRadius: 4, tension: 0.2, borderWidth: 2 },
+      { label: 'Layer 1 (hidden)', data: lcRho.map((r,i)=>({x:r,y:lcData['Layer 1 (hidden)'][i]})), borderColor: COLORS.orange, pointRadius: 4, tension: 0.2, borderWidth: 2 },
+      { label: 'Layer 2 (output) — collapsed', data: lcRho.map((r,i)=>({x:r,y:lcData['Layer 2 (output)'][i]})), borderColor: COLORS.red, pointRadius: 4, tension: 0.2, borderWidth: 2 },
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, type: 'linear', title: { display: true, text: 'ρ', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: -0.05, max: 1.1, title: { display: true, text: 'Active Fraction', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 4. CNN/MNIST ──────────────────────────────────────────────────────────
+const cnnSparsity = [0, 25, 40, 50, 60, 70, 80];
+const cnnMozeika = [97.57, 97.86, 98.06, 98.05, 98.00, 97.57, 95.65];
+const cnnMagnitude = [97.57, 98.04, 98.11, 98.24, 98.14, 98.24, 98.03];
+
+mkChart('cnnMnist', {
+  type: 'line',
+  data: {
+    labels: cnnSparsity.map(s => s+'%'),
+    datasets: [
+      {
+        label: 'Magnitude Pruning + Fine-tune',
+        data: cnnMagnitude,
+        borderColor: COLORS.blue, backgroundColor: COLORS.blue+'22',
+        pointRadius: 5, tension: 0.2, borderWidth: 2.5, fill: false,
+      },
+      {
+        label: 'Mozeika Energy Score + Fine-tune',
+        data: cnnMozeika,
+        borderColor: COLORS.red, backgroundColor: COLORS.red+'22',
+        pointRadius: 5, tension: 0.2, borderWidth: 2.5, fill: false,
+      }
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, title: { display: true, text: 'Sparsity %', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 94, max: 99, title: { display: true, text: 'Test Accuracy %', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 5a. FULL BASELINE ─────────────────────────────────────────────────────
+const bsTargets = [0, 25, 50, 65, 75, 85, 90];
+const bsData = {
+  Mozeika:      [0.212, 0.187, 0.234, 0.260, 0.318, 0.328, 0.354],
+  'Mag+Retrain':[0.212, 0.216, 0.231, 0.265, 0.318, 0.726, 0.811],
+  L1:           [0.212, 0.205, 0.227, 0.222, 0.224, 0.375, 0.446],
+  Magnitude:    [0.212, 0.215, 0.231, 0.397, 0.738, 0.878, 0.891],
+  Random:       [0.212, 0.367, 0.546, 0.718, 0.719, 0.827, 0.824],
+};
+const bsStd = {
+  Mozeika:      [0.052, 0.037, 0.039, 0.062, 0.089, 0.058, 0.058],
+  'Mag+Retrain':[0.052, 0.055, 0.055, 0.069, 0.058, 0.306, 0.297],
+  L1:           [0.052, 0.050, 0.050, 0.043, 0.045, 0.115, 0.114],
+};
+
+mkChart('baseline', {
+  type: 'line',
+  data: {
+    labels: bsTargets.map(s=>s+'%'),
+    datasets: [
+      { label: 'Mozeika', data: bsData.Mozeika, borderColor: COLORS.blue, pointRadius: 5, tension: 0.2, borderWidth: 2.5 },
+      { label: 'L1 Regularization', data: bsData.L1, borderColor: COLORS.green, pointRadius: 5, tension: 0.2, borderWidth: 2.5 },
+      { label: 'Magnitude + Retrain', data: bsData['Mag+Retrain'], borderColor: COLORS.orange, pointRadius: 5, tension: 0.2, borderWidth: 2.5 },
+      { label: 'Magnitude (no retrain)', data: bsData.Magnitude, borderColor: COLORS.red, pointRadius: 5, tension: 0.2, borderWidth: 2, borderDash: [4,3] },
+      { label: 'Random', data: bsData.Random, borderColor: COLORS.gray, pointRadius: 5, tension: 0.2, borderWidth: 1.5, borderDash: [2,3] },
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, title: { display: true, text: 'Sparsity %', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 1.0, title: { display: true, text: 'Test MSE (lower = better)', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── 5b. BASELINE ZOOM ─────────────────────────────────────────────────────
+const zoomTargets = [75, 85, 90];
+const zoomData = {
+  Mozeika:      [0.318, 0.328, 0.354],
+  'Mag+Retrain':[0.318, 0.726, 0.811],
+  L1:           [0.224, 0.375, 0.446],
+};
+
+mkChart('baselineZoom', {
+  type: 'bar',
+  data: {
+    labels: zoomTargets.map(s=>s+'%'),
+    datasets: [
+      { label: 'Mozeika', data: zoomData.Mozeika, backgroundColor: COLORS.blue+'cc', borderRadius: 4 },
+      { label: 'L1', data: zoomData.L1, backgroundColor: COLORS.green+'cc', borderRadius: 4 },
+      { label: 'Magnitude + Retrain', data: zoomData['Mag+Retrain'], backgroundColor: COLORS.orange+'cc', borderRadius: 4 },
+    ]
+  },
+  options: {
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, title: { display: true, text: 'Sparsity %', color: '#64748b', font: { size: 10 } } },
+      y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 1.0, title: { display: true, text: 'Test MSE', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// ── SUMMARY BAR ───────────────────────────────────────────────────────────
+mkChart('summaryBar', {
+  type: 'bar',
+  data: {
+    labels: [
+      'Phase transition\n(perceptron)', 'rho_c formula\naccuracy', 'Rényi sharpening\n(replica)', 'Rényi sharpening\n(finite temp)', 'Phase transition\n(MLP)', 'Phase transition\n(CNN)', 'Practical advantage\nvs Mag+Retrain', 'Practical advantage\nvs L1'
+    ],
+    datasets: [{
+      label: 'Result (1=confirmed, 0=null/negative, 0.5=partial)',
+      data: [1.0, 0.2, 0.0, 0.0, 0.0, 0.0, 0.8, 0.2],
+      backgroundColor: [
+        COLORS.green+'cc', COLORS.orange+'cc', COLORS.red+'cc', COLORS.red+'cc',
+        COLORS.red+'cc', COLORS.red+'cc', COLORS.orange+'cc', COLORS.red+'cc'
+      ],
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const labels = ['✓ Confirmed', '⚠ Partial (small η only)', '✗ No effect', '✗ No effect', '✗ No transition', '✗ No transition', '⚠ Wins >85% sparsity, not vs L1', '✗ L1 competitive'];
+            return labels[ctx.dataIndex];
+          }
+        }
+      }
+    },
+    scales: {
+      x: { ...CHART_DEFAULTS.scales.x, min: 0, max: 1, title: { display: true, text: '← Negative / Positive →', color: '#64748b', font: { size: 10 } } },
+      y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#1e2333' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

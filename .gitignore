@@ -1,0 +1,12 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+TASK.md
+TASK2.md
+TASK3.md
+TASK_STAGE5_6.md
+debug_minimal.py
+debug_replicas.py
