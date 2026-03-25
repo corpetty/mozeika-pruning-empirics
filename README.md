@@ -1,111 +1,98 @@
-# Statistical Mechanics of Learning and Pruning in Neural Networks
+# Mozeika-Pruning Empirics
 
-Reference implementation of the paper: **"Statistical Mechanics of Learning and Pruning in Neural Networks"** (Mozeika & Pizzoferrato, 2026)
+**Empirical evaluation of the Mozeika & Pizzoferrato (2026) statistical mechanics pruning framework.**
 
-## Overview
+This repo contains 25 experiments, a full Python implementation of the theoretical framework, all result data, an interactive visualization, and a meeting-ready report. The short version: the phase transition predicted by the theory is real and sharp in linear perceptrons, but does not generalize to MLPs, CNNs, or real networks. L1 regularization captures the useful behavior more efficiently.
 
-This project frames neural network pruning as coupled stochastic Langevin dynamics over weights `w` and binary masks `h`. The energy function is:
+---
 
-```
-E(w, h | D) = L(w ∘ h | D) + (η/2)||w||² + Σ V(hᵢ)
-```
+## Key Findings
 
-where `V(h) = α·h²(h-1)² + (ρ/2)·h` is a double-well potential.
+| Experiment | Finding |
+|---|---|
+| Linear perceptron (Exp 1–16) | Sharp phase transition confirmed at ρ_c ≈ 0.0001 (N=60, σ=0.01) |
+| Rényi replica sharpening (Exp 17, 23) | Null — thermal noise O(1) swamps energy differences O(σ²/N) ≈ 10⁻⁵. MAP is already optimal. |
+| ρ_c prediction (Exp 18, 24) | Mozeika formula 2√(αη) off by 100–20,000×. Empirical fit only works ~40% of cases. |
+| MLP phase transition (Exp 20) | No sharp transition. Hamming stays ~0.46–0.51 regardless of ρ. |
+| CNN/MNIST (Exp 22) | Magnitude pruning beats Mozeika post-finetune at all sparsity levels. |
+| Definitive baseline (Exp 25) | L1 regularization beats Mozeika at 50–75% sparsity. Mozeika beats magnitude+retrain above 85%, but L1 still wins overall. No regime where Mozeika beats L1. |
 
-### Key Results
+**Theoretical framing:** The phase transition is a mean-field artifact. Linear perceptrons have dense interaction graphs where mean-field is exact. Hidden layers create sparse, layered factor graphs — exactly where mean-field breaks down. Natural extension: belief propagation (Krzakala/Zdeborová 2019 direction).
 
-- There is a **phase transition** at critical sparsity pressure `ρ_c`
-- Below `ρ_c`: algorithm fails to recover true mask `h₀`
-- Above `ρ_c`: Hamming distance to `h₀` drops sharply
+---
 
-## Structure
+## Repo Structure
 
 ```
 pruning-research/
-├── pruning_core/        # Core algorithms
-│   ├── __init__.py
-│   ├── energy.py        # Energy functions and gradients
-│   ├── optimizers.py    # Adam optimizer
-│   ├── dynamics.py      # Glauber dynamics, exhaustive search
-│   ├── data.py          # Synthetic data generators
-│   └── metrics.py       # Evaluation metrics
-├── experiments/         # Experiments
-│   ├── __init__.py
-│   ├── 01_perceptron_glauber.py  # 11×11 grid reproduction
-│   └── 02_nn_exhaustive.py      # Small net exhaustive search
-├── tests/              # Unit tests
-│   ├── test_energy.py
-│   ├── test_optimizers.py
-│   └── test_dynamics.py
-├── requirements.txt
-├── README.md
-└── TASK.md             # Stage 1 task specification
+├── pruning_core/           # Core library
+│   ├── energy.py           # Energy functions and gradients (perceptron + MLP)
+│   ├── optimizers.py       # Adam optimizer
+│   ├── dynamics.py         # Glauber dynamics, exhaustive search
+│   ├── regimes.py          # Four dynamical regimes from the paper
+│   ├── replicas.py         # Multi-replica Glauber dynamics
+│   ├── pruner.py           # GlauberPruner API (PyTorch-compatible)
+│   ├── data.py             # Synthetic data generators
+│   └── metrics.py          # Evaluation metrics
+├── experiments/            # 25 experiments (numbered)
+├── results/                # All CSV and JSON output files
+├── tests/                  # 23 unit tests (all passing)
+├── plots.html              # Interactive Chart.js visualizations (open in browser)
+├── REPORT.md               # Full technical writeup
+├── MEETING_REPORT.md       # Collaborator-ready summary with all findings
+├── PIVOT.md                # Decision rationale and paper framing
+└── perceptron_pruning_v5.1.r  # Original R reference implementation
 ```
 
-## Installation
+---
+
+## Reproducing Results
 
 ```bash
-cd /home/petty/pruning-research
+git clone https://github.com/corpetty/mozeika-pruning-empirics
+cd mozeika-pruning-empirics
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-```
 
-## Running Experiments
-
-### Experiment 1: Perceptron with Glauber Dynamics
-
-Reproduces the 11×11 grid from the R implementation:
-
-```bash
-python experiments/01_perceptron_glauber.py
-```
-
-Output: `9900_stats.csv` (same format as R reference)
-
-### Experiment 2: Network Exhaustive Search
-
-Exhaustive enumeration over all `2^N` masks for small networks:
-
-```bash
-python experiments/02_nn_exhaustive.py
-```
-
-Output: `exhaustive_search_results.json`
-
-## Running Tests
-
-```bash
+# Run tests
 python -m pytest tests/ -v
+
+# Key experiments
+python experiments/03_phase_diagram.py        # Phase transition in linear perceptron
+python experiments/16_replica_rho_sweep.py    # Rényi replica sweep
+python experiments/20_mlp_uwsh.py             # MLP — no phase transition
+python experiments/25_sparsity_control_fix.py # Definitive baseline comparison
 ```
 
-## Parameters
+Results land in `results/`. Open `plots.html` in a browser for interactive charts of all experiments.
 
-| Parameter | Description | Typical Range |
-|-----------|-------------|---------------|
-| `η` (eta) | L2 regularization on weights | 0 → 0.001 |
-| `ρ` (rho) | Sparsity pressure | 0 → 0.001 |
-| `α` (alpha) | Double-well barrier height | 0.5 → 2.0 |
+---
 
-## Validation Targets
+## Energy Function
 
-- **Phase transition:** Hamming distance should drop sharply between `ρ=0.0004` and `ρ=0.0007`
-- **At ρ=0, η=0:** Hamming ≈ 0.45 (random mask region)
-- **At ρ≥0.0007, η≥0.0001:** Hamming ≈ 0.008 (recovery region)
+The paper frames pruning as coupled Langevin dynamics over weights **w** and binary masks **h**:
 
-## Reference Implementation
+```
+E(w, h | D) = L(w ∘ h | D) + (η/2)||w||² + Σ V(hᵢ)
+V(h) = α·h²(h-1)² + (ρ/2)·h
+```
 
-The R code in `perceptron_pruning_v5.1.r` is the ground truth. Key details:
-- **φ(x) = x**: identity activation (linear perceptron)
-- **Adam optimizer**: K=50 steps, lr=1e-2
-- **Glauber dynamics**: coordinate descent with random order
-- **Low-temperature limit**: only downhill moves accepted
+Four dynamical regimes emerge depending on the ratio of timescales τ_w / τ_h:
+- **Equal timescales** → joint Boltzmann posterior
+- **Fast learning** (τ_w ≪ τ_h) → Bayesian model selection via marginal likelihood; replica trick n = β_h/β_w
+- **Fast pruning** (τ_h ≪ τ_w) → mask-averaged weight training
+- **Low temperature** (β → ∞) → MAP alternating optimization (what Glauber dynamics implements)
 
-## Next Steps (Stage 2+)
+---
 
-1. **PyTorch implementation**: Replace numpy with PyTorch for GPU acceleration
-2. **Deeper networks**: Multi-layer perceptrons and convolutional nets
-3. **Stochastic dynamics**: Add noise terms for finite temperature
-4. **Experimental verification**: Compare with real pruning methods
+## Original Reference
 
-## License
+Mozeika, A. & Pizzoferrato, A. (2026). *Statistical mechanics of learning and pruning in neural networks.* Logos/Alan Turing Institute internal report.
 
-See LICENSE file for licensing details.
+---
+
+## Related
+
+- [Universal Weight Subspace Hypothesis](https://arxiv.org/abs/2512.05117) — Kaushik et al., JHU/Yuille lab
+- [EigenLoRAx](https://arxiv.org/abs/2502.04700) — exploits shared spectral subspace
+- Krzakala & Zdeborová (2019) — belief propagation direction for factor graph extension
