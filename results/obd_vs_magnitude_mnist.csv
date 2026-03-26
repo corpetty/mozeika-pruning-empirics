@@ -1,0 +1,13 @@
+method,sparsity_target,achieved_sparsity,test_acc,round
+obd,0.0,0.0,0.9761,0
+obd,0.5,0.5,0.9757,1
+obd,0.7,0.7,0.9795,2
+obd,0.85,0.85,0.9807,3
+obd,0.9,0.9,0.9824,4
+obd,0.95,0.95,0.979,5
+magnitude,0.0,0.0,0.9747,0
+magnitude,0.5,0.5,0.9827,1
+magnitude,0.7,0.7,0.9821,2
+magnitude,0.85,0.85,0.9849,3
+magnitude,0.9,0.9,0.9847,4
+magnitude,0.95,0.95,0.9836,5

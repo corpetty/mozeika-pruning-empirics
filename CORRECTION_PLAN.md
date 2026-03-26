@@ -199,13 +199,23 @@ Rewrite the "Interpretation and Where This Points" section:
 
 ---
 
-## Next Actions
+## Critical Fixes from Branch PDF (2026-03-25)
 
-1. **[ ]** Implement Phase 1: synthetic teacher experiment (`experiments/26_synthetic_teacher.py`)
-2. **[ ]** Copy Mozeika's `lenet300_pruning.py` into `/home/petty/pruning-research/experiments/27_lenet300_obd.py` and run it clean
-3. **[ ]** Implement OBD vs magnitude comparison on MNIST at matched sparsity (`experiments/28_obd_vs_magnitude.py`)
-4. **[ ]** Rewrite MEETING_REPORT.md "Interpretation" section
-5. **[ ]** Talk to Mozeika directly with corrected framing
+Two corrections from the ChatGPT conversation Mozeika shared:
+
+**Fix 1 — Algorithm order is mandatory:**
+The correct cycle is: **(1) fully train weights to local minimum → (2) estimate diagonal Fisher/Hessian → (3) prune all weights where S_i < ρ/2 → (4) fine-tune → repeat.**
+Experiment 27 was computing OBD scores *during* training, not after convergence. At a non-minimum, gradients are nonzero and Fisher ≠ curvature of the loss, so saliency scores are garbage.
+
+**Fix 2 — Linear activations required for synthetic teacher recovery:**
+With ReLU activations, permutation symmetry + sign ambiguity make h₀ recovery ill-posed for multi-layer networks. With **linear activations**, the network collapses to a linear map and the sparse decomposition is identifiable (up to the Kruskal rank condition). The synthetic teacher experiment must use linear activations. Mozeika's perceptron experiments were effectively doing this (single layer = trivially linear path from input to output).
+
+## Next Actions (revised 2026-03-25)
+
+1. **[ ]** Implement exp 28: synthetic teacher, LINEAR activation, proper train→score→prune→finetune cycle (`experiments/28_synthetic_linear.py`)
+2. **[ ]** Implement exp 29: OBD vs magnitude on LeNet-300-100 + MNIST at matched sparsity levels (`experiments/29_obd_vs_magnitude_mnist.py`) — use PyTorch venv at `/home/petty/torch-env`
+3. **[ ]** Rewrite MEETING_REPORT.md "Interpretation" section
+4. **[ ]** Talk to Mozeika directly with corrected framing
 
 ---
 
