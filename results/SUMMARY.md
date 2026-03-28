@@ -2,7 +2,7 @@
 
 ## Abstract
 
-We investigate compressing the key-value (KV) cache of large language models by projecting KV vectors into lower-dimensional PCA subspaces before quantizing with PolarQuant. Across 11 experiments on Qwen3 models (1.7B to 32B parameters), we find that **truncation error from dimension reduction dominates quantization noise** — the critical threshold is retaining at least 87.5% of dimensions (k/d_head >= 0.875). The best configuration for Qwen3-14B-AWQ is k=112/4-bit, which achieves 4.27x compression with only 14% perplexity increase, while k=128/4-bit (pure PolarQuant, no truncation) achieves 4.00x compression at just 5% PPL cost. Larger models tolerate more aggressive truncation: Qwen3-32B needs only k=96, while Qwen3-1.7B requires k=128.
+We investigate compressing the key-value (KV) cache of large language models by projecting KV vectors into lower-dimensional PCA subspaces before quantizing with PolarQuant. Across 12 experiments on 5 models spanning Qwen3, Mistral, and Phi3 architectures, we find that **truncation error from dimension reduction dominates quantization noise** — the critical threshold is retaining at least 87.5% of dimensions (k/d_head >= 0.875), though this threshold is architecture-dependent. For Qwen3-14B-AWQ, k=112/4-bit achieves 4.27x compression at 14% PPL cost; for Mistral-7B and Phi-4, k=64/4-bit (50% truncation) achieves 5.33x compression within 20% PPL — revealing that Mistral/Phi3 architectures are substantially more compression-tolerant than Qwen3 at comparable parameter counts. The compression threshold is primarily size-dependent within an architecture family, but varies significantly across families.
 
 ## 1. What We Are Trying To Do
 
@@ -48,7 +48,9 @@ The key insight is that KV vectors are low-rank: their effective dimensionality 
 
 **Experiment 10** confirmed that at k=112, the cascade problem from Experiment 8 largely disappears. Uniform k=112/4-bit compression across all 40 layers achieved 1.14x PPL — within the 20% threshold. Mixed policies (protecting early layers) offered marginal PPL improvements (1.11-1.15x) but at severe compression cost (dropping from 4.27x to 1.62-2.35x). The hybrid config of k=128 for early layers and k=112 for late layers achieved 1.10x PPL at 4.13x CR — a clean middle ground. The key insight: when per-layer error is small enough, 40-layer accumulation stays within budget, and mixed policies become unnecessary complexity.
 
-**Experiment 11** tested generalization across model sizes. The k/d_head >= 0.875 rule that worked for the 14B model did not universally hold. Qwen3-1.7B needed k/d_head = 1.0 (full dimensions) to stay within 20% PPL — smaller models are more sensitive to truncation. Qwen3-32B-AWQ was the most tolerant, achieving 1.09x PPL at k/d_head = 0.75 (k=96). The pattern is monotonic: larger models tolerate more aggressive subspace compression. At k/d_head = 0.875, rel PPL was 1.30x for 1.7B, 1.14x for 14B, and 1.06x for 32B.
+**Experiment 11** tested generalization across model sizes within the Qwen3 family. The k/d_head >= 0.875 rule that worked for the 14B model did not universally hold. Qwen3-1.7B needed k/d_head = 1.0 (full dimensions) to stay within 20% PPL — smaller models are more sensitive to truncation. Qwen3-32B-AWQ was the most tolerant, achieving 1.09x PPL at k/d_head = 0.75 (k=96). The pattern is monotonic: larger models tolerate more aggressive subspace compression. At k/d_head = 0.875, rel PPL was 1.30x for 1.7B, 1.14x for 14B, and 1.06x for 32B.
+
+**Experiment 12** extended validation to two non-Qwen3 architectures: Mistral-7B-v0.3 (Mistral arch, 7B, BF16) and Phi-4-AWQ (Phi3 arch, 14B, AWQ). The results were striking. Both models tolerate k/d_head = 0.50 (k=64) within the 20% PPL threshold — Mistral at 1.12x and Phi-4 at 1.18x — where Qwen3-14B produces catastrophic 3.19x PPL at the same k. A same-size comparison (Phi-4 vs Qwen3-14B, both 14B) shows nearly identical compression tolerance (1.10x vs 1.14x at k=112), meaning architecture differences within the 14B tier are small. But across architectures at matched compression, Mistral-7B (7B) is actually more tolerant than Qwen3-32B (32B) at k=64 — 1.12x vs 2.02x PPL. The conclusion: the compression threshold depends primarily on model size *within* an architecture family, but Mistral and Phi3 architectures are fundamentally more compressible than Qwen3 at comparable sizes, likely reflecting genuinely lower KV subspace dimensionality in those attention implementations.
 
 ## 4. The Key Results Table
 
@@ -98,17 +100,24 @@ This explains the failure of k=64 in all end-to-end experiments (Experiments 6-8
 
 ## 8. Cross-Model Generalization
 
-Experiment 11 tested whether the k/d_head >= 0.875 threshold found on Qwen3-14B generalizes to other model sizes, all with d_head=128 and 4-bit PolarQuant.
+Experiments 11 and 12 tested whether the k/d_head >= 0.875 threshold generalizes across model sizes and architectures, all with d_head=128 and 4-bit PolarQuant.
 
-| Model | Params | k/d_head for <20% PPL | Best rel PPL at k=112 | Best rel PPL at k=128 |
-|-------|--------|----------------------|----------------------|----------------------|
-| Qwen3-1.7B | 1.7B | 1.0 (k=128) | 1.30x | 1.13x |
-| Qwen3-14B-AWQ | 14B | 0.875 (k=112) | 1.14x | 1.05x |
-| Qwen3-32B-AWQ | 32B | 0.75 (k=96) | 1.06x | 1.04x |
+| Model | Architecture | Params | Min k/d_head for <20% PPL | Rel PPL at k=112 |
+|-------|-------------|--------|--------------------------|------------------|
+| Qwen3-1.7B | Qwen3 | 1.7B | 1.0 (k=128) | 1.32x |
+| Mistral-7B-v0.3 | Mistral | 7B | 0.50 (k=64) | 1.07x |
+| Qwen3-14B-AWQ | Qwen3 | 14B | 0.875 (k=112) | 1.14x |
+| Phi-4-AWQ | Phi3 | 14B | 0.50 (k=64) | 1.10x |
+| Qwen3-32B-AWQ | Qwen3 | 32B | 0.75 (k=96) | 1.06x |
 
-The pattern is clear: larger models tolerate more aggressive subspace truncation. Qwen3-32B achieves only 1.09x PPL at k=96 (0.75 of d_head), where the 14B model would show 1.26x and the 1.7B model would be at 1.80x. This likely reflects the over-parameterization of larger models — they encode more redundant information per head, making the KV subspaces genuinely lower-rank in a functional sense.
+**Within Qwen3**: The pattern is monotonic with size — larger models tolerate more aggressive truncation. This likely reflects over-parameterization causing genuinely lower-rank functional KV subspaces in larger models.
 
-The practical implication: the subspace dimension k should be tuned per model size. A safe rule of thumb is k/d_head >= 0.875 for models above ~10B parameters, and k/d_head = 1.0 (full-dim PolarQuant only) for models below ~5B parameters.
+**Across architectures**: Mistral and Phi3 are dramatically more compression-tolerant than Qwen3 at comparable sizes. Mistral-7B tolerates k=64 (5.33x compression, 1.12x PPL) where Qwen3-14B fails catastrophically at the same k (3.19x PPL). At matched size (14B), Phi-4 and Qwen3-14B show similar tolerance (1.10x vs 1.14x at k=112), suggesting architecture effects within a size class are modest — the gap mainly appears when comparing across sizes and families.
+
+**Practical rule of thumb by architecture:**
+- **Qwen3 ≥10B**: k/d_head ≥ 0.875
+- **Qwen3 <5B**: k/d_head = 1.0 (full-dim PolarQuant only)
+- **Mistral / Phi3**: k/d_head ≥ 0.50 (k=64 works within 20% PPL)
 
 ## 9. What This Means for Practitioners
 
@@ -134,13 +143,15 @@ The practical implication: the subspace dimension k should be tuned per model si
 | Balanced | Hybrid | 128/112 | 4 | k=128 L0-19, k=112 L20-39 | Full-dim PolarQuant | 1.10x | 4.13x |
 | Compression | k112/4-bit | 112 | 4 | Subspace PolarQuant | Full-dim PolarQuant | 1.14x | 4.27x |
 
-### For Other Model Sizes (4-bit, uniform policy)
+### For Other Models (4-bit, uniform policy)
 
-| Model | Recommended k | k/d_head | Expected Rel PPL | CR |
-|-------|--------------|----------|------------------|-----|
-| Qwen3-1.7B | 128 | 1.0 | ~1.13x | 4.00x |
-| Qwen3-14B-AWQ | 112 | 0.875 | ~1.14x | 4.27x |
-| Qwen3-32B-AWQ | 96 | 0.75 | ~1.09x | 4.57x |
+| Model | Architecture | Recommended k | k/d_head | Expected Rel PPL | CR |
+|-------|-------------|--------------|----------|------------------|-----|
+| Qwen3-1.7B | Qwen3 | 128 | 1.0 | ~1.13x | 4.00x |
+| Mistral-7B-v0.3 | Mistral | 64 | 0.5 | ~1.12x | 5.33x |
+| Qwen3-14B-AWQ | Qwen3 | 112 | 0.875 | ~1.14x | 4.27x |
+| Phi-4-AWQ | Phi3 | 64 | 0.5 | ~1.18x | 5.33x |
+| Qwen3-32B-AWQ | Qwen3 | 96 | 0.75 | ~1.09x | 4.57x |
 
 ### Hardware Requirements
 
