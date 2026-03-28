@@ -99,6 +99,12 @@ See `vgg16-fisher/VGG16_RESULTS.md`.
 
 ---
 
+## Large Files & Reproducibility
+
+Several large files (model checkpoints, raw activation tensors, datasets) are excluded from this repo. See **[MISSING_DATA.md](MISSING_DATA.md)** for a full list of what's missing, why, and how to reproduce each item from scratch.
+
+---
+
 ## Quick Start
 
 ```bash
