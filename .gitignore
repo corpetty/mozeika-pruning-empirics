@@ -1,9 +1,26 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
-data/
-experiments/data/
-experiments/results/
 *.egg-info/
 .venv/
 venv/
+
+# Large binary files
+*.npz
+*.pt
+*.pth
+*.ckpt
+data/
+experiments/data/
+experiments/results/
+
+# KV-subspace large files
+kv-subspace/results/*.npz
+
+# Dataset downloads
+kv-subspace/data/
+vgg16-fisher/data/
+
+# OS
+.DS_Store

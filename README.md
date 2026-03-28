@@ -1,98 +1,138 @@
-# Mozeika-Pruning Empirics
+# mozeika-pruning-empirics
 
-**Empirical evaluation of the Mozeika & Pizzoferrato (2026) statistical mechanics pruning framework.**
+Empirical evaluation of neural network pruning and compression methods, built over ~4 months across three interconnected research threads.
 
-This repo contains 25 experiments, a full Python implementation of the theoretical framework, all result data, an interactive visualization, and a meeting-ready report. The short version: the phase transition predicted by the theory is real and sharp in linear perceptrons, but does not generalize to MLPs, CNNs, or real networks. L1 regularization captures the useful behavior more efficiently.
-
----
-
-## Key Findings
-
-| Experiment | Finding |
-|---|---|
-| Linear perceptron (Exp 1–16) | Sharp phase transition confirmed at ρ_c ≈ 0.0001 (N=60, σ=0.01) |
-| Rényi replica sharpening (Exp 17, 23) | Null — thermal noise O(1) swamps energy differences O(σ²/N) ≈ 10⁻⁵. MAP is already optimal. |
-| ρ_c prediction (Exp 18, 24) | Mozeika formula 2√(αη) off by 100–20,000×. Empirical fit only works ~40% of cases. |
-| MLP phase transition (Exp 20) | No sharp transition. Hamming stays ~0.46–0.51 regardless of ρ. |
-| CNN/MNIST (Exp 22) | Magnitude pruning beats Mozeika post-finetune at all sparsity levels. |
-| Definitive baseline (Exp 25) | L1 regularization beats Mozeika at 50–75% sparsity. Mozeika beats magnitude+retrain above 85%, but L1 still wins overall. No regime where Mozeika beats L1. |
-
-**Theoretical framing:** The phase transition is a mean-field artifact. Linear perceptrons have dense interaction graphs where mean-field is exact. Hidden layers create sparse, layered factor graphs — exactly where mean-field breaks down. Natural extension: belief propagation (Krzakala/Zdeborová 2019 direction).
+**Hardware:** 2× NVIDIA RTX 3090 (24GB each), 504GB RAM, machine "bugger"
+**Python env:** `/home/petty/torch-env` (PyTorch 2.x + CUDA)
 
 ---
 
-## Repo Structure
+## Repository Structure
 
 ```
-pruning-research/
-├── pruning_core/           # Core library
-│   ├── energy.py           # Energy functions and gradients (perceptron + MLP)
-│   ├── optimizers.py       # Adam optimizer
-│   ├── dynamics.py         # Glauber dynamics, exhaustive search
-│   ├── regimes.py          # Four dynamical regimes from the paper
-│   ├── replicas.py         # Multi-replica Glauber dynamics
-│   ├── pruner.py           # GlauberPruner API (PyTorch-compatible)
-│   ├── data.py             # Synthetic data generators
-│   └── metrics.py          # Evaluation metrics
-├── experiments/            # 25 experiments (numbered)
-├── results/                # All CSV and JSON output files
-├── tests/                  # 23 unit tests (all passing)
-├── plots.html              # Interactive Chart.js visualizations (open in browser)
-├── REPORT.md               # Full technical writeup
-├── MEETING_REPORT.md       # Collaborator-ready summary with all findings
-├── PIVOT.md                # Decision rationale and paper framing
-└── perceptron_pruning_v5.1.r  # Original R reference implementation
+├── experiments/          # Mozeika statistical mechanics pruning (Exps 1–29)
+├── pruning_core/         # Shared Python library for pruning experiments
+├── results/              # CSVs and output from Mozeika experiments
+├── kv-subspace/          # KV cache compression via PCA subspace + PolarQuant (Exps 1–12)
+│   ├── experiments/      # 12 experiment scripts
+│   ├── results/          # CSVs, 12 per-experiment reports, SUMMARY.md, 6 figures
+│   └── scripts/          # Plotting utilities
+├── vgg16-fisher/         # VGG16 Fisher information pruning on CIFAR-10
+│   ├── vgg16_pruning.py  # Main pruning script
+│   └── VGG16_RESULTS.md  # Results + engineering notes
+├── papers/               # Paper summaries and reading notes
+├── notes/                # Active research threads and scratch notes
+├── EXPLAINER.md          # Plain-language guide for non-physicists
+├── RESEARCH_PLAN.md      # Research arc and open questions
+├── GLAUBER_RESULTS.md    # Glauber dynamics results (LeNet-300-100 on MNIST)
+├── REPORT.md             # Main Mozeika evaluation report
+├── MEETING_REPORT.md     # Summary for collaborators
+└── plots.html            # Interactive plots
 ```
 
 ---
 
-## Reproducing Results
+## Research Threads
+
+### Thread 1: Mozeika Statistical Mechanics Pruning (`experiments/`)
+
+**Paper:** Mozeika & Pizzoferrato (2026) — statistical mechanics framework for neural network pruning, using replica method to predict a phase transition at critical sparsity ρ_c.
+
+**25 experiments, key findings:**
+- Phase transition is real and observable in linear perceptrons (ρ_c ≈ 0.0001 confirmed)
+- Does **not** generalize to MLPs or CNNs
+- Mozeika's ρ_c formula off by 100–20,000× for real architectures
+- Root cause: mean-field artifact that breaks down for non-linear, deep networks
+- L1 regularization beats Mozeika at every sparsity level
+- **Verdict:** Negative result. The physics intuition is right; the theoretical predictions are wrong for practical networks.
+
+See `REPORT.md`, `MEETING_REPORT.md`, `PIVOT.md`.
+
+### Thread 2: Glauber Dynamics Pruning (`experiments/`, `lenet300_pruning_finite_temp.py`)
+
+**Inspired by:** Mozeika's statistical mechanics framework — using thermal annealing to explore weight masks.
+
+**LeNet-300-100 on MNIST, Runs 1–10, key findings:**
+- 99.1% sparsity achievable at 97.2–97.5% accuracy
+- Glauber anneal beats iterative magnitude pruning by +1.08% at 99% sparsity
+- Three-phase structure: rapid pruning → restructuring plateau → thermal collapse
+- Collapse is thermodynamic (T→0), not equilibration-limited — more sweeps don't help
+
+See `GLAUBER_RESULTS.md`.
+
+### Thread 3: KV Cache Compression (`kv-subspace/`)
+
+**Method:** PCA subspace projection + PolarQuant quantization for transformer KV caches.
+
+**Qwen3-14B-AWQ baseline → Mistral-7B, Phi-4, Qwen3-1.7B, Qwen3-32B (12 experiments), key findings:**
+- 4× KV cache compression with <15% PPL degradation is achievable
+- **Critical insight (Exp 9):** Truncation error dominates over quantization noise — k=64/16-bit is 2.48× PPL degradation; k=128/4-bit is 1.05×. Use bigger k, not more bits.
+- K vectors more compressible than V (mean effective rank ~30 vs ~54)
+- Compression tolerance scales with model size; also architecture-dependent (Mistral/Phi3 more tolerant than Qwen3)
+- Hardware overhead ~1.7× latency; fixable with fused CUDA kernel
+
+Recommended configs for Qwen3-14B-AWQ:
+- `k=128/4-bit` → 4.00× compression, 1.05× PPL (safe default)
+- `k=112/4-bit` → 4.27× compression, 1.14× PPL (max within 20% threshold)
+
+See `kv-subspace/results/SUMMARY.md`, `kv-subspace/results/REPORT-*.md`.
+
+### Thread 4: VGG16 Fisher Pruning (`vgg16-fisher/`)
+
+**Method:** Iterative Fisher information magnitude pruning on VGG16 (ImageNet pretrained) for CIFAR-10.
+
+**Key result:** 90% of weights removed, accuracy improves from 89.94% → **93.06% (+3.12%)**.
+- Conv filters nearly all useful (502/512 survive)
+- FC layers massively overparameterized for CIFAR-10 (~40×)
+- Fisher saliency with 3 mini-batches sufficient for reliable ranking
+
+See `vgg16-fisher/VGG16_RESULTS.md`.
+
+---
+
+## Cross-Thread Themes
+
+1. **Principled saliency beats random pruning** — Fisher, Glauber, and PCA subspace all outperform magnitude/random baselines when the method correctly identifies "what matters"
+2. **Overparameterization is the real variable** — VGG16 gains accuracy when pruned (massively overparameterized); LeNet loses a small amount (closer to right-sized); KV caches lose tolerably (redundant dimensions)
+3. **Theory underpredicts practical thresholds** — Mozeika's ρ_c is off by orders of magnitude; KV truncation tolerance depends on model size in ways simple theory doesn't capture
+4. **The compression budget is in quantization, not dimensionality reduction** — KV subspace lesson: don't truncate aggressively, quantize aggressively
+
+---
+
+## Quick Start
 
 ```bash
-git clone https://github.com/corpetty/mozeika-pruning-empirics
-cd mozeika-pruning-empirics
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+# Mozeika/Glauber experiments
+cd ~/pruning-research
+source /home/petty/torch-env/bin/activate
+python experiments/01_perceptron_glauber.py
+python lenet300_pruning_finite_temp.py
 
-# Run tests
-python -m pytest tests/ -v
+# KV-subspace experiments
+cd kv-subspace
+python experiments/perplexity_eval.py
 
-# Key experiments
-python experiments/03_phase_diagram.py        # Phase transition in linear perceptron
-python experiments/16_replica_rho_sweep.py    # Rényi replica sweep
-python experiments/20_mlp_uwsh.py             # MLP — no phase transition
-python experiments/25_sparsity_control_fix.py # Definitive baseline comparison
+# VGG16 Fisher pruning
+cd vgg16-fisher
+python vgg16_pruning.py
 ```
-
-Results land in `results/`. Open `plots.html` in a browser for interactive charts of all experiments.
 
 ---
 
-## Energy Function
+## Next Directions
 
-The paper frames pruning as coupled Langevin dynamics over weights **w** and binary masks **h**:
-
-```
-E(w, h | D) = L(w ∘ h | D) + (η/2)||w||² + Σ V(hᵢ)
-V(h) = α·h²(h-1)² + (ρ/2)·h
-```
-
-Four dynamical regimes emerge depending on the ratio of timescales τ_w / τ_h:
-- **Equal timescales** → joint Boltzmann posterior
-- **Fast learning** (τ_w ≪ τ_h) → Bayesian model selection via marginal likelihood; replica trick n = β_h/β_w
-- **Fast pruning** (τ_h ≪ τ_w) → mask-averaged weight training
-- **Low temperature** (β → ∞) → MAP alternating optimization (what Glauber dynamics implements)
+- **Belief Propagation pruning** (Krzakala/Zdeborová 2019) — handles non-linear networks more rigorously than Mozeika's mean-field approach
+- **Fused CUDA kernel** for KV subspace projection to close the 1.7× latency gap
+- **Glauber on transformers** — can the three-phase dynamics be exploited for structured pruning of attention heads?
+- **Cross-thread connection** — KV cache compression is essentially subspace pruning of activation tensors; Glauber dynamics could explore KV mask space
 
 ---
 
-## Original Reference
+## Papers
 
-Mozeika, A. & Pizzoferrato, A. (2026). *Statistical mechanics of learning and pruning in neural networks.* Logos/Alan Turing Institute internal report.
+See `papers/` for summaries:
+- `mozeika-pizzoferrato-2026-pruning.md` — the paper being evaluated
+- `mozeika-pizzoferrato-explainer.md` — plain-language walkthrough
+- `universal-weight-subspace-hypothesis.md` — UWSH background
 
----
-
-## Related
-
-- [Universal Weight Subspace Hypothesis](https://arxiv.org/abs/2512.05117) — Kaushik et al., JHU/Yuille lab
-- [EigenLoRAx](https://arxiv.org/abs/2502.04700) — exploits shared spectral subspace
-- Krzakala & Zdeborová (2019) — belief propagation direction for factor graph extension
+See also `EXPLAINER.md` for an accessible overview of the entire research program.
