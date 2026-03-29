@@ -6,23 +6,64 @@ __pycache__/
 .venv/
 venv/
 
-# Large binary files
-*.npz
+# Model weights and checkpoints
 *.pt
 *.pth
 *.ckpt
+*.safetensors
+*.bin
+*.gguf
+*.ggml
+*.q4_k_m
+*.q8_0
+*.f16
+
+# ONNX models
+*.onnx
+*.onnx.data
+
+# Large numpy/array dumps
+*.npz
+*.npy
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Images (plots are fine, large image datasets are not)
+# Note: small result plots (*.png, *.jpg) are tracked; add explicit excludes below for dataset dirs
+
+# Dataset directories
 data/
-experiments/data/
-experiments/results/
+*/data/
+datasets/
+*/datasets/
+cache/
+*/cache/
+.cache/
 
-# KV-subspace large files
+# Hugging Face model cache
+models/
+*/models/
+
+# SLURM job artifacts (logs tracked, large outputs not)
+*.out.large
+
+# Large log files (keep normal-size logs)
+*.log.gz
+
+# KV-subspace: raw KV vector dumps (large, reproducible)
 kv-subspace/results/*.npz
+kv-subspace/results/kvs*.npz
 
-# Dataset downloads
-kv-subspace/data/
+# VGG16 / other experiment data
 vgg16-fisher/data/
+vgg16-fisher/runs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
 
 # OS
 .DS_Store
-*.onnx
-*.onnx.data
+Thumbs.db
