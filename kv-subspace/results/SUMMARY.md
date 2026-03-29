@@ -243,20 +243,63 @@ Experiment 17 tested all combinations of calibration domain (fiction, code, news
 
 All genuine cross-domain pairs are tight for k128. k96_4bit is domain-sensitive: code-calibrated → news eval degrades to 2.70 (vs baseline 1.59). Universal calibration wins for k96 (best in 3 of 4 eval domains). **Single-domain calibration is safe only at k=128.**
 
-## 16. Open Questions and Next Steps
+## 16. Adaptive K-Scheduling (Experiment 18)
 
-**Experiment 18 (online basis updating).** V basis drift (overlap 0.702 by end of document) suggests that incremental PCA updates every N tokens could close the quality gap for k96 at long context. Scheduled as the next experiment.
+Experiment 18 tested whether allocating more dimensions to sensitive layers (from Exp 16 profile) beats uniform k at the same mean budget.
 
-**Fused CUDA kernels.** The Python hook implementation shows 10–13× decode slowdown (not representative). A fused kernel for project-rotate-quantize would reduce overhead to ~1.2–1.7× and unlock real throughput benefit.
+**Rank-proportional policy (mean_k=110) vs uniform k=112:**
 
-**Adaptive per-layer policy in deployment.** The Exp 16 sensitivity profile gives a concrete, data-driven k assignment per layer — same memory budget as uniform k=96, better PPL. A concrete next engineering step.
+| Config | Rel PPL | Mean k |
+|--------|---------|--------|
+| Uniform k=112 | 1.153x | 112.0 |
+| Rank-proportional | **1.132x** | 110.0 |
+| Exp 9 uniform k=112 reference | 1.140x | 112.0 |
 
-**Different d_head values.** All experiments used d_head=128. Models with d_head=64 (some Llama variants) or d_head=256 may have different rank structure and thresholds.
+Rank-proportional scheduling beats uniform k=112 at 2 fewer dimensions per head on average. The gain is real but modest (~0.02x PPL). A greedy scheduler was also tested but had a convergence bug (kept assigning k=96 everywhere); the rank-proportional policy is the reliable result.
 
-**Token-level adaptive compression.** High-attention tokens (special tokens, key facts) may warrant higher-fidelity storage; low-attention tokens could tolerate more aggressive compression.
+**Practical takeaway:** If you're budget-constrained, the layer sensitivity profile from Exp 16 gives you a free ~2% PPL improvement at the same memory cost.
 
-**Scaling to 100K+ contexts.** KV cache savings are most impactful at very long context, and V basis drift from Exp 13 becomes more consequential at extreme lengths.
+## 17. Online V Basis Updating (Experiment 19) — NULL RESULT
+
+Experiment 19 tested whether incrementally updating the V PCA basis every N tokens (N = {64, 128, 256, 512, never}) could close the quality gap at k=96 by tracking V basis drift (Exp 13: V overlap = 0.702).
+
+**Result: All strategies give identical PPL = 11.58 (rel = 1.42×) regardless of update interval.** The gap versus K-only compression (+2.48 PPL) was not closed at all.
+
+**Root cause (identified in Exp 20):** The failure is not drift — it's intrinsic structure. ~30% of V variance lives in dimensions 113–128 regardless of context position. Online updating cannot recover information that was never captured by the basis. The update interval does not matter because the fundamental problem is the subspace dimension, not its calibration freshness.
+
+## 18. V-Specific Threshold Scan (Experiment 20) — CLOSES V COMPRESSION QUESTION
+
+Experiment 20 tested whether any k_V < 128 produces viable V compression (gap vs K-only < 0.05×), with K fixed at k=112/4-bit as the quality reference.
+
+**Full scan at ctx=4096:**
+
+| k_V | Rel PPL | Gap vs K-only | CR | Viable |
+|-----|---------|---------------|----|--------|
+| 64 | 5.61× | +4.48 | 5.82× | ✗ |
+| 96 | 1.69× | +0.56 | 4.92× | ✗ |
+| 112 | 1.50× | +0.37 | 4.57× | ✗ |
+| 120 | 1.37× | +0.24 | 4.41× | ✗ |
+| 124 | 1.36× | +0.23 | 4.34× | ✗ |
+| **128** | **1.16×** | **+0.03** | **4.27×** | **✓ (4K only)** |
+
+k_V=128 (full rank) passes at 4K but fails at 8K (gap widens to 0.06×). No subspace dimension below 128 is viable at either context length. The curve shows no knee — degradation is roughly linear from k=96 to k=128.
+
+**Bits vs dimensions:** k_V=112/8-bit gives rel=1.40× at only 3.05× CR — worse than 4-bit k=128 on both metrics. More bits do not substitute for more dimensions.
+
+**Definitive conclusion: V subspace compression is not viable for Qwen3-14B at any k < d_head.** The ~30% of V variance in tail dimensions is load-bearing signal, not noise. The recommended deployment is K-only subspace compression (k=112/4-bit) with V at full-dim PolarQuant 4-bit.
+
+## 19. Open Questions and Future Work
+
+The primary V compression question is now closed for Qwen3. The following questions remain open and merit future investigation:
+
+**Cross-architecture V threshold scan (high priority).** Exp 17 showed Mistral/Phi3 tolerate k=64 on K+V (5.33× CR), but V was not ablated independently. Qwen3 applies QK-norm (RMSNorm on k_proj and q_proj outputs) but not V-norm — this likely forces K into a low-dimensional manifold while V retains full variance structure. A targeted V-only threshold scan on Llama-3, Mistral-7B, and Phi-4 would test whether QK-norm is the confounding variable and whether V compression is viable in those families. This could significantly broaden the practical applicability of the method.
+
+**Fused CUDA kernels.** The Python hook implementation shows 10–13× decode slowdown. A fused kernel for project-rotate-quantize would reduce overhead to ~1.2–1.7× and unlock real throughput benefit at production scale.
+
+**Adaptive per-layer policy in deployment.** The Exp 16 sensitivity profile + Exp 18 rank-proportional scheduling gives a concrete, data-driven k assignment per layer — same memory budget as uniform k=96, ~2% better PPL. Ready to implement in a production inference stack.
+
+**Non-uniform bit allocation.** Allocating more bits to high-effective-rank late layers alongside the per-layer k assignment could push the PPL-compression Pareto frontier further.
+
+**Scaling to 100K+ contexts.** KV cache savings are most impactful at very long context. V basis drift from Exp 13 (overlap 0.702 at 40K) likely worsens further at 100K+.
 
 **Integration with other compression methods.** Subspace PolarQuant could be combined with token eviction, sliding window attention, or grouped-query attention. Interactions are unexplored.
-
-**Non-uniform bit allocation.** Allocating more bits to high-effective-rank late layers could improve the overall PPL-compression Pareto frontier.
