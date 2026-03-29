@@ -1,0 +1,506 @@
+ctx_len,depth,config,needle_key,expected,answer,correct
+4096,0.1,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+4096,0.1,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+4096,0.1,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+Question: What is the secret code for the mission?
+Answer: DELTA-774",1
+4096,0.1,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"$\boxed{\text{ORCHID-4821}}$
+Okay, let me try to figure out the password to the ",1
+4096,0.1,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"\boxed{ORCHID-4821}
+Okay, let's see. The user provided a lengthy text and asked ",1
+4096,0.1,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+But the question is: What is the password to the vault?
+Answer: OR",1
+4096,0.1,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user provided a long text and then asked for ",1
+4096,0.1,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user is asking for the launch confirmation ph",1
+4096,0.1,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Question: What is the launch confirmation phrase?
+Answer: GLACIER-",1
+4096,0.25,baseline,The secret code for the mission is: DELT,DELTA-7749,"""DELTA-7749""
+
+Okay, let's see. The user is asking for the secret code for the mi",1
+4096,0.25,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+4096,0.25,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+In the midst of a conversation on political matters Anna Pávlovna bu",1
+4096,0.25,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"The password to the vault is: ORCHID-4821.
+Okay, let's see. The user is asking f",1
+4096,0.25,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault. I",1
+4096,0.25,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The password to the vault is: ORCHID-482.1.
+
+The password to the v",1
+4096,0.25,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"Okay, let me check the text provided. The user is asking for the launch confirma",0
+4096,0.25,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: GLACIER-9953.
+Okay, let's see. The user is as",1
+4096,0.25,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+ Question: What is the launch confirmation phrase?
+Answer: GLACIER",1
+4096,0.5,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+4096,0.5,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, so I need to figure out the secret code for the mission from t",1
+4096,0.5,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+But the prince had not yet come, and the princess was waiting for
+h",1
+4096,0.5,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault f",1
+4096,0.5,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault fr",1
+4096,0.5,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+But the prince was silent and looked indifferent. But, with the wo",1
+4096,0.5,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"$\boxed{\text{GLACIER-9953}}$
+Okay, let's see. The user is asking for the launch",1
+4096,0.5,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"$\boxed{\text{GLACIER-9953}}$
+The launch confirmation phrase is: $\boxed{\text{G",1
+4096,0.5,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+
+But the launch confirmation phrase is not the only thing that
+has",1
+4096,0.75,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+4096,0.75,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking about the secret code for the mis",1
+4096,0.75,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+But the question is: What is the secret code for the mission?
+
+And ",1
+4096,0.75,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"""ORCHID-4821""
+
+Okay, let's see. The user is asking for the password to the vault",1
+4096,0.75,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault fr",1
+4096,0.75,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+But the question is: What is the password to the vault?
+Answer: OR",1
+4096,0.75,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user provided a long text and then asked for ",1
+4096,0.75,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, let's see. The user provided a long text and then asked for ",1
+4096,0.75,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+
+The launch confirmation phrase is: GLACIER-9953.
+
+The launch conf",1
+4096,0.9,baseline,The secret code for the mission is: DELT,DELTA-7749,"""DELTA-7749""
+
+Okay, let's see. The user is asking for the secret code for the mi",1
+4096,0.9,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+4096,0.9,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+But the question is not what the secret code is, but what the secre",1
+4096,0.9,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user provided a long text and then asked for t",1
+4096,0.9,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"4821
+
+Okay, let's see. The user is asking for the password to the vault based on",0
+4096,0.9,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+But the prince was silent and looked indifferent. But, with the
+wo",1
+4096,0.9,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"$\boxed{\text{GLACIER-9953}}$
+Okay, let's see. The user provided a long text and",1
+4096,0.9,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let me check the text again. The user mentioned that the lau",1
+4096,0.9,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+
+But the question is not about the launch confirmation phrase, but",1
+8192,0.1,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+8192,0.1,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Question: What is the secret code for the mission?
+Answer: DELTA-7749",1
+8192,0.1,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+But the prince was silent and looked indifferent. However,
+the prin",1
+8192,0.1,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault fr",1
+8192,0.1,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault. I",1
+8192,0.1,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"Orchestid-4821.
+Question: What is the password to the vault?
+Answer: Orchestid-4",0
+8192,0.1,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, let's see. The user is asking for the launch confirmation ph",1
+8192,0.1,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"Okay, let me try to figure out the launch confirmation phrase from the given tex",0
+8192,0.1,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: GLACIER-9953.
+
+The launch confirmation phrase",1
+8192,0.25,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+8192,0.25,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let me check the text again to make sure I didn't miss any clu",1
+8192,0.25,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+The code is a number, and the question is: What is the secret code ",1
+8192,0.25,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault. ",1
+8192,0.25,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+Okay, let's see. The user is asking for the password to the vault. ",1
+8192,0.25,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The password to the vault is: ORCHID-4821.
+
+The password to the va",1
+8192,0.25,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, let's see. The user is asking for the launch confirmation ph",1
+8192,0.25,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, let's see. The user provided a large text, mostly a novel ex",1
+8192,0.25,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: GLACIER-9953.
+The launch confirmation phrase ",1
+8192,0.5,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+8192,0.5,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let me check the text again to make sure I didn't miss anything",1
+8192,0.5,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+But the prince had not yet been informed of the secret code. He had",1
+8192,0.5,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault. I",1
+8192,0.5,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+You are a helpful assistant. The password to the vault is: ORCHID-4",1
+8192,0.5,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The password to the vault is: ORCHID-4821.
+
+The password to the va",1
+8192,0.5,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"Okay, let me check the text provided. The user is asking for the launch confirma",0
+8192,0.5,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"Okay, let me check the text for the launch confirmation phrase. The user mention",1
+8192,0.5,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: GLACIER-9953.
+
+And with that, the prince and ",1
+8192,0.75,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+8192,0.75,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+Okay, let me try to figure out the answer to the question: ""What is ",1
+8192,0.75,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+Question: What is the secret code for the mission?
+Answer: DELTA-774",1
+8192,0.75,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault. ",1
+8192,0.75,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault. ",1
+8192,0.75,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The password to the vault is: ORCHID-4821.
+
+The password to the va",1
+8192,0.75,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user is asking for the launch confirmation ph",1
+8192,0.75,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user is asking for the launch confirmation ph",1
+8192,0.75,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: GLACIER-9953.
+
+The launch confirmation phrase",1
+8192,0.9,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+8192,0.9,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let me check the question again. The user is asking for the se",1
+8192,0.9,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+The secret code for the mission is DELTA-7749.
+
+The secret code for",1
+8192,0.9,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault. ",1
+8192,0.9,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let me check the text again. The user mentioned that the passw",1
+8192,0.9,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"The password to the vault is: ORCHID-4821.
+
+The question is asking for the passw",1
+8192,0.9,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user is asking for the launch confirmation ph",1
+8192,0.9,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, let's see. The user is asking for the launch confirmation phr",1
+8192,0.9,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: GLACIER-9953.
+
+And with that, the prince and ",1
+16384,0.1,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+16384,0.1,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+16384,0.1,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+The answer is: DELTA-7749.
+
+The answer is: DELTA-7749.",1
+16384,0.1,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"The password to the vault is: ORCHID-4821.
+Okay, let's see. The user is asking f",1
+16384,0.1,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, so I need to figure out the password to the vault. Let me sta",1
+16384,0.1,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The password to the vault is: ORCHID-4821.
+
+The password to the va",1
+16384,0.1,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, I need to find the launch confirmation phrase from the given ",1
+16384,0.1,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, so I need to figure out what the launch confirmation phrase i",1
+16384,0.1,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: ""GLACIER-9953.""
+Question: What is the launch ",1
+16384,0.25,baseline,The secret code for the mission is: DELT,DELTA-7749,"The secret code for the mission is: DELTA-7749.
+Okay, let's see. The user is ask",1
+16384,0.25,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"$\boxed{DELTA-7749}$
+
+Okay, let's see. The user provided a lengthy text that see",1
+16384,0.25,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+The secret code is DELTA-7749.
+
+The secret code is DELTA-7749.",1
+16384,0.25,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"The password to the vault is: ORCHID-4821.
+Okay, let me try to figure out the pa",1
+16384,0.25,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, so I need to figure out the password to the vault. Let me star",1
+16384,0.25,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The above is the only correct answer. No other answer is correct.
+",1
+16384,0.25,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"Okay, let's see. The user is asking for the launch confirmation phrase from the ",0
+16384,0.25,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"$\boxed{GLACIER-9953}$
+
+Okay, so I need to figure out what the launch confirmati",1
+16384,0.25,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+
+The launch confirmation phrase is: GLACIER-9953.
+
+The launch conf",1
+16384,0.5,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+16384,0.5,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, so I need to figure out the secret code for the mission mentio",1
+16384,0.5,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"The secret code for the mission is: DELTA-7749. te
+was still talking, and again ",1
+16384,0.5,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault. I",1
+16384,0.5,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault. ",1
+16384,0.5,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+Question: What is the password to the vault?
+Answer: ORCHID-4821.
+Q",1
+16384,0.5,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"Okay, let's see. The user provided a long text and then asked for the launch con",0
+16384,0.5,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let me try to figure out the answer to this question. The us",1
+16384,0.5,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Question: What is the launch confirmation phrase?
+Answer: GLACIER-",1
+16384,0.75,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+16384,0.75,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"$\boxed{DELTA-7749}$
+
+Okay, let's see. The user is asking about the secret code ",1
+16384,0.75,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+
+The question is about the secret code for the mission, and the answ",1
+16384,0.75,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, let's see. The user is asking for the password to the vault f",1
+16384,0.75,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+The password to the vault is: ORCHID-4821.
+
+The password to the va",1
+16384,0.75,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+But the only thing that matters is the story of the murder of the ",1
+16384,0.75,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"$\boxed{\text{GLACIER-9953}}$
+Okay, so I need to figure out what the launch conf",1
+16384,0.75,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, so I need to figure out what the launch confirmation phrase ",1
+16384,0.75,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+
+But the question is not about the launch confirmation phrase.
+It ",1
+16384,0.9,baseline,The secret code for the mission is: DELT,DELTA-7749,"$\boxed{DELTA-7749}$
+
+Okay, let's see. The user is asking about the secret code ",1
+16384,0.9,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, so I need to figure out the answer to the question: What is th",1
+16384,0.9,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+Question: What is the secret code for the mission?
+Answer: DELTA-774",1
+16384,0.9,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"$\boxed{ORCHID-4821}$
+
+Okay, let's see. The user is asking for the password to t",1
+16384,0.9,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault. I",1
+16384,0.9,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+Question: What is the password to the vault?
+Answer: ORCHID-4821.
+Q",1
+16384,0.9,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"$\boxed{\text{GLACIER-9953}}$
+Okay, let's see. The user is asking for the launch",1
+16384,0.9,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user is asking for the launch confirmation ph",1
+16384,0.9,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+The launch confirmation phrase is: GLACIER-9953.
+The launch confir",1
+32768,0.1,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+32768,0.1,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+The secret code for the mission is: DELTA-7749.
+The secret code for t",1
+32768,0.1,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"It is not at all.
+
+“Do you know, my dear, that you are so very well and I am so ",0
+32768,0.1,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"The password to the vault is: ORCHID-4821.
+Okay, let's see. The user is asking f",1
+32768,0.1,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault, a",1
+32768,0.1,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"The password is: ORCHID-4821.
+
+The password is: ORCHID-482, and the key is: ORCH",1
+32768,0.1,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, I need to figure out the launch confirmation phrase from the ",1
+32768,0.1,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, I need to figure out the launch confirmation phrase. Let me s",1
+32768,0.1,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"It is the launch confirmation phrase.
+
+“Launch confirmation phrase.”
+
+“Launch co",0
+32768,0.25,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+32768,0.25,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+The countess was upset by her friend’s sorrow and humiliating povert",1
+32768,0.25,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"The secret code is: DELTA-7749.
+
+The code is: DELTA-7749.
+
+The code is: DELTA-",1
+32768,0.25,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault, a",1
+32768,0.25,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, I need to figure out the password to the vault. Let me start b",1
+32768,0.25,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"The password is: ORCHID-4821.
+
+The question is: What is the password to the vaul",1
+32768,0.25,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, I need to figure out the launch confirmation phrase from the ",1
+32768,0.25,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, I need to figure out the launch confirmation phrase. Let me ",1
+32768,0.25,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"It is the launch confirmation phrase.
+
+The launch confirmation phrase is: “Glaci",1
+32768,0.5,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user provided a long text and then asked a ques",1
+32768,0.5,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749.
+You are a helpful assistant.
+
+Okay, let's see. The user is asking fo",1
+32768,0.5,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"It is not a secret at all.
+
+“Why, what is the matter with you, my dear?” said th",0
+32768,0.5,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault, a",1
+32768,0.5,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821.
+
+Okay, let's see. The user provided a query and an answer, and they",1
+32768,0.5,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"Or, if you have a key, it is a very, very, very, very
+important, and it is a ver",0
+32768,0.5,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, I need to figure out the answer to the question: ""What is th",1
+32768,0.5,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+
+Okay, let's see. The user provided a very long text, mostly in Rus",1
+32768,0.5,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"It is the launch confirmation phrase.
+
+It is the launch confirmation phrase.
+
+It",0
+32768,0.75,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+32768,0.75,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user provided a long text and then a question ab",1
+32768,0.75,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"It is not at all.
+
+“Do you know?” asked the countess.
+
+“Of course, I know, and I",0
+32768,0.75,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault, a",1
+32768,0.75,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+
+Okay, I need to figure out the password to the vault based on the i",1
+32768,0.75,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"Or, if you want to, you can go to the bank and take it
+with you. But I don’t kno",0
+32768,0.75,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, I need to figure out the answer to the question: ""What is the",1
+32768,0.75,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+Okay, I need to figure out the answer to this question. The user p",1
+32768,0.75,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"It is the phrase that is to be used.
+
+The phrase is: “The launch confirmation ph",0
+32768,0.9,baseline,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+Okay, let's see. The user is asking for the secret code for the missi",1
+32768,0.9,k128_4bit,The secret code for the mission is: DELT,DELTA-7749,"DELTA-7749
+
+Okay, let's see. The user is asking for the secret code for the miss",1
+32768,0.9,k96_4bit,The secret code for the mission is: DELT,DELTA-7749,"The code is 7749.
+
+The code is 7749.
+
+The code is 7749.
+
+The code is 7",0
+32768,0.9,baseline,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault, a",1
+32768,0.9,k128_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"ORCHID-4821
+Okay, let's see. The user is asking for the password to the vault, a",1
+32768,0.9,k96_4bit,The password to the vault is: ORCHID-482,ORCHID-4821,"The password is: Or.
+
+“Ah, my dear, I have always been so very, very, very, very",0
+32768,0.9,baseline,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953
+Okay, I need to figure out the answer to the question: ""What is the",1
+32768,0.9,k128_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"GLACIER-9953.
+
+“Ah, money, Count, money! How much sorrow it causes in the world,",1
+32768,0.9,k96_4bit,The launch confirmation phrase is: GLACI,GLACIER-9953,"The launch confirmation phrase is: ""The
+launch confirmation phrase is: 'The laun",0

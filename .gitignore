@@ -24,3 +24,5 @@ vgg16-fisher/data/
 
 # OS
 .DS_Store
+*.onnx
+*.onnx.data

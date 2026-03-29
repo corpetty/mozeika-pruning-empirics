@@ -18,8 +18,12 @@ def get_model_and_tokenizer(model_name: str):
 
     # Use autoawq directly — avoids transformers gptqmodel dependency
     from awq import AutoAWQForCausalLM
+    # Reserve headroom for activations at large context lengths (32K+).
+    # Without this, device_map="auto" packs weights leaving no room for 32K MLP intermediates.
+    # Cap at 20GiB on GPU0 to leave ~3.5GiB for activation buffers.
+    max_mem = {0: "20GiB", "cpu": "32GiB"}
     model = AutoAWQForCausalLM.from_quantized(
-        model_name, fuse_layers=False, device_map="auto"
+        model_name, fuse_layers=False, device_map="auto", max_memory=max_mem
     )
     print(f"Loaded AWQ model: {model_name}")
     return model, tokenizer

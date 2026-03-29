@@ -255,3 +255,21 @@ def compare_compression_methods(K: np.ndarray, V: np.ndarray, Q: np.ndarray,
             })
 
     return results
+
+
+# ── High-level compression helper ────────────────────────────────────────────
+
+def compress_vec(x_np: np.ndarray, method: str, k: int, n_bits: int,
+                 U=None, mean=None) -> np.ndarray:
+    """
+    Compress a (T, d) array of KV vectors using the specified method.
+
+    method : 'subspace' — project to k-dim PCA subspace then polar-quantize
+             'full_dim' — polar-quantize in full dimension (no PCA)
+             None       — no compression, return x_np unchanged
+    """
+    if method == 'subspace':
+        return subspace_polar_quantize(x_np, k, n_bits, U, mean)
+    elif method == 'full_dim':
+        return polar_quantize(x_np, n_bits)
+    return x_np

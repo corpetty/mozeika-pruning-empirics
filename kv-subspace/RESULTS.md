@@ -116,3 +116,17 @@ TurboQuant (PolarQuant's predecessor) operates on the full d_head. The clean imp
 3. **V-vector compression** — same analysis for V (higher rank, expect smaller gains)
 4. **Calibration vs test set** — check if PCA basis transfers across different input texts (crucial for practical deployment)
 5. **Hardware cost** — projection + quantize vs plain quantize: latency overhead of the matrix-vector multiply for each KV token
+
+---
+
+## Status (updated 2026-03-29)
+
+The items above were all completed in experiments 1–17. Summary of what we found:
+
+- ✅ Real KV vectors: All experiments 2–17 use real forward-pass KV vectors via hooks
+- ✅ Adaptive k per layer: Exp 2 showed fixed k beats eff_rank_90; Exp 16 derived a sensitivity-based adaptive policy (k=64/96/128 per layer, mean=96)
+- ✅ V-vector compression: Exp 3 confirmed V is higher rank; recommendation is full-dim PolarQuant for V
+- ✅ Calibration transfer: Exp 4 (basic) and Exp 17 (full cross-domain matrix) — k128 transfers well across all domains; k96 benefits from universal multi-domain calibration
+- ✅ Hardware cost: Exp 5 measured 1.7× hook overhead (325 vs 185 μs/head); Exp 14 confirmed Python roundtrip is 10–13× (not representative of fused kernel)
+
+See results/SUMMARY.md for the full 17-experiment narrative, and results/REPORT-13 through REPORT-17 for the individual experiment reports.
