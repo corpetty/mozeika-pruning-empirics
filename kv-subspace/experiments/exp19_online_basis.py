@@ -226,12 +226,15 @@ def install_online_hooks(model, initial_bases, k_dim, bits, n_kv_heads, d_head,
     # Build per-head basis objects
     k_bases = {}   # static
     v_bases = {}   # online updatable
+    v_initial_bases = {}  # snapshot of initial V basis for drift measurement
 
     for (layer_idx, head_idx), kv in initial_bases.items():
         U_k, mean_k = fit_pca(kv['K'], k_dim)
         U_v, mean_v = fit_pca(kv['V'], k_dim)
         k_bases[(layer_idx, head_idx)] = StaticBasis(U_k, mean_k)
         v_bases[(layer_idx, head_idx)] = basis_cls(U_v, mean_v, k_dim, **basis_kwargs)
+        # Store initial V basis for drift comparison (must compare V vs initial V, not vs K)
+        v_initial_bases[(layer_idx, head_idx)] = (U_v.copy(), mean_v.copy())
 
     # Token counter (shared state via dict to allow mutation in closures)
     state = {'tokens_seen': 0, 'next_update': update_interval if update_interval > 0 else None}
@@ -285,20 +288,28 @@ def install_online_hooks(model, initial_bases, k_dim, bits, n_kv_heads, d_head,
                             state['tokens_seen'] >= state['next_update']):
                         state['next_update'] += update_interval
                         # Update all V bases
+                        n_updated = 0
                         for key2, vecs in v_capture.items():
                             if vecs:
                                 batch = np.concatenate(vecs, axis=0)
                                 v_bases[key2].update(batch)
+                                n_updated += 1
                         v_capture.clear()
+                        # Sanity check: log that updates are actually firing
+                        total_updates = sum(b.n_updates for b in v_bases.values())
+                        print(f"    [basis update @ t={state['tokens_seen']}] "
+                              f"updated {n_updated} heads, "
+                              f"total n_updates across heads={total_updates}")
 
                         # Log drift if requested
                         if v_drift_log is not None:
                             t = state['tokens_seen']
                             overlaps = []
                             for key2, vbasis in v_bases.items():
-                                # Compare initial basis (before any update) to current
+                                # Compare current V basis against the *initial* V basis
+                                # (not K basis — that was a bug in the original code)
                                 U_cur, _ = vbasis.get()
-                                U_init, _ = k_bases[key2].get()  # use K as proxy for initial V
+                                U_init, _ = v_initial_bases[key2]  # true initial V basis
                                 overlaps.append(basis_overlap(U_cur, U_init))
                             v_drift_log.setdefault('tokens', []).append(t)
                             v_drift_log.setdefault('mean_overlap', []).append(

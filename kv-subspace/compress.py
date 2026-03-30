@@ -1,61 +1,175 @@
 """
-compress.py — PolarQuant + QJL implementation, attention score distortion measurement.
+compress.py — KV cache compression implementations.
 
-Tests the hypothesis: compressing KV vectors in their principal subspace requires
-fewer bits to preserve attention score quality than full-dimensional compression.
+Two quantization backends, both operating on PCA-projected subspace vectors:
+
+  SubRotQ (Subspace Rotation Quantization):
+    Our method. Random orthogonal preconditioning (QR) + uniform scalar
+    quantization per dimension. Fast, no calibration needed for the quantizer.
+
+  PolarQuant (Han et al., arXiv:2502.02617):
+    Random preconditioning + recursive polar coordinate transform + uniform
+    quantization of polar angles. The key insight: after random preconditioning,
+    polar angles concentrate around analytically known values, so no per-block
+    normalization constants need to be stored.
+
+Both are composed with PCA subspace projection in subspace_compress().
 """
 
 import numpy as np
 
 
-# ── PolarQuant ────────────────────────────────────────────────────────────────
+# ── Random orthogonal preconditioning (shared by both methods) ────────────────
 
 def random_rotation_matrix(d: int, seed: int = 0) -> np.ndarray:
-    """Generate a random orthogonal rotation matrix via QR decomposition."""
+    """Random orthogonal matrix via QR decomposition (random preconditioning)."""
     rng = np.random.default_rng(seed)
     A = rng.standard_normal((d, d))
     Q, _ = np.linalg.qr(A)
     return Q.astype(np.float32)
 
 
-def polar_quantize(x: np.ndarray, n_bits: int, R: np.ndarray = None) -> np.ndarray:
+# ── SubRotQ: random rotation + uniform scalar quantization ───────────────────
+
+def quantize_uniform(x: np.ndarray, n_bits: int) -> np.ndarray:
+    """Uniform scalar quantization to n_bits per value, per-column scale."""
+    n_levels = 2 ** n_bits
+    x_min = x.min(axis=0, keepdims=True)
+    x_max = x.max(axis=0, keepdims=True)
+    scale = (x_max - x_min) / (n_levels - 1)
+    scale = np.where(scale == 0, 1.0, scale)
+    x_int = np.clip(np.round((x - x_min) / scale).astype(np.int32), 0, n_levels - 1)
+    return x_int * scale + x_min
+
+
+def subrotq_quantize(x: np.ndarray, n_bits: int, R: np.ndarray = None) -> np.ndarray:
     """
-    PolarQuant: random rotation + scalar quantization of each component.
-    
+    SubRotQ: random orthogonal preconditioning + uniform scalar quantization.
+
+    This is our baseline method (previously mislabelled 'PolarQuant' in early
+    experiments). Random rotation spreads variance across dimensions; uniform
+    quantization then treats all dimensions identically.
+
     x: (N, d) float vectors
-    n_bits: bits per scalar (e.g. 4, 8)
-    R: optional pre-computed rotation matrix (d, d)
-    
-    Returns reconstructed vectors (N, d).
+    n_bits: bits per scalar
+    R: pre-computed (d, d) rotation matrix; generated if None
+    Returns: reconstructed (N, d)
+    """
+    N, d = x.shape
+    if R is None:
+        R = random_rotation_matrix(d)
+    xr = x @ R.T           # precondition
+    xq = quantize_uniform(xr, n_bits)
+    return xq @ R          # rotate back
+
+
+# ── PolarQuant: random preconditioning + recursive polar transform ────────────
+
+def _polar_to_cartesian(r: np.ndarray, angles: np.ndarray) -> np.ndarray:
+    """
+    Reconstruct Cartesian vectors from radius r and (d-1) polar angles.
+    Inverse of the recursive polar transform.
+
+    r: (N,) radius (L2 norm of preconditioned vector)
+    angles: (N, d-1) — angles[i, j] in [-pi, pi] for j < d-2, else [-pi/2, pi/2]
+    Returns: (N, d)
+    """
+    N, d_minus1 = angles.shape
+    d = d_minus1 + 1
+    # Build sin/cos products recursively
+    x = np.zeros((N, d), dtype=np.float32)
+    sin_prod = np.ones(N, dtype=np.float32)
+    for i in range(d - 1):
+        x[:, i] = sin_prod * np.cos(angles[:, i])
+        sin_prod = sin_prod * np.sin(angles[:, i])
+    x[:, d - 1] = sin_prod
+    return x * r[:, None]
+
+
+def polar_quantize_true(x: np.ndarray, n_bits: int, R: np.ndarray = None) -> np.ndarray:
+    """
+    True PolarQuant (Han et al., arXiv:2502.02617).
+
+    Algorithm:
+      1. Apply random orthogonal preconditioning R.
+      2. Compute L2 radius r = ||Rx||.
+      3. Normalise: x_norm = Rx / r  (unit sphere).
+      4. Convert x_norm to (d-1) polar angles via recursive arctan2.
+      5. After preconditioning, angles are distributed ~Uniform[-π,π] (first d-2)
+         or ~Uniform[-π/2,π/2] (last angle). Quantise uniformly with fixed range
+         [−π, π] or [−π/2, π/2] — no per-block scale/offset needed.
+      6. Reconstruct unit vector from quantised angles, rescale by r.
+      7. Invert preconditioning: R^T * x_recon.
+
+    x: (N, d) float vectors
+    n_bits: bits per scalar
+    R: pre-computed (d, d) rotation; generated if None
+    Returns: reconstructed (N, d)
     """
     N, d = x.shape
     if R is None:
         R = random_rotation_matrix(d)
 
-    # Rotate
-    xr = x @ R.T  # (N, d)
+    # 1. Precondition
+    xr = (x @ R.T).astype(np.float64)  # (N, d)
 
-    # Quantize each dimension independently (uniform)
-    x_q = quantize_uniform(xr, n_bits)
+    # 2. Radius
+    r = np.linalg.norm(xr, axis=1)  # (N,)
+    safe_r = np.where(r == 0, 1.0, r)
 
-    # Rotate back
-    return x_q @ R
+    # 3. Normalise to unit sphere
+    x_norm = xr / safe_r[:, None]  # (N, d)
 
+    # 4. Recursive polar angle extraction
+    # angles[:, i] = arctan2(sin_prod_i, x_norm[:, i])
+    # where sin_prod_i = product of sin(angles[:, j]) for j < i
+    angles = np.zeros((N, d - 1), dtype=np.float64)
+    sin_prod = np.ones(N, dtype=np.float64)
+    for i in range(d - 1):
+        if i < d - 2:
+            # arctan2(remaining_norm, current_component) gives angle in [0, π]
+            # but we keep signed via arctan2 to stay in [-π, π]
+            remaining = np.linalg.norm(x_norm[:, i+1:], axis=1)
+            angles[:, i] = np.arctan2(remaining, x_norm[:, i])
+        else:
+            # Last angle: arctan2(x[d-1], x[d-2]) gives full [-π, π]
+            angles[:, i] = np.arctan2(x_norm[:, d-1], x_norm[:, d-2])
+        sin_prod = sin_prod * np.sin(angles[:, i])
 
-def quantize_uniform(x: np.ndarray, n_bits: int) -> np.ndarray:
-    """Uniform scalar quantization to n_bits per value."""
+    # 5. Quantise angles with fixed range (no per-block scale needed after preconditioning)
     n_levels = 2 ** n_bits
-    x_min = x.min(axis=0, keepdims=True)
-    x_max = x.max(axis=0, keepdims=True)
-    scale = (x_max - x_min) / (n_levels - 1)
-    scale = np.where(scale == 0, 1.0, scale)  # avoid div by zero
+    # First d-2 angles: range [0, π] (arctan2 of norm vs component)
+    # Last angle: range [-π, π]
+    angles_q = angles.copy()
+    if d > 2:
+        # angles 0..d-3: [0, π]
+        step_mid = np.pi / (n_levels - 1)
+        angles_q[:, :d-2] = np.round(angles[:, :d-2] / step_mid) * step_mid
+        angles_q[:, :d-2] = np.clip(angles_q[:, :d-2], 0.0, np.pi)
+    # Last angle: [-π, π]
+    step_last = 2 * np.pi / (n_levels - 1)
+    angles_q[:, d-2] = np.round((angles[:, d-2] + np.pi) / step_last) * step_last - np.pi
+    angles_q[:, d-2] = np.clip(angles_q[:, d-2], -np.pi, np.pi)
 
-    # Quantize
-    x_int = np.round((x - x_min) / scale).astype(np.int32)
-    x_int = np.clip(x_int, 0, n_levels - 1)
+    # 6. Reconstruct and rescale
+    x_recon_norm = _polar_to_cartesian(np.ones(N, dtype=np.float32),
+                                        angles_q.astype(np.float32))
+    x_recon = x_recon_norm * safe_r.astype(np.float32)[:, None]
 
-    # Dequantize
-    return x_int * scale + x_min
+    # 7. Invert preconditioning
+    return (x_recon @ R).astype(np.float32)
+
+
+# ── Legacy alias (keeps old call sites working) ───────────────────────────────
+
+def polar_quantize(x: np.ndarray, n_bits: int, R: np.ndarray = None) -> np.ndarray:
+    """Legacy alias — calls SubRotQ (was mislabelled PolarQuant in early experiments)."""
+    return subrotq_quantize(x, n_bits, R)
+
+
+def quantize_uniform_legacy(x: np.ndarray, n_bits: int) -> np.ndarray:
+    """Alias kept for backward compatibility."""
+    return quantize_uniform(x, n_bits)
 
 
 # ── QJL (1-bit Johnson-Lindenstrauss correction) ──────────────────────────────
@@ -99,20 +213,22 @@ def fit_pca(X: np.ndarray, k: int):
     return U_k, mean
 
 
-def subspace_polar_quantize(x: np.ndarray, k: int, n_bits: int, 
-                             U_k: np.ndarray = None, mean: np.ndarray = None,
-                             R: np.ndarray = None) -> np.ndarray:
+def subspace_compress(x: np.ndarray, k: int, n_bits: int,
+                       U_k: np.ndarray = None, mean: np.ndarray = None,
+                       R: np.ndarray = None,
+                       quantizer: str = 'subrotq') -> np.ndarray:
     """
-    Project to k-dim subspace, PolarQuant, reconstruct to d-dim.
-    
+    Project to k-dim PCA subspace, quantize, reconstruct to d-dim.
+
     x: (N, d)
     k: subspace dimension
     n_bits: bits per scalar in the subspace
-    U_k: (d, k) — if None, computed from x
-    mean: (d,) — if None, computed from x
-    R: (k, k) rotation matrix — if None, generated
-    
-    Returns reconstructed vectors (N, d).
+    U_k: (d, k) PCA basis — computed from x if None
+    mean: (d,) PCA mean — computed from x if None
+    R: (k, k) rotation matrix — generated if None
+    quantizer: 'subrotq' (random rotation + uniform) or 'polarquant' (Han et al.)
+
+    Returns reconstructed (N, d).
     """
     if U_k is None or mean is None:
         U_k, mean = fit_pca(x, k)
@@ -121,14 +237,23 @@ def subspace_polar_quantize(x: np.ndarray, k: int, n_bits: int,
     xc = x - mean
     x_proj = xc @ U_k  # (N, k)
 
-    # PolarQuant in k-dim space
+    # Quantize in k-dim space
     if R is None:
         R = random_rotation_matrix(k)
-    x_proj_q = polar_quantize(x_proj, n_bits, R)
+    if quantizer == 'polarquant':
+        x_proj_q = polar_quantize_true(x_proj, n_bits, R)
+    else:  # default: subrotq
+        x_proj_q = subrotq_quantize(x_proj, n_bits, R)
 
-    # Reconstruct
-    x_recon = x_proj_q @ U_k.T + mean  # (N, d)
-    return x_recon
+    # Reconstruct to d-dim
+    return x_proj_q @ U_k.T + mean
+
+
+def subspace_polar_quantize(x: np.ndarray, k: int, n_bits: int,
+                             U_k: np.ndarray = None, mean: np.ndarray = None,
+                             R: np.ndarray = None) -> np.ndarray:
+    """Legacy alias — calls subspace_compress with SubRotQ backend."""
+    return subspace_compress(x, k, n_bits, U_k, mean, R, quantizer='subrotq')
 
 
 # ── Distortion metrics ────────────────────────────────────────────────────────
@@ -260,16 +385,19 @@ def compare_compression_methods(K: np.ndarray, V: np.ndarray, Q: np.ndarray,
 # ── High-level compression helper ────────────────────────────────────────────
 
 def compress_vec(x_np: np.ndarray, method: str, k: int, n_bits: int,
-                 U=None, mean=None) -> np.ndarray:
+                 U=None, mean=None, quantizer: str = 'subrotq') -> np.ndarray:
     """
-    Compress a (T, d) array of KV vectors using the specified method.
+    Compress a (T, d) array of KV vectors.
 
-    method : 'subspace' — project to k-dim PCA subspace then polar-quantize
-             'full_dim' — polar-quantize in full dimension (no PCA)
-             None       — no compression, return x_np unchanged
+    method    : 'subspace' — PCA projection then quantize
+                'full_dim' — quantize in full dimension (no PCA)
+                None       — no compression
+    quantizer : 'subrotq' (default) or 'polarquant' — backend for quantization step
     """
     if method == 'subspace':
-        return subspace_polar_quantize(x_np, k, n_bits, U, mean)
+        return subspace_compress(x_np, k, n_bits, U, mean, quantizer=quantizer)
     elif method == 'full_dim':
-        return polar_quantize(x_np, n_bits)
+        if quantizer == 'polarquant':
+            return polar_quantize_true(x_np, n_bits)
+        return subrotq_quantize(x_np, n_bits)
     return x_np

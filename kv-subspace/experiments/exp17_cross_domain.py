@@ -366,17 +366,25 @@ def main():
     print(f"n_layers={n_layers}, n_kv_heads={n_kv_heads}, d_head={d_head}")
 
     fiction_text = DATA_FILE.read_text(encoding="utf-8", errors="replace")
-    domain_texts = get_domain_texts(fiction_text)
-    domains = list(domain_texts.keys())
+    domain_texts_raw = get_domain_texts(fiction_text)
+    domains = list(domain_texts_raw.keys())
 
-    # Universal calibration = interleaved chunks from all four domains
-    universal_calib_parts = []
-    for dom, txt in domain_texts.items():
-        # Use first CALIB_TOKENS chars of each (rough proxy; tokenizer handles truncation)
-        universal_calib_parts.append(txt[:len(txt) // 3])
+    # Split each domain into calib (first 75%) and eval (last 25%) to avoid overlap.
+    # This ensures the same eval text is used for a given eval_domain regardless of
+    # which domain was used for calibration (fixes Figure 8 data bug where
+    # same-domain calib/eval used second half while cross-domain used full text).
+    calib_texts = {}
+    eval_texts = {}
+    for dom, txt in domain_texts_raw.items():
+        split = int(len(txt) * 0.75)
+        calib_texts[dom] = txt[:split]
+        eval_texts[dom]  = txt[split:]
+
+    # Universal calibration = first 75% interleaved from all four domains
+    universal_calib_parts = [calib_texts[dom] for dom in domains]
     universal_calib_text = "\n\n".join(universal_calib_parts)
 
-    calib_sources = dict(domain_texts)  # one per domain
+    calib_sources = dict(calib_texts)  # one per domain (first 75% each)
     calib_sources["universal"] = universal_calib_text
 
     k_values = [96, 128]
@@ -407,10 +415,9 @@ def main():
         print(f"  Fitted {len(bases_by_k[128])} (layer, head) bases")
 
         for eval_domain in domains:
-            eval_text = domain_texts[eval_domain]
-            # For same-domain calib/eval, use second half to avoid overlap
-            if calib_domain == eval_domain:
-                eval_text = eval_text[len(eval_text) // 2:]
+            # Always use the held-out last 25% of each domain for eval,
+            # regardless of which domain was used for calibration.
+            eval_text = eval_texts[eval_domain]
 
             for cfg_name, cfg in CONFIGS.items():
                 key = (calib_domain, eval_domain, cfg_name)
