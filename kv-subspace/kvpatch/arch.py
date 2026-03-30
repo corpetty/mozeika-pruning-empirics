@@ -21,6 +21,16 @@ class ModelInfo:
     model_body: Any         # reference to the transformer body module
     lm_head: Any            # reference to the LM head
 
+    def __getstate__(self):
+        """Exclude live model references from pickle — they can't serialize."""
+        state = self.__dict__.copy()
+        state["model_body"] = None
+        state["lm_head"] = None
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
     @property
     def kv_dim(self) -> int:
         return self.n_kv_heads * self.d_head
