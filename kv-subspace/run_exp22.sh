@@ -19,5 +19,5 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 echo "=== Exp 22: SubRotQ vs PolarQuant quantizer comparison ==="
 echo "Configs: k={64,96,112,128} x bits={4,8} x quantizer={subrotq,polarquant}"
-python experiments/exp22_quantizer_comparison.py
+/home/petty/torch-env/bin/python3 experiments/exp22_quantizer_comparison.py
 echo "=== DONE ==="

@@ -24,5 +24,5 @@ if [ -f results/exp19_online_basis.csv ]; then
 fi
 
 echo "=== Exp 19 (fixed drift comparison + update instrumentation) ==="
-python experiments/exp19_online_basis.py
+/home/petty/torch-env/bin/python3 experiments/exp19_online_basis.py
 echo "=== DONE ==="

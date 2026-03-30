@@ -26,5 +26,5 @@ if [ -f results/exp17_cross_domain.csv ]; then
 fi
 
 echo "=== Exp 17 (fixed eval logic) ==="
-python experiments/exp17_cross_domain.py
+/home/petty/torch-env/bin/python3 experiments/exp17_cross_domain.py
 echo "=== DONE ==="
