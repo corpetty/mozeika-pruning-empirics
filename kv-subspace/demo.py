@@ -65,12 +65,18 @@ def load_model(model_id: str):
     t0 = time.time()
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+
+    # Build max_memory based on how many GPUs are actually visible in this job
+    n_gpu = torch.cuda.device_count()
+    max_mem = {i: "20GiB" for i in range(n_gpu)}
+    max_mem["cpu"] = "60GiB"
+
     model = AutoAWQForCausalLM.from_quantized(
         model_id,
         fuse_layers=False,
         trust_remote_code=True,
         safetensors=True,
-        max_memory={0: "20GiB", 1: "20GiB", "cpu": "60GiB"},
+        max_memory=max_mem,
     )
     model.eval()
 
