@@ -1,6 +1,6 @@
 # Subspace PolarQuant: KV Cache Compression via PCA Projection and Rotation Quantization
 
-**Corbin Petty**  
+**Corey Petty**  
 Institute of Free Technology
 
 ---
