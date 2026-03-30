@@ -1,0 +1,17 @@
+k,bits,quantizer,ppl,rel_ppl
+64,4,subrotq,1.2189,1.0417
+64,4,polarquant,1.3396,1.1449
+64,8,subrotq,1.2063,1.031
+64,8,polarquant,1.2067,1.0313
+96,4,subrotq,1.1767,1.0057
+96,4,polarquant,1.2433,1.0626
+96,8,subrotq,1.1672,0.9975
+96,8,polarquant,1.1669,0.9973
+112,4,subrotq,1.1733,1.0028
+112,4,polarquant,1.2351,1.0556
+112,8,subrotq,1.1708,1.0006
+112,8,polarquant,1.1713,1.0011
+128,4,subrotq,1.1722,1.0018
+128,4,polarquant,1.2654,1.0815
+128,8,subrotq,1.1699,0.9998
+128,8,polarquant,1.1705,1.0004

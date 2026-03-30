@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=kvsub/exp22-quantizer
+#SBATCH --job-name=kvsub-exp22
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:rtx3090:1
 #SBATCH --cpus-per-task=8
