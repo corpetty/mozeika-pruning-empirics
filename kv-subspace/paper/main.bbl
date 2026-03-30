@@ -1,4 +1,4 @@
-\begin{thebibliography}{7}
+\begin{thebibliography}{8}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -41,6 +41,13 @@ Coleman Hooper, Sehoon Kim, Hasan Mohammadzadeh, Michael~W. Mahoney,
 \newblock {KVQuant}: Towards 10 million context length {LLM} inference with
   {KV} cache quantization.
 \newblock \emph{arXiv preprint arXiv:2401.18079}, 2024.
+
+\bibitem[Kaushik et~al.(2025)Kaushik, Chaudhari, Vaidya, Chellappa, and
+  Yuille]{kaushik2025uwsh}
+Prakhar Kaushik, Shravan Chaudhari, Ankit Vaidya, Rama Chellappa, and Alan
+  Yuille.
+\newblock The universal weight subspace hypothesis, 2025.
+\newblock URL \url{https://arxiv.org/abs/2512.05117}.
 
 \bibitem[Liu et~al.(2024)Liu, Li, Schwing, and Gu]{liu2024kvsharer}
 Yifei Liu, Huimiao Li, Alexander~G. Schwing, and Jiawei Gu.

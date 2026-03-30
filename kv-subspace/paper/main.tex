@@ -82,9 +82,16 @@ without modifying model weights. The central challenge is that KV vectors must b
 reconstructed with sufficient fidelity to preserve attention score distributions,
 which determines the model's output quality.
 
-We investigate a method combining two techniques: \textbf{PCA subspace projection},
-which projects each $d_\text{head}$-dimensional KV vector into a $k$-dimensional
-principal subspace fitted on calibration data, and \textbf{PolarQuant}
+Our starting point is the \textbf{Universal Weight Subspace Hypothesis (UWSH)}
+\cite{kaushik2025uwsh}, which shows that deep networks trained on diverse tasks
+converge to shared low-dimensional parametric subspaces. We ask whether this
+structure extends to KV \emph{activation} vectors at inference time: if KV vectors
+occupy a stable, low-dimensional subspace per (layer, head), offline PCA
+calibration should suffice for compression. Our Experiment 1 confirms this---K
+vectors achieve cross-domain overlap of $0.70$ and cross-layer overlap of $0.56$,
+supporting the viability of offline subspace compression.
+
+We combine subspace projection with \textbf{PolarQuant}
 \cite{han2025polarquant}, a learned-rotation quantization scheme that applies an
 orthogonal rotation before scalar quantization to decorrelate dimensions.
 
@@ -123,6 +130,17 @@ PolarQuant \cite{han2025polarquant} addresses the non-uniform distribution of
 transformer activations by applying a learned orthogonal rotation $R$ before
 quantization, spreading variance more uniformly across dimensions. We use
 PolarQuant as the quantizer within our projected subspace.
+
+\paragraph{Universal Weight Subspace Hypothesis (UWSH).}
+Kaushik \etal~\cite{kaushik2025uwsh} demonstrate that deep networks trained on
+over 1,100 diverse tasks---from ViTs to LLaMA-3 LoRAs---converge to a shared
+low-dimensional parameter subspace. The hypothesis predicts that per-component
+PCA bases are stable and transferable. We extend this inquiry to \emph{KV
+activation} vectors, verifying whether the same subspace stability holds at
+inference time (Experiment~1). Our principal-angle analysis confirms it for K
+vectors: cross-domain overlap $0.70$, cross-layer overlap $0.56$. V vectors show
+higher cross-layer overlap ($0.74$) but resist compression---a tension between
+basis stability and compression viability that we resolve in Experiments~19--21.
 
 \paragraph{PCA subspace structure.}
 The KV vectors produced by transformer attention heads exhibit low effective rank.
@@ -211,7 +229,29 @@ uses:
 \section{Experiments}
 \label{sec:experiments}
 
-\paragraph{Protocol.} All experiments use three evaluation passages (biology,
+\subsection{Subspace Geometry: Testing the UWSH (Exp.~1)}
+\label{sec:uwsh}
+
+Motivated by \citet{kaushik2025uwsh}, we first verify that KV activation vectors
+exhibit the stable low-dimensional subspace structure required for offline
+compression. We compute principal angles between PCA subspaces (90\% variance
+threshold) for three comparison types on Qwen3-14B-AWQ: \emph{cross-layer}
+(adjacent layers), \emph{cross-head} (head pairs within a layer), and
+\emph{cross-domain} (PCA fitted on fiction vs.\ factual text).
+
+\textbf{Results.} K cross-domain overlap $= 0.703$; K cross-layer overlap $=
+0.565$ (rising to $0.650$ in layers 10--39); K cross-head overlap $= 0.456$.
+V cross-layer overlap $= 0.736$; V cross-domain overlap $= 0.640$.
+
+\textbf{Implications.} Cross-domain overlap of $0.70$ for K vectors confirms that
+a single offline calibration corpus generalizes across deployment domains ---
+validating our approach. Cross-head overlap of $0.46$ confirms that
+\emph{per-head bases are necessary}; sharing across heads would lose significant
+structure. The higher V cross-layer overlap ($0.74$ vs $0.57$ for K) is
+consistent with V having a more globally uniform geometry, yet one that resists
+truncation (see Section~\ref{sec:v_failure}).
+
+\paragraph{Protocol.} All subsequent experiments use three evaluation passages (biology,
 computer science, history) with perplexity as the primary metric. Relative PPL
 $= \text{PPL}_\text{compressed} / \text{PPL}_\text{baseline}$. Viability
 threshold: $\relppl < 1.20$ (20\% degradation budget). All experiments run on a
