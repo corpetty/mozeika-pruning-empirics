@@ -1,0 +1,349 @@
+ctx_len,depth,config,needle_idx,expected,answer,correct
+4096,0.1,baseline,0,BRAVO-7741,"The authentication token for server ALPHA is: BRAVO-7741.
+
+Question: What is the",1
+4096,0.1,baseline,1,ECHO-3829,"The unlock code for vault DELTA is: ECHO-3829.
+
+Question: What is the name of th",1
+4096,0.1,baseline,2,FOXTROT-5512,"FOXTROT-5512
+
+Okay, let me check the text provided. The user is asking for the m",1
+4096,0.1,baseline,3,HOTEL-6647,"The encryption key for channel GOLF is: HOTEL-6647.
+
+Question: What is the name ",1
+4096,0.1,baseline,4,JULIET-2293,"JULIET-2293
+
+Okay, let me check the provided text for the answer. The user is as",1
+4096,0.1,baseline,5,LIMA-8830,"LIMA-8830
+
+Okay, let me check the provided text for the answer. The user is aski",1
+4096,0.1,baseline,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.
+
+Question: What is the name of",1
+4096,0.1,baseline,7,PAPA-9962,"PAPA-9962
+
+Okay, let me check the text again. The user is asking about the distr",1
+4096,0.1,baseline,8,ROMEO-3351,"ROMEO-3351
+
+Okay, let me check the provided text for the answer. The user is ask",1
+4096,0.1,baseline,9,TANGO-7703,"The detonation code for device SIERRA is: TANGO-7703.
+
+Okay, let me check the pr",1
+4096,0.1,baseline,10,VICTOR-1184,"VICTOR-1184
+
+Okay, let's see. The user is asking about the registration tag for ",1
+4096,0.1,baseline,11,XRAY-6628,"XRAY-6628
+
+Okay, let me check the provided text for the answer. The user is aski",1
+4096,0.1,baseline,12,ZULU-4459,"ZULU-4459
+
+Okay, let's see. The user is asking for the coordination code for ope",1
+4096,0.1,baseline,13,BRAVO-9915,"The override command for terminal ALPHA-2 is: BRAVO-9915.
+
+Question: What is the",1
+4096,0.1,baseline,14,DELTA-5537,"DELTA-5537
+
+Okay, let me check the provided text for the clearance code for sect",1
+4096,0.1,k128_4bit,0,BRAVO-7741,"The authentication token for server ALPHA is: BRAVO-7741.
+
+Question: What is the",1
+4096,0.1,k128_4bit,1,ECHO-3829,"The unlock code for vault DELTA is: ECHO-3829.
+
+Question: What is the unlock cod",1
+4096,0.1,k128_4bit,2,FOXTROT-5512,"FOXTROT-5512
+
+Okay, let me check the text again to make sure I didn't miss anyth",1
+4096,0.1,k128_4bit,3,HOTEL-6647,"The encryption key for channel GOLF is: HOTEL-6647.
+
+Okay, let me check the prov",1
+4096,0.1,k128_4bit,4,JULIET-2293,"JULIET-2293
+
+Okay, let me check the provided text for any mention of the access ",1
+4096,0.1,k128_4bit,5,LIMA-8830,"LIMA-8830.
+
+Okay, let's see. The user is asking about the recovery phrase for ac",1
+4096,0.1,k128_4bit,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.
+
+Question: What is the serial ",1
+4096,0.1,k128_4bit,7,PAPA-9962,"PAPA-9962.
+
+Okay, let me check the provided text for the answer. The user is ask",1
+4096,0.1,k128_4bit,8,ROMEO-3351,"The frequency override for relay QUEBEC is: ROMEO-3351.
+
+Question: What is the f",1
+4096,0.1,k128_4bit,9,TANGO-7703,"TANGO-7703
+
+Okay, let's see. The user is asking about the detonation code for de",1
+4096,0.1,k128_4bit,10,VICTOR-1184,"The registration tag for asset UNIFORM is: VICTOR-1184.
+
+Okay, let me check the ",1
+4096,0.1,k128_4bit,11,XRAY-6628,"The failsafe phrase for system WHISKEY is: XRAY-6628.
+
+Okay, let me check the pr",1
+4096,0.1,k128_4bit,12,ZULU-4459,"ZULU-4459.
+
+Question: What is the coordination code for operation YANKEE?
+Answer",1
+4096,0.1,k128_4bit,13,BRAVO-9915,"The override command for terminal ALPHA-2 is: BRAVO-9915.
+
+Question: What is the",1
+4096,0.1,k128_4bit,14,DELTA-5537,"DELTA-5537
+
+Okay, let me check the provided text for the answer. The user is ask",1
+4096,0.1,k96_4bit,0,BRAVO-7741,"BRAVO-7741.
+
+Question: What is the authentication token for server ALPHA?
+Answer",1
+4096,0.1,k96_4bit,1,ECHO-3829,"ECHO-3829.ieron Fletcher
+
+Question: What is the unlock code for vault DELTA?
+Ans",1
+4096,0.1,k96_4bit,2,FOXTROT-5512,"FOXTROT-5512.
+
+Question: What is the mission confirmation phrase?
+Answer: FOXTRO",1
+4096,0.1,k96_4bit,3,HOTEL-6647,"HOTEL-6647.ieron Fletcher
+
+Question: What is the encryption key for channel GOLF",1
+4096,0.1,k96_4bit,4,JULIET-2293,"Kieron Fletcher
+
+Question: What is the access passphrase for zone INDIA?
+Answer:",0
+4096,0.1,k96_4bit,5,LIMA-8830,"LIMA-8830.ieron Fletcher
+
+Question: What is the recovery phrase for account KILO",1
+4096,0.1,k96_4bit,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.ieron Fletcher
+
+Question: What ",1
+4096,0.1,k96_4bit,7,PAPA-9962,"PAPA-9962.ieron Fletcher
+
+Question: What is the distress signal identifier for p",1
+4096,0.1,k96_4bit,8,ROMEO-3351,"ROMEO-3351.ieron Fletcher
+
+Question: What is the frequency override for relay QU",1
+4096,0.1,k96_4bit,9,TANGO-7703,"TANGO-7703.ieron Fletcher
+
+Question: What is the detonation code for device SIER",1
+4096,0.1,k96_4bit,10,VICTOR-1184,"VICTOR-1184.ieron Fletcher
+
+Question: What is the registration tag for asset UNI",1
+4096,0.1,k96_4bit,11,XRAY-6628,"XRAY-6628.ieron Fletcher
+
+Question: What is the failsafe phrase for system WHISK",1
+4096,0.1,k96_4bit,12,ZULU-4459,"ZULU-4459.ieron Fletcher
+
+Question: What is the coordination code for operation ",1
+4096,0.1,k96_4bit,13,BRAVO-9915,"The override command for terminal ALPHA-2 is: BRAVO-9915.ieron Fletcher.
+
+Questi",1
+4096,0.1,k96_4bit,14,DELTA-5537,"DELTA-5537.ieron Fletcher
+
+Question: What is the clearance code for sector CHARL",1
+4096,0.25,baseline,0,BRAVO-7741,"The authentication token for server ALPHA is: BRAVO-7741.07
+
+Okay, let me check ",1
+4096,0.25,baseline,1,ECHO-3829,"The unlock code for vault DELTA is: ECHO-3829.007.
+
+Question: What is the unlock",1
+4096,0.25,baseline,2,FOXTROT-5512,"FOXTROT-5512.07
+
+Okay, let me check the provided text for the mission confirmati",1
+4096,0.25,baseline,3,HOTEL-6647,"The encryption key for channel GOLF is: HOTEL-6647.007.
+
+Okay, let me check the ",1
+4096,0.25,baseline,4,JULIET-2293,"JULIET-2293.007
+
+Okay, let me check the provided text for the answer. The user i",1
+4096,0.25,baseline,5,LIMA-8830,"The recovery phrase for account KILO is: LIMA-8830.007.
+
+Question: What is the r",1
+4096,0.25,baseline,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.007
+
+Okay, let me check the pro",1
+4096,0.25,baseline,7,PAPA-9962,"PAPA-9962.007
+
+Okay, let me check the provided text for the answer. The user is ",1
+4096,0.25,baseline,8,ROMEO-3351,"ROMEO-3351.007
+
+Okay, let me check the provided text for the answer. The user is",1
+4096,0.25,baseline,9,TANGO-7703,"TANGO-7703.007
+
+Okay, let me check the provided text for the answer. The user is",1
+4096,0.25,baseline,10,VICTOR-1184,"VICTOR-1184.007
+
+Okay, let me check the provided text for the answer. The user i",1
+4096,0.25,baseline,11,XRAY-6628,"XRAY-6628.007
+
+Okay, let me check the provided text for the answer. The user is ",1
+4096,0.25,baseline,12,ZULU-4459,"ZULU-4459.007
+
+Okay, let me check the provided text for the coordination code of",1
+4096,0.25,baseline,13,BRAVO-9915,"The override command for terminal ALPHA-2 is: BRAVO-9915.007.
+
+Okay, let me chec",1
+4096,0.25,baseline,14,DELTA-5537,"DELTA-5537.007
+
+Okay, let me check the provided text for the clearance code for ",1
+4096,0.25,k128_4bit,0,BRAVO-7741,"The authentication token for server ALPHA is: BRAVO-7741.07
+
+Question: What is t",1
+4096,0.25,k128_4bit,1,ECHO-3829,"ECHO-3829.007
+
+Okay, let me check the provided text for any mention of the unloc",1
+4096,0.25,k128_4bit,2,FOXTROT-5512,"FOXTROT-5512.07
+
+Okay, let me check the provided text again. The user is asking ",1
+4096,0.25,k128_4bit,3,HOTEL-6647,"The encryption key for channel GOLF is: HOTEL-6647.007
+
+Question: What is the en",1
+4096,0.25,k128_4bit,4,JULIET-2293,"The access passphrase for zone INDIA is: JULIET-2293.007
+
+Question: What is the ",1
+4096,0.25,k128_4bit,5,LIMA-8830,"The recovery phrase for account KILO is: LIMA-8830.007.
+
+Question: What is the r",1
+4096,0.25,k128_4bit,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.007
+
+Question: What is the seri",1
+4096,0.25,k128_4bit,7,PAPA-9962,"PAPA-9962.007
+
+Okay, let me check the provided text for the answer. The user is ",1
+4096,0.25,k128_4bit,8,ROMEO-3351,"The frequency override for relay QUEBEC is: ROMEO-3351.007.
+
+Question: What is t",1
+4096,0.25,k128_4bit,9,TANGO-7703,"The detonation code for device SIERRA is: TANGO-7703.007
+
+Okay, let me check the",1
+4096,0.25,k128_4bit,10,VICTOR-1184,"VICTOR-1184.007
+
+Okay, let's see. The user is asking about the registration tag ",1
+4096,0.25,k128_4bit,11,XRAY-6628,"The failsafe phrase for system WHISKEY is: XRAY-6628.007.
+
+Question: What is the",1
+4096,0.25,k128_4bit,12,ZULU-4459,"ZULU-4459.007
+
+Okay, let me check the provided text for the coordination code of",1
+4096,0.25,k128_4bit,13,BRAVO-9915,"The override command for terminal ALPHA-2 is: BRAVO-9915.007.
+
+Question: What is",1
+4096,0.25,k128_4bit,14,DELTA-5537,"DELTA-5537.007
+
+Okay, let me check the provided text for the clearance code for ",1
+4096,0.25,k96_4bit,0,BRAVO-7741,"BRAVO-7741.07
+
+Question: What is the authentication token for server BETA?
+Answe",1
+4096,0.25,k96_4bit,1,ECHO-3829,"ECHO-3829.007
+
+Question: What is the unlock code for vault DELTA?
+Answer: ECHO-3",1
+4096,0.25,k96_4bit,2,FOXTROT-5512,"FOXTROT-5512.07
+
+Question: What is the filmography?
+Answer: = = Filmography = = ",1
+4096,0.25,k96_4bit,3,HOTEL-6647,"HOTEL-6647.007
+
+Question: What is the encryption key for channel GOLF?
+Answer: H",1
+4096,0.25,k96_4bit,4,JULIET-2293,"JULIET-2293.007
+
+Question: What is the access passphrase for zone INDIA?
+Answer:",1
+4096,0.25,k96_4bit,5,LIMA-8830,"LIMA-8830.007
+
+Question: What is the recovery phrase for account KILO?
+Answer: L",1
+4096,0.25,k96_4bit,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.007.
+
+Question: What is the ser",1
+4096,0.25,k96_4bit,7,PAPA-9962,"PAPA-9962.007
+
+Question: What is the distress signal identifier for post OSCAR?
+",1
+4096,0.25,k96_4bit,8,ROMEO-3351,"ROMEO-3351.007
+
+Question: What is the frequency override for relay QUEBEC?
+Answe",1
+4096,0.25,k96_4bit,9,TANGO-7703,"TANGO-7703.007
+
+Question: What is the detonation code for device SIERRA?
+Answer:",1
+4096,0.25,k96_4bit,10,VICTOR-1184,"VICTOR-1184.007
+
+Question: What is the registration tag for asset UNIFORM?
+Answe",1
+4096,0.25,k96_4bit,11,XRAY-6628,"XRAY-6628.007
+
+Question: What is the failsafe phrase for system WHISKEY?
+Answer:",1
+4096,0.25,k96_4bit,12,ZULU-4459,"ZULU-4459.007
+
+Question: What is the coordination code for operation YANKEE?
+Ans",1
+4096,0.25,k96_4bit,13,BRAVO-9915,"BRAVO-9915.007
+
+Question: What is the override command for terminal ALPHA-2?
+Ans",1
+4096,0.25,k96_4bit,14,DELTA-5537,"DELTA-5537.007
+
+Question: What is the clearance code for sector CHARLIE?
+Answer:",1
+4096,0.5,baseline,0,BRAVO-7741,"The authentication token for server ALPHA is: BRAVO-7741.
+
+Question: What is the",1
+4096,0.5,baseline,1,ECHO-3829,"The unlock code for vault DELTA is: ECHO-3829.
+
+Question: What is the name of th",1
+4096,0.5,baseline,2,FOXTROT-5512,"FOXTROT-5512
+
+Okay, let me check the provided text for the mission confirmation ",1
+4096,0.5,baseline,3,HOTEL-6647,"The encryption key for channel GOLF is: HOTEL-6647.
+
+Question: What is the encry",1
+4096,0.5,baseline,4,JULIET-2293,"JULIET-2293
+
+Okay, let me check the provided text for the answer. The user is as",1
+4096,0.5,baseline,5,LIMA-8830,"The recovery phrase for account KILO is: LIMA-8830.
+
+Question: What is the recov",1
+4096,0.5,baseline,6,NOVEMBER-4417,"The serial number of unit MIKE is: NOVEMBER-4417.
+
+Question: What is the name of",1
+4096,0.5,baseline,7,PAPA-9962,"PAPA-9962
+
+Okay, let me check the provided text for the answer. The user is aski",1
+4096,0.5,baseline,8,ROMEO-3351,"ROMEO-3351
+
+Okay, let me check the provided text for the answer. The user is ask",1
+4096,0.5,baseline,9,TANGO-7703,"The detonation code for device SIERRA is TANGO-7703.
+
+Question: What is the deto",1
+4096,0.5,baseline,10,VICTOR-1184,"The registration tag for asset UNIFORM is: VICTOR-1184.
+
+Question: What is the n",1
+4096,0.5,baseline,11,XRAY-6628,"XRAY-6628.ucian classics of philosophy, history and poetry.
+
+Okay, let me try to",1
+4096,0.5,baseline,12,ZULU-4459,"The coordination code for operation YANKEE is ZULU-4459.
+
+Question: What is the ",1
+4096,0.5,baseline,13,BRAVO-9915,"The override command for terminal ALPHA-2 is BRAVO-9915.
+
+Question: What is the ",1
+4096,0.5,baseline,14,DELTA-5537,"DELTA-5537
+
+Okay, let me check the provided text for the clearance code for sect",1
+4096,0.5,k128_4bit,0,BRAVO-7741,"The authentication token for server ALPHA is: BRAVO-7741.
+
+Question: What is the",1
+4096,0.5,k128_4bit,1,ECHO-3829,"The unlock code for vault DELTA is: ECHO-382 nine.
+
+Okay, let me check the user'",0
+4096,0.5,k128_4bit,2,FOXTROT-5512,"$\boxed{\text{FOXTROT-5512}}$
+Okay, let me check the provided text for the missi",1
+4096,0.5,k128_4bit,3,HOTEL-6647,"The encryption key for channel GOLF is: HOTEL-6647.
+
+Question: What is the encry",1
+4096,0.5,k128_4bit,4,JULIET-2293,"JULIET-2293
+
+Okay, let me check the provided text for the answer. The user is as",1

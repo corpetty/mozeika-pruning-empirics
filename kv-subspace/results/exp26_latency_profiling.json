@@ -1,0 +1,63 @@
+{
+  "config": {
+    "model": "Qwen/Qwen3-14B-AWQ",
+    "ctx_len": 4096,
+    "k": 128,
+    "n_bits": 4,
+    "decode_steps": 64,
+    "n_warmup": 5,
+    "n_trials": 3
+  },
+  "variants": {
+    "baseline": {
+      "tok_s": 12.327418918339637,
+      "trials": [
+        12.334058730017214,
+        12.326427500982305,
+        12.327418918339637
+      ]
+    },
+    "noop_hooks": {
+      "tok_s": 12.264181964076789,
+      "trials": [
+        12.261272537419174,
+        12.282825003295823,
+        12.264181964076789
+      ]
+    },
+    "cpu_copy_only": {
+      "tok_s": 11.718976428614972,
+      "trials": [
+        11.718976428614972,
+        11.71474426618031,
+        11.727759036980409
+      ]
+    },
+    "numpy_compress": {
+      "tok_s": 7.932201130006188,
+      "trials": [
+        7.932201130006188,
+        7.9346478903222435,
+        7.920166246789752
+      ]
+    },
+    "torch_compress": {
+      "tok_s": 5.992110937291206,
+      "trials": [
+        5.997014533971189,
+        5.992110937291206,
+        5.978966715903509
+      ]
+    }
+  },
+  "analysis": {
+    "baseline_tok_s": 12.327418918339637,
+    "overhead_hook_dispatch": 1.0051562309209108,
+    "overhead_cpu_copy": 1.0465233067736661,
+    "overhead_numpy_compute": 1.4773927484370066,
+    "total_numpy_overhead": 1.5540981269003726,
+    "total_torch_overhead": 2.05727481472704,
+    "paper_claim_overhead": 1.2,
+    "primary_bottleneck": "numpy_compute"
+  }
+}
