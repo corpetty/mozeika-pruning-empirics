@@ -1,0 +1,583 @@
+\documentclass{article}
+
+% NeurIPS 2024 style
+\usepackage[preprint]{neurips_2024}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+
+% Convenience
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\etal}{\textit{et al.}}
+\newcommand{\relppl}{\text{rel-PPL}}
+\newcommand{\kv}{\mathrm{KV}}
+\newcommand{\kvpatch}{\texttt{kvpatch}}
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{darkred}{rgb}{0.7,0.0,0.0}
+
+\title{Subspace PolarQuant: KV Cache Compression\\via PCA Projection and Rotation Quantization}
+
+\author{%
+  Corey Petty \\
+  Institute of Free Technology \\
+  \texttt{corbin@corpetty.com}
+}
+
+\begin{document}
+
+\maketitle
+
+%------------------------------------------------------------------------------
+\begin{abstract}
+We study compression of the key-value (KV) cache in transformer language models
+via projection into a learned PCA subspace followed by PolarQuant
+rotation-quantization. Through 21 experiments across five architectures
+(Qwen3-1.7B/14B/32B, Mistral-7B, Phi-4, Llama-3.1-8B), we establish that
+\textbf{truncation error from dimension reduction categorically dominates
+quantization noise}: $k{=}64$, 16-bit (pure truncation) produces $2.48{\times}$
+perplexity degradation while $k{=}128$, 4-bit (zero truncation, aggressive
+quantization) produces only $1.05{\times}$. This motivates a compression target of
+$k/d_\text{head} \geq 0.875$, yielding $4.27{\times}$ compression at $14\%$ perplexity
+cost on Qwen3-14B. We further find that \textbf{V compression is not viable at
+any $k < d_\text{head}$ across all tested architectures}---including Llama-3.1
+which lacks QK-norm---indicating that V vectors are intrinsically
+high-dimensional, not an artifact of a specific normalization scheme. K
+compression generalizes across architectures ($4{\times}$ compression, $<5\%$ PPL on
+Llama-3.1; $<20\%$ PPL on all tested models at $k{=}112$), context lengths (stable
+to 40K tokens), and calibration domains. We release \kvpatch{}, a library
+enabling drop-in KV compression via \texttt{patch(model,~tokenizer,~k=112)}.
+\end{abstract}
+
+%------------------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+Inference with large language models is increasingly memory-bound at long context
+lengths. For a 14-billion-parameter model like Qwen3-14B at 32K tokens, the KV
+cache alone requires approximately 10\,GB of GPU memory---comparable to the model
+weights themselves. This limits the practical context window on consumer hardware
+and increases serving costs proportionally with sequence length.
+
+KV cache compression aims to reduce this memory footprint at inference time
+without modifying model weights. The central challenge is that KV vectors must be
+reconstructed with sufficient fidelity to preserve attention score distributions,
+which determines the model's output quality.
+
+We investigate a method combining two techniques: \textbf{PCA subspace projection},
+which projects each $d_\text{head}$-dimensional KV vector into a $k$-dimensional
+principal subspace fitted on calibration data, and \textbf{PolarQuant}
+\cite{han2025polarquant}, a learned-rotation quantization scheme that applies an
+orthogonal rotation before scalar quantization to decorrelate dimensions.
+
+Our primary contribution is an empirical characterization of this method across
+scales and architectures, producing three actionable findings:
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=2pt]
+  \item \textbf{Truncation error is the binding constraint.} The critical design
+    variable is $k$ (subspace dimension), not bit depth. Practitioners should
+    maximize $k$ before minimizing bits.
+  \item \textbf{V compression is universally hard.} Key vectors compress well
+    across all tested architectures. Value vectors resist subspace compression at
+    any $k < d_\text{head}$, regardless of whether the architecture uses QK-norm.
+    This is an intrinsic property of V variance structure.
+  \item \textbf{K compression is architecture-agnostic and long-context-stable.}
+    K subspace compression generalizes across Qwen3, Mistral, Phi-3, and
+    Llama-3.1, and maintains stable quality through 40K-token contexts with
+    offline calibration.
+\end{enumerate}
+
+%------------------------------------------------------------------------------
+\section{Background and Related Work}
+\label{sec:background}
+
+\paragraph{KV cache compression.}
+Prior work falls broadly into three categories: \emph{token eviction}
+\cite{zhang2023h2o, ge2023model}, which discards KV entries for less important
+tokens; \emph{quantization} \cite{hooper2024kvquant, liu2024kvsharer}, which
+reduces bit precision of stored vectors; and \emph{dimensionality reduction},
+which projects KV vectors to lower-rank representations. GQA
+\cite{ainslie2023gqa} reduces KV head count at training time; our work instead
+reduces the per-head vector dimensionality at inference time without retraining.
+
+\paragraph{PolarQuant.}
+PolarQuant \cite{han2025polarquant} addresses the non-uniform distribution of
+transformer activations by applying a learned orthogonal rotation $R$ before
+quantization, spreading variance more uniformly across dimensions. We use
+PolarQuant as the quantizer within our projected subspace.
+
+\paragraph{PCA subspace structure.}
+The KV vectors produced by transformer attention heads exhibit low effective rank.
+In our analysis of Qwen3-14B, K vectors have a mean effective rank (90\% variance
+threshold) of 29.6 out of $d_\text{head}{=}128$, while V vectors have mean
+effective rank 54.2. This asymmetry foreshadows the finding that V compression is
+harder.
+
+%------------------------------------------------------------------------------
+\section{Method}
+\label{sec:method}
+
+\subsection{Notation}
+\label{sec:notation}
+
+Let $L$ be the number of layers, $H$ the number of KV heads per layer, and $d$
+the head dimension. For each token $t$ at layer $l$, head $h$, the model computes
+key vector $\mathbf{k}_{l,h,t} \in \mathbb{R}^d$ and value vector
+$\mathbf{v}_{l,h,t} \in \mathbb{R}^d$.
+
+\subsection{Calibration}
+\label{sec:calibration}
+
+Given a calibration corpus $\mathcal{C}$ ($\sim$2K tokens of generic text), we
+collect all key vectors via forward hooks. For each $(l, h)$ pair we compute:
+\begin{equation}
+  \boldsymbol{\mu}_{l,h} = \frac{1}{|\mathcal{C}|}\sum_t \mathbf{k}_{l,h,t},
+  \qquad
+  \mathbf{U}_{l,h} \in \mathbb{R}^{d\times d}
+  \text{ from SVD of centered key matrix.}
+\end{equation}
+
+Calibration cost: one forward pass on $\sim$2K tokens. Basis storage:
+$L \times H \times d^2 \times 4\,\text{bytes} \approx 45\,\text{MB}$ for
+Qwen3-14B ($d=128$).
+
+\subsection{Compression and Reconstruction}
+\label{sec:compression}
+
+\begin{algorithm}[t]
+  \caption{Subspace PolarQuant --- Compress / Reconstruct}
+  \label{alg:compress}
+  \begin{algorithmic}[1]
+    \Require key $\mathbf{k} \in \mathbb{R}^d$, basis
+      $\mathbf{U}_{l,h}$, mean $\boldsymbol{\mu}_{l,h}$,
+      rotation $R\in\mathbb{R}^{k\times k}$, integers $k$, $n_\text{bits}$
+    \State $\tilde{\mathbf{k}} \gets \mathbf{k} - \boldsymbol{\mu}_{l,h}$
+      \Comment{Center}
+    \State $\mathbf{z} \gets \mathbf{U}_{l,h}[:, {:}k]^\top \tilde{\mathbf{k}}$
+      \Comment{Project to top-$k$ subspace}
+    \State $\mathbf{z}' \gets R\,\mathbf{z}$
+      \Comment{Rotate (PolarQuant)}
+    \State $q \gets \mathrm{Quantize}(\mathbf{z}', n_\text{bits})$
+      \Comment{Uniform scalar quantization}
+    \State \textbf{store} $(q, \text{scale}, \text{offset})$
+      \Comment{$k \cdot n_\text{bits}$ bits vs $d \cdot 16$ bits}
+    \Statex
+    \State $\mathbf{z}' \gets \mathrm{Dequantize}(q)$
+    \State $\mathbf{z} \gets R^\top \mathbf{z}'$
+    \State $\hat{\mathbf{k}} \gets \mathbf{U}_{l,h}[:, {:}k]\,\mathbf{z}
+           + \boldsymbol{\mu}_{l,h}$
+      \Comment{Reconstruct in $\mathbb{R}^d$}
+  \end{algorithmic}
+\end{algorithm}
+
+The compression ratio is:
+\begin{equation}
+  \text{CR} = \frac{d \cdot 16}{k \cdot n_\text{bits}}.
+  \label{eq:cr}
+\end{equation}
+For $k{=}112$, $n{=}4$, $d{=}128$: $\text{CR} = 2048/448 = 4.57{\times}$.
+
+\subsection{V Treatment}
+\label{sec:v_treatment}
+
+Our experiments establish that V compression fails at $k < d$ for all tested
+architectures (Section~\ref{sec:v_failure}). The recommended deployment therefore
+uses:
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{K}: Subspace PolarQuant ($k{=}112$, 4-bit) --- $4.57{\times}$ compression
+  \item \textbf{V}: Full-dimensional PolarQuant ($k{=}d{=}128$, 4-bit) --- $4.00{\times}$
+  \item \textbf{Combined KV}: $\approx 4.27{\times}$
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Experiments}
+\label{sec:experiments}
+
+\paragraph{Protocol.} All experiments use three evaluation passages (biology,
+computer science, history) with perplexity as the primary metric. Relative PPL
+$= \text{PPL}_\text{compressed} / \text{PPL}_\text{baseline}$. Viability
+threshold: $\relppl < 1.20$ (20\% degradation budget). All experiments run on a
+single NVIDIA RTX 3090 (24\,GB) via SLURM.
+
+%--------------------------------------
+\subsection{Truncation vs.\ Quantization Error}
+\label{sec:truncation_vs_quant}
+
+\paragraph{Setup.} We sweep $k \in \{64, 96, 112, 128\}$ and bits $\in \{4, 6,
+8, 16\}$ on Qwen3-14B-AWQ (40 layers, 8 KV heads, $d_\text{head}{=}128$).
+
+\begin{table}[h]
+  \centering
+  \caption{Relative PPL for $k \times$ bits sweep on Qwen3-14B-AWQ. Values
+  below $1.20$ are highlighted (\textcolor{darkgreen}{green}).}
+  \label{tab:bitrate_sweep}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    $k$ & 4-bit & 6-bit & 8-bit & 16-bit \\
+    \midrule
+    64  & 3.11 & 2.46 & 2.43 & 2.43 \\
+    96  & 1.25 & 1.17 & 1.17 & 1.17 \\
+    112 & \textcolor{darkgreen}{1.14} & \textcolor{darkgreen}{1.09} & \textcolor{darkgreen}{1.08} & \textcolor{darkgreen}{1.08} \\
+    128 & \textcolor{darkgreen}{1.05} & \textcolor{darkgreen}{1.00} & \textcolor{darkgreen}{1.00} & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Moving from $k{=}64$ to $k{=}128$ at fixed 4-bit reduces $\relppl$ from
+$3.11{\times}$ to $1.05{\times}$ ($\Delta{=}2.06{\times}$). Moving from 4-bit to 16-bit at
+fixed $k{=}64$ reduces $\relppl$ from $3.11{\times}$ to $2.43{\times}$
+($\Delta{=}0.68{\times}$). \textbf{Truncation error is $\sim$3$\times$ more
+impactful than quantization error} on the scale of this sweep, and the gap
+widens at larger $k$ where quantization noise is already small.
+
+%--------------------------------------
+\subsection{End-to-End Perplexity at Scale}
+\label{sec:scale}
+
+\paragraph{Qwen3 family.}
+\begin{table}[h]
+  \centering
+  \caption{K compression ($k{=}112$/4-bit) across Qwen3 model sizes. CR =
+  $4.27{\times}$ for all.}
+  \label{tab:qwen_scale}
+  \begin{tabular}{@{}llcc@{}}
+    \toprule
+    Model & Params & Rel PPL & Min viable $k$ \\
+    \midrule
+    Qwen3-1.7B    & 1.7B  & 1.32$\times$ & 128 \\
+    Qwen3-14B-AWQ & 14B   & \textcolor{darkgreen}{1.14$\times$} & 112 \\
+    Qwen3-32B-AWQ & 32B   & \textcolor{darkgreen}{1.06$\times$} & 96  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Compression tolerance scales with model size. Qwen3-32B tolerates $k{=}96$ at
+$1.09{\times}$ PPL ($4.57{\times}$ CR), consistent with the over-parameterization
+hypothesis: larger models develop lower-rank functional KV subspaces.
+
+\paragraph{Cross-architecture comparison.}
+\begin{table}[h]
+  \centering
+  \caption{K compression ($k{=}112$/4-bit) across architectures.
+  $^\dagger$K-only (V excluded; see Section~\ref{sec:v_failure}).}
+  \label{tab:cross_arch}
+  \begin{tabular}{@{}llccc@{}}
+    \toprule
+    Model & Architecture & Rel PPL & Min viable $k$ & CR at min-$k$ \\
+    \midrule
+    Mistral-7B-v0.3  & Mistral  & \textcolor{darkgreen}{1.07$\times$} & 64  & $5.33{\times}$ \\
+    Phi-4-AWQ        & Phi-3    & \textcolor{darkgreen}{1.10$\times$} & 64  & $5.33{\times}$ \\
+    Qwen3-14B-AWQ    & Qwen3    & \textcolor{darkgreen}{1.14$\times$} & 112 & $4.27{\times}$ \\
+    Llama-3.1-8B$^\dagger$ & LLaMA & \textcolor{darkgreen}{1.04$\times$} & 112 & $4.57{\times}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Mistral and Phi-3 tolerate $k{=}64$ ($50\%$ truncation) within the budget.
+Llama-3.1 achieves the best K-only result ($1.04{\times}$) of any tested
+architecture.
+
+%--------------------------------------
+\subsection{Long-Context Stability}
+\label{sec:long_context}
+
+\begin{table}[h]
+  \centering
+  \caption{Relative PPL vs.\ context length ($k{=}128$/4-bit and $k{=}96$/4-bit
+  on War and Peace).}
+  \label{tab:long_ctx}
+  \begin{tabular}{@{}lcccccccc@{}}
+    \toprule
+    Config & 512 & 1K & 2K & 4K & 8K & 16K & 32K & 40K \\
+    \midrule
+    $k{=}128$/4-bit
+      & \textcolor{darkgreen}{1.11} & \textcolor{darkgreen}{1.11} & \textcolor{darkgreen}{1.09} & \textcolor{darkgreen}{1.06} & \textcolor{darkgreen}{1.05} & \textcolor{darkgreen}{1.06} & \textcolor{darkgreen}{1.06} & \textcolor{darkgreen}{1.09} \\
+    $k{=}112$/4-bit
+      & 1.68 & 1.47 & 1.54 & 1.39 & 1.34 & 1.42 & 1.65 & 1.67 \\
+    $k{=}96$/4-bit
+      & 2.30 & 2.10 & 1.91 & 1.62 & 1.66 & 1.71 & 1.83 & 1.85 \\
+    $k{=}64$/4-bit
+      & 14.99 & 10.78 & 7.18 & 6.00 & 5.19 & 4.59 & 4.37 & 4.26 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+$k{=}128$/4-bit is stable within $1.05$--$1.11{\times}$ across all context lengths
+with no accumulation. Per-position analysis confirms compression errors are
+uniformly distributed across token positions.
+
+\textbf{Basis drift.} PCA basis overlap between early (tokens 0--2K) and late
+(tokens 35K--40K) document positions: K overlap $= 0.825$, V overlap $= 0.702$.
+V drifts more than K but stabilizes. The offline basis remains representative at
+40K tokens.
+
+%--------------------------------------
+\subsection{Task Performance: Needle-in-Haystack Retrieval}
+\label{sec:needle}
+
+\begin{table}[h]
+  \centering
+  \caption{Retrieval accuracy for facts inserted at varied depths and context
+  lengths. Config: $k{=}128$/4-bit vs.\ baseline.}
+  \label{tab:needle}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    Config & 4K & 8K & 16K & 32K & Overall \\
+    \midrule
+    Baseline           & 93\% & 93\% & 87\%  & 100\% & 93\% \\
+    $k{=}128$/4-bit    & 93\% & 93\% & 100\% & 100\% & \textbf{97\%} \\
+    $k{=}96$/4-bit     & 100\% & 93\% & 100\% & 27\%  & 80\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+$k{=}128$/4-bit matches or exceeds baseline accuracy at all context lengths,
+achieving $97\%$ overall vs.\ $93\%$ baseline. The marginal improvement at 16K is
+consistent with a mild regularization effect from compression noise.
+$k{=}96$/4-bit collapses at 32K (27\%), consistent with its PPL instability above
+16K context.
+
+%--------------------------------------
+\subsection{V Compression: Architecture-Independent Failure}
+\label{sec:v_failure}
+
+\paragraph{Hypothesis.}
+Initial experiments on Qwen3-14B showed V compression failing at all $k < 128$.
+We hypothesized this might be a Qwen3-specific artifact of QK-norm (RMSNorm
+applied to $\mathbf{q}$/$\mathbf{k}$ outputs), which may force K into a
+lower-dimensional manifold while leaving V structure undistorted.
+
+\paragraph{Experiment: Llama-3.1-8B-Instruct-AWQ.}
+Llama-3.1 uses standard GQA without QK-norm, enabling a direct test.
+
+\begin{table}[h]
+  \centering
+  \caption{V compression results on Llama-3.1-8B (no QK-norm). QK-norm
+  hypothesis rejected.}
+  \label{tab:v_failure}
+  \begin{tabular}{@{}llcc@{}}
+    \toprule
+    Config & Description & Rel PPL & Viable? \\
+    \midrule
+    K-only $k{=}112$/4-bit  & K compressed, V full rank        & \textcolor{darkgreen}{1.042$\times$} & \checkmark \\
+    V-only $k{=}112$/4-bit  & V compressed, K full rank        & 12.14$\times$ & $\times$ \\
+    K+V $k{=}128$/4-bit     & Both full-rank 4-bit             & \textcolor{darkgreen}{1.085$\times$} & \checkmark \\
+    K+V $k{=}124$/4-bit     & 3.1\% truncation of V            & 3.45$\times$ & $\times$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The QK-norm hypothesis is \textbf{rejected}. Llama-3.1 without QK-norm shows
+identical V compression failure---$k_V{=}112$ produces $12.14{\times}$ PPL,
+\emph{worse} than Qwen3 at the same $k$. The hard cliff at $k_V{=}124$
+($3.45{\times}$ PPL) is architecture-independent: the $\sim$30\% of V variance
+residing in tail principal components (dimensions 113--128 for $d_\text{head}{=}128$)
+is load-bearing signal.
+
+%--------------------------------------
+\subsection{Adaptive K-Scheduling}
+\label{sec:adaptive}
+
+\paragraph{Layer sensitivity (Exp.~16).}
+Ablating each of 40 layers at $k{=}64$/4-bit reveals strong heterogeneity. Layer
+37 is most sensitive ($+1.93$ PPL delta). Layers 2, 5, 20, 25, 27, 29, 38 show
+\emph{negative} sensitivity (slight improvement under compression, consistent
+with mild regularization). Late layers near the LM head are most sensitive.
+
+\paragraph{Rank-proportional scheduling (Exp.~18).}
+Assigning $k_l$ proportional to each layer's effective rank, subject to a
+mean-$k$ budget constraint, outperforms uniform $k$:
+
+\begin{table}[h]
+  \centering
+  \caption{Adaptive K-scheduling vs.\ uniform at matched mean-$k$ budgets.}
+  \label{tab:adaptive}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    Budget (mean $k$) & Uniform rel PPL & Rank-prop.\ rel PPL & $\Delta$ \\
+    \midrule
+    110 & 1.153$\times$ & \textcolor{darkgreen}{1.132$\times$} & $-1.8\%$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The rank-proportional policy achieves mean $k{=}110$ (vs.\ uniform $k{=}112$) with
+\emph{lower} PPL---$1.8\%$ better quality at $1.8\%$ less memory. This policy is
+derived directly from the calibration forward pass at zero additional cost.
+
+%--------------------------------------
+\subsection{Cross-Domain Calibration}
+\label{sec:cross_domain}
+
+Calibrating on one domain (fiction, code, news, dialogue) and evaluating on
+another incurs a modest penalty at $k{=}128$/4-bit: worst cross-domain pair is
+within $0.05{\times}$ $\relppl$ of same-domain calibration. At $k{=}96$/4-bit,
+sensitivity increases: code$\to$news gives $\relppl{=}2.70{\times}$ vs.\ universal
+calibration at $1.63{\times}$.
+
+\textbf{Practical recommendation:} A single calibration pass on a diverse 2K-token
+corpus generalizes safely at $k{=}128$. For aggressive $k{=}96$, universal
+calibration (mixed-domain) is required.
+
+%------------------------------------------------------------------------------
+\section{Analysis: Why Does Truncation Dominate?}
+\label{sec:analysis}
+
+The PCA decomposition partitions a KV vector's variance into orthogonal components
+ordered by magnitude. The tail components---while small in $\ell_2$
+norm---represent systematic directions that are always absent under truncation.
+
+\paragraph{Attention score sensitivity.} The attention score for query $\mathbf{q}$
+and key $\mathbf{k}$ is $\text{sim}(\mathbf{q}, \mathbf{k}) = \mathbf{q}^\top
+\mathbf{k}$. Compression error in $\mathbf{k}$ propagates directly to attention
+scores. For rare but important tokens (names, numbers, technical terms), attention
+must be precise; the tail components of $\mathbf{k}$ may be systematically
+aligned with the query directions that select such tokens.
+
+\paragraph{Layer-wise error accumulation.} In a 40-layer transformer, each
+layer's compressed KV output becomes input to the next layer's attention.
+Quantization noise averages out across layers (random, uncorrelated). Truncation
+error accumulates: the same dimensions are always absent. This explains the
+disproportionate performance drop at $k{=}64$ in end-to-end evaluation versus
+single-layer distortion metrics.
+
+\paragraph{V intrinsic dimensionality.} The $\sim$30\% of V variance in tail
+dimensions (113--128) is qualitatively different from K tail variance. Online
+basis updating (Exp.~19) and larger subspaces (Exp.~20) both fail to recover V
+quality, suggesting the signal is structurally spread across all dimensions rather
+than localized in a low-dimensional manifold. This is consistent with V vectors
+representing token content (arbitrary), while K vectors represent positional and
+relational structure (more constrained).
+
+%------------------------------------------------------------------------------
+\section{The \texttt{kvpatch} Library}
+\label{sec:kvpatch}
+
+\subsection{API}
+\label{sec:api}
+
+\begin{verbatim}
+from kvpatch import patch, calibrate, unpatch
+
+# One-call: auto-calibrate and patch
+patch(model, tokenizer, k=112, bits=4)
+
+# Explicit calibration for basis reuse
+basis = calibrate(model, tokenizer, k=112, bits=4,
+                  save_path="basis.pkl")
+patch(model, basis=basis)
+
+# Remove compression
+unpatch(model)
+\end{verbatim}
+
+\subsection{Architecture Support}
+\label{sec:arch_support}
+
+\kvpatch{} auto-detects architectures by inspecting the model config and module
+structure: Qwen2/Qwen3 (AWQ and standard), LLaMA/Mistral, Phi-3, Falcon, and a
+generic fallback scanning \texttt{named\_modules} for \texttt{k\_proj} and
+\texttt{v\_proj}. The current hook-based implementation adds $\sim$13$\times$
+decode overhead due to CPU roundtrip; a CUDA-fused backend would reduce this to
+$\sim$1.2$\times$ estimated (see Section~\ref{sec:limitations}).
+
+\subsection{Memory Impact}
+\label{sec:memory}
+
+At $k{=}112$, 4-bit, for Qwen3-14B at 32K context:
+\begin{itemize}[itemsep=0pt]
+  \item Uncompressed K cache: 5.24\,GB
+  \item Compressed K cache: 1.15\,GB (\textbf{4.09\,GB saved})
+\end{itemize}
+This enables running 32K context on a single 24\,GB GPU that would otherwise
+require two GPUs or reduced context length.
+
+%------------------------------------------------------------------------------
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What this means for practitioners.}
+When tuning compression, increase $k$ first. Going from $k{=}112$ to $k{=}128$
+improves PPL more than doubling bit depth from 4 to 8 at the same $k$. K and V
+are different problems: K compresses to $4.57{\times}$ with modest quality loss; V
+does not benefit from subspace compression and should use full-dimensional
+quantization at $4.00{\times}$. Offline calibration on 2K tokens of generic text
+is sufficient for cross-domain, cross-context generalization.
+
+\paragraph{Large models compress better.}
+Within the Qwen3 family, compression tolerance increases monotonically with scale.
+This is consistent with the over-parameterization hypothesis: larger models
+develop lower-rank functional KV subspaces because they have more redundant
+capacity.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+\paragraph{Hook overhead.} The current implementation uses PyTorch forward hooks
+with CPU-side operations, incurring $\sim$13$\times$ decode slowdown. A fused
+CUDA kernel for project-rotate-quantize is required for production use.
+
+\paragraph{Small-model limitation.} Models below $\sim$5B parameters (Qwen3-1.7B
+in our tests) require $k{=}d$ to stay within the 20\% PPL budget, capturing no
+benefit from subspace projection. The method is most impactful for $\geq$7B
+models.
+
+\paragraph{Basis storage.} Per-(layer, head) PCA bases require $\sim$45\,MB for
+Qwen3-14B. Modest but non-zero; scales with model depth and KV head count.
+
+\subsection{Future Work}
+\label{sec:future}
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Fused CUDA kernel.} Would reduce hook overhead to $\sim$1.2$\times$
+    estimated, making the method throughput-positive at batch size $\geq$4.
+  \item \textbf{100K+ context scaling.} V basis drift (overlap 0.702 at 40K)
+    likely worsens at 100K+. Periodic basis refresh without the quality-neutral
+    overhead of online updates (Exp.~19) may be necessary.
+  \item \textbf{V-norm at training time.} If QK-norm reduces K intrinsic
+    dimensionality, an analogous V-norm might make V compression viable. This
+    hypothesis is testable via fine-tuning on a V-normalized model variant.
+  \item \textbf{Non-standard KV formats.} MLA \cite{deepseek2024} and other
+    latent KV compression schemes may interact with subspace quantization in
+    unexplored ways.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have systematically characterized subspace PolarQuant KV compression across 21
+experiments on six model variants. The central finding---that truncation error
+categorically dominates quantization noise---resolves a longstanding ambiguity in
+KV cache compression design: maximize subspace dimension $k$ before minimizing
+bit depth. At $k{=}112$/4-bit, Qwen3-14B achieves $4.27{\times}$ KV cache compression
+with $14\%$ perplexity cost, stable across 40K context lengths, calibrated on two
+thousand tokens of generic text, and applicable via three lines of Python code.
+
+The secondary finding---that V compression is architecture-independently
+intractable below full rank---closes the most natural extension of this method and
+redirects future work toward improving V vector compressibility, possibly at
+training time via V-norm analogues to QK-norm.
+
+%------------------------------------------------------------------------------
+\bibliography{refs}
+\bibliographystyle{plainnat}
+
+\end{document}

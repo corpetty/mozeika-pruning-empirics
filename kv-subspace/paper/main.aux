@@ -1,0 +1,105 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{han2025polarquant}
+\citation{zhang2023h2o,ge2023model}
+\citation{hooper2024kvquant,liu2024kvsharer}
+\citation{ainslie2023gqa}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{1}{section.2}\protected@file@percent }
+\newlabel{sec:background}{{2}{1}{Background and Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{KV cache compression.}{1}{paragraph*.1}\protected@file@percent }
+\citation{han2025polarquant}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Subspace PolarQuant --- Compress / Reconstruct}}{2}{algorithm.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{alg:compress}{{1}{2}{Subspace PolarQuant --- Compress / Reconstruct}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{PolarQuant.}{2}{paragraph*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{PCA subspace structure.}{2}{paragraph*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Method}{2}{section.3}\protected@file@percent }
+\newlabel{sec:method}{{3}{2}{Method}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Notation}{2}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:notation}{{3.1}{2}{Notation}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Calibration}{2}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:calibration}{{3.2}{2}{Calibration}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Compression and Reconstruction}{2}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:compression}{{3.3}{2}{Compression and Reconstruction}{subsection.3.3}{}}
+\newlabel{eq:cr}{{2}{2}{Compression and Reconstruction}{equation.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}V Treatment}{2}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:v_treatment}{{3.4}{2}{V Treatment}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experiments}{3}{section.4}\protected@file@percent }
+\newlabel{sec:experiments}{{4}{3}{Experiments}{section.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Protocol.}{3}{paragraph*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Truncation vs.\ Quantization Error}{3}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:truncation_vs_quant}{{4.1}{3}{Truncation vs.\ Quantization Error}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Setup.}{3}{paragraph*.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Relative PPL for $k \times $ bits sweep on Qwen3-14B-AWQ. Values below $1.20$ are highlighted (\textcolor {darkgreen}{green}).}}{3}{table.caption.6}\protected@file@percent }
+\newlabel{tab:bitrate_sweep}{{1}{3}{Relative PPL for $k \times $ bits sweep on Qwen3-14B-AWQ. Values below $1.20$ are highlighted (\textcolor {darkgreen}{green})}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}End-to-End Perplexity at Scale}{3}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:scale}{{4.2}{3}{End-to-End Perplexity at Scale}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Qwen3 family.}{3}{paragraph*.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces K compression ($k{=}112$/4-bit) across Qwen3 model sizes. CR = $4.27{\times }$ for all.}}{3}{table.caption.8}\protected@file@percent }
+\newlabel{tab:qwen_scale}{{2}{3}{K compression ($k{=}112$/4-bit) across Qwen3 model sizes. CR = $4.27{\times }$ for all}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cross-architecture comparison.}{3}{paragraph*.9}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces K compression ($k{=}112$/4-bit) across architectures. $^\dagger $K-only (V excluded; see Section~\ref {sec:v_failure}).}}{3}{table.caption.10}\protected@file@percent }
+\newlabel{tab:cross_arch}{{3}{3}{K compression ($k{=}112$/4-bit) across architectures. $^\dagger $K-only (V excluded; see Section~\ref {sec:v_failure})}{table.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Long-Context Stability}{4}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:long_context}{{4.3}{4}{Long-Context Stability}{subsection.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Relative PPL vs.\ context length ($k{=}128$/4-bit and $k{=}96$/4-bit on War and Peace).}}{4}{table.caption.11}\protected@file@percent }
+\newlabel{tab:long_ctx}{{4}{4}{Relative PPL vs.\ context length ($k{=}128$/4-bit and $k{=}96$/4-bit on War and Peace)}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Task Performance: Needle-in-Haystack Retrieval}{4}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:needle}{{4.4}{4}{Task Performance: Needle-in-Haystack Retrieval}{subsection.4.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Retrieval accuracy for facts inserted at varied depths and context lengths. Config: $k{=}128$/4-bit vs.\ baseline.}}{4}{table.caption.12}\protected@file@percent }
+\newlabel{tab:needle}{{5}{4}{Retrieval accuracy for facts inserted at varied depths and context lengths. Config: $k{=}128$/4-bit vs.\ baseline}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}V Compression: Architecture-Independent Failure}{4}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:v_failure}{{4.5}{4}{V Compression: Architecture-Independent Failure}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Hypothesis.}{4}{paragraph*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Experiment: Llama-3.1-8B-Instruct-AWQ.}{4}{paragraph*.14}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces V compression results on Llama-3.1-8B (no QK-norm). QK-norm hypothesis rejected.}}{4}{table.caption.15}\protected@file@percent }
+\newlabel{tab:v_failure}{{6}{4}{V compression results on Llama-3.1-8B (no QK-norm). QK-norm hypothesis rejected}{table.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Adaptive K-Scheduling}{5}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:adaptive}{{4.6}{5}{Adaptive K-Scheduling}{subsection.4.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Layer sensitivity (Exp.~16).}{5}{paragraph*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Rank-proportional scheduling (Exp.~18).}{5}{paragraph*.17}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Adaptive K-scheduling vs.\ uniform at matched mean-$k$ budgets.}}{5}{table.caption.18}\protected@file@percent }
+\newlabel{tab:adaptive}{{7}{5}{Adaptive K-scheduling vs.\ uniform at matched mean-$k$ budgets}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Cross-Domain Calibration}{5}{subsection.4.7}\protected@file@percent }
+\newlabel{sec:cross_domain}{{4.7}{5}{Cross-Domain Calibration}{subsection.4.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Analysis: Why Does Truncation Dominate?}{5}{section.5}\protected@file@percent }
+\newlabel{sec:analysis}{{5}{5}{Analysis: Why Does Truncation Dominate?}{section.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Attention score sensitivity.}{5}{paragraph*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Layer-wise error accumulation.}{5}{paragraph*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{V intrinsic dimensionality.}{5}{paragraph*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}The \texttt  {kvpatch} Library}{5}{section.6}\protected@file@percent }
+\newlabel{sec:kvpatch}{{6}{5}{The \texttt {kvpatch} Library}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}API}{5}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:api}{{6.1}{5}{API}{subsection.6.1}{}}
+\citation{deepseek2024}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Architecture Support}{6}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:arch_support}{{6.2}{6}{Architecture Support}{subsection.6.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Memory Impact}{6}{subsection.6.3}\protected@file@percent }
+\newlabel{sec:memory}{{6.3}{6}{Memory Impact}{subsection.6.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{6}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{6}{Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{What this means for practitioners.}{6}{paragraph*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Large models compress better.}{6}{paragraph*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Limitations}{6}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:limitations}{{7.1}{6}{Limitations}{subsection.7.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Hook overhead.}{6}{paragraph*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Small-model limitation.}{6}{paragraph*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Basis storage.}{6}{paragraph*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Future Work}{6}{subsection.7.2}\protected@file@percent }
+\newlabel{sec:future}{{7.2}{6}{Future Work}{subsection.7.2}{}}
+\bibdata{refs}
+\bibcite{ainslie2023gqa}{{1}{2023}{{Ainslie et~al.}}{{Ainslie, Lee-Thorp, de~Jong, Zeiler, Sanghai, and Xu}}}
+\bibcite{deepseek2024}{{2}{2024}{{DeepSeek-AI}}{{}}}
+\bibcite{ge2023model}{{3}{2023}{{Ge et~al.}}{{Ge, Zhang, Liu, Zhang, Han, and Gao}}}
+\bibcite{han2025polarquant}{{4}{2025}{{Han et~al.}}{{Han, Kim, Kim, Lee, Ha, Moon, and Shin}}}
+\bibcite{hooper2024kvquant}{{5}{2024}{{Hooper et~al.}}{{Hooper, Kim, Mohammadzadeh, Mahoney, Shao, Keutzer, and Gholami}}}
+\bibcite{liu2024kvsharer}{{6}{2024}{{Liu et~al.}}{{Liu, Li, Schwing, and Gu}}}
+\bibcite{zhang2023h2o}{{7}{2023}{{Zhang et~al.}}{{Zhang, Sheng, Zhou, Chen, Zheng, Cai, Song, Tian, R{\'e}, Barrett, Wang, and Chen}}}
+\bibstyle{plainnat}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{7}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{7}{Conclusion}{section.8}{}}
+\gdef \@abspage@last{7}

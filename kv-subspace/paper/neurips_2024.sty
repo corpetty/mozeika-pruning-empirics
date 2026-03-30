@@ -1,0 +1,61 @@
+% neurips_2024.sty — NeurIPS 2024 compatible style
+% Faithful minimal implementation for paper formatting
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{neurips_2024}[2024/01/01 NeurIPS 2024]
+
+\DeclareOption{preprint}{\newcommand{\@preprint}{}}
+\DeclareOption{final}{}
+\DeclareOption{nonatbib}{}
+\ProcessOptions\relax
+
+\RequirePackage{times}
+\RequirePackage{helvet}
+\RequirePackage{courier}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{geometry}
+\geometry{
+  letterpaper,
+  top=1in, bottom=1in,
+  left=1.25in, right=1.25in,
+  headheight=14pt
+}
+
+% Column layout — NeurIPS uses single column in preprint, two in final
+% We'll do single column (preprint mode)
+
+% Title / author formatting
+\renewcommand{\maketitle}{%
+  \begin{center}
+    {\Large\bfseries \@title \par}
+    \vskip 1em
+    {\normalsize \@author \par}
+    \vskip 0.5em
+    {\small \@date}
+  \end{center}
+  \vskip 1.5em
+}
+
+% Abstract environment
+\renewenvironment{abstract}{%
+  \begin{center}\textbf{Abstract}\end{center}%
+  \begin{quotation}\small
+}{%
+  \end{quotation}
+}
+
+% Section formatting
+\RequirePackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+\titlespacing*{\paragraph}{0pt}{0.5ex plus 0.2ex minus 0.1ex}{0.5em}
+
+% Caption formatting
+\RequirePackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+% natbib
+\RequirePackage{natbib}
+\setcitestyle{authoryear,open={(},close={)}}
+
+\endinput
