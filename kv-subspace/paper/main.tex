@@ -16,6 +16,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\graphicspath{{figures/}}
 \usepackage{multirow}
 \usepackage{array}
 \usepackage{enumitem}
@@ -240,6 +241,17 @@ single NVIDIA RTX 3090 (24\,GB) via SLURM.
   \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.52\textwidth]{fig1_bitrate_heatmap.pdf}
+  \caption{Rel.\ PPL heatmap for the $k \times$ bit-depth sweep on Qwen3-14B-AWQ.
+  Green borders mark viable configs ($\leq$1.20$\times$). Columns within the same
+  row (fixed $k$) vary by at most $0.68\times$, while rows within the same column
+  (fixed bits) vary by up to $2.06\times$, confirming that truncation error
+  dominates quantization noise.}
+  \label{fig:heatmap}
+\end{figure}
+
 Moving from $k{=}64$ to $k{=}128$ at fixed 4-bit reduces $\relppl$ from
 $3.11{\times}$ to $1.05{\times}$ ($\Delta{=}2.06{\times}$). Moving from 4-bit to 16-bit at
 fixed $k{=}64$ reduces $\relppl$ from $3.11{\times}$ to $2.43{\times}$
@@ -290,6 +302,16 @@ hypothesis: larger models develop lower-rank functional KV subspaces.
   \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.58\textwidth]{fig3_cross_arch.pdf}
+  \caption{K compression rel.\ PPL at $k{=}112$/4-bit across architectures.
+  Compression ratio (CR) annotated above each bar. All four architectures pass
+  the 20\% budget (dashed line). Mistral and Phi-4 achieve higher CR because
+  they tolerate more truncation.}
+  \label{fig:cross_arch}
+\end{figure}
+
 Mistral and Phi-3 tolerate $k{=}64$ ($50\%$ truncation) within the budget.
 Llama-3.1 achieves the best K-only result ($1.04{\times}$) of any tested
 architecture.
@@ -319,9 +341,30 @@ architecture.
   \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.62\textwidth]{fig2_long_context.pdf}
+  \caption{Relative PPL vs.\ context length for four compression configs on a
+  40K-token slice of War and Peace. $k{=}128$/4-bit (blue) is flat and well below
+  the 20\% budget (dashed). $k{=}64$/4-bit (red) improves with context as the
+  calibrated basis becomes more representative, but never recovers to
+  viability.}
+  \label{fig:long_ctx}
+\end{figure}
+
 $k{=}128$/4-bit is stable within $1.05$--$1.11{\times}$ across all context lengths
 with no accumulation. Per-position analysis confirms compression errors are
 uniformly distributed across token positions.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.52\textwidth]{fig8_basis_drift.pdf}
+  \caption{Mean PCA basis overlap (cosine$^2$ of principal angles) between the
+  early context window (0--2K tokens) and progressively later windows. K
+  (blue) drifts slowly and stabilizes. V (red) drifts more but also
+  stabilizes, justifying offline calibration.}
+  \label{fig:drift}
+\end{figure}
 
 \textbf{Basis drift.} PCA basis overlap between early (tokens 0--2K) and late
 (tokens 35K--40K) document positions: K overlap $= 0.825$, V overlap $= 0.702$.
@@ -347,6 +390,16 @@ V drifts more than K but stabilizes. The offline basis remains representative at
     \bottomrule
   \end{tabular}
 \end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.80\textwidth]{fig6_needle.pdf}
+  \caption{Needle-in-haystack retrieval accuracy (fact inserted at 5 depths ×
+  4 context lengths). Green = correct, red = incorrect. $k{=}128$/4-bit (center)
+  equals or exceeds baseline at every cell. $k{=}96$/4-bit (right) collapses at
+  32K context.}
+  \label{fig:needle}
+\end{figure}
 
 $k{=}128$/4-bit matches or exceeds baseline accuracy at all context lengths,
 achieving $97\%$ overall vs.\ $93\%$ baseline. The marginal improvement at 16K is
@@ -384,6 +437,17 @@ Llama-3.1 uses standard GQA without QK-norm, enabling a direct test.
   \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig5_v_failure.pdf}
+  \caption{\emph{Left:} V compression scan on Qwen3-14B-AWQ with K fixed at
+  $k{=}112$/4-bit. Rel.\ PPL (log scale) remains far above the 20\% budget for
+  all $k_V < 128$. \emph{Right:} K vs.\ V compression on Llama-3.1-8B (no
+  QK-norm). V-only at $k{=}112$ gives $12.14{\times}$ PPL; even $k_V{=}124$
+  ($1.6\%$ truncation) gives $3.45{\times}$. The failure is architecture-independent.}
+  \label{fig:v_fail}
+\end{figure}
+
 The QK-norm hypothesis is \textbf{rejected}. Llama-3.1 without QK-norm shows
 identical V compression failure---$k_V{=}112$ produces $12.14{\times}$ PPL,
 \emph{worse} than Qwen3 at the same $k$. The hard cliff at $k_V{=}124$
@@ -394,6 +458,16 @@ is load-bearing signal.
 %--------------------------------------
 \subsection{Adaptive K-Scheduling}
 \label{sec:adaptive}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.70\textwidth]{fig4_layer_sensitivity.pdf}
+  \caption{Per-layer $\Delta$PPL under K ablation ($k{=}64$/4-bit, one layer at a time)
+  on Qwen3-14B-AWQ. Red bars: compression hurts. Green bars: compression
+  helps (mild regularization). Layer 37 is the most sensitive by a large
+  margin.}
+  \label{fig:layer_sens}
+\end{figure}
 
 \paragraph{Layer sensitivity (Exp.~16).}
 Ablating each of 40 layers at $k{=}64$/4-bit reveals strong heterogeneity. Layer
@@ -431,6 +505,16 @@ another incurs a modest penalty at $k{=}128$/4-bit: worst cross-domain pair is
 within $0.05{\times}$ $\relppl$ of same-domain calibration. At $k{=}96$/4-bit,
 sensitivity increases: code$\to$news gives $\relppl{=}2.70{\times}$ vs.\ universal
 calibration at $1.63{\times}$.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig7_cross_domain.pdf}
+  \caption{Cross-domain calibration transfer: rel.\ PPL for calib$\to$eval domain
+  pairs. \emph{Left:} $k{=}128$/4-bit is robust (all cells near 1.0).
+  \emph{Right:} $k{=}96$/4-bit is brittle---some off-diagonal pairs exceed 2.5$\times$.
+  Universal calibration (mixed corpus) is the safest strategy for aggressive $k$.}
+  \label{fig:cross_domain}
+\end{figure}
 
 \textbf{Practical recommendation:} A single calibration pass on a diverse 2K-token
 corpus generalizes safely at $k{=}128$. For aggressive $k{=}96$, universal

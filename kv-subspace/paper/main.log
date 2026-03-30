@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.30)  30 MAR 2026 13:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.30)  30 MAR 2026 13:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -487,24 +487,24 @@ File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -544,18 +544,18 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 44.
+Package hyperref Info: Link coloring OFF on input line 45.
 (./main.out) (./main.out)
 \@outlinefile=\write3
 \openout3 = `main.out'.
 
-LaTeX Info: Redefining \microtypecontext on input line 44.
-Package microtype Info: Applying patch `item' on input line 44.
-Package microtype Info: Applying patch `toc' on input line 44.
-Package microtype Info: Applying patch `eqnum' on input line 44.
-Package microtype Info: Applying patch `footnote' on input line 44.
-Package microtype Info: Applying patch `verbatim' on input line 44.
-LaTeX Info: Redefining \microtypesetup on input line 44.
+LaTeX Info: Redefining \microtypecontext on input line 45.
+Package microtype Info: Applying patch `item' on input line 45.
+Package microtype Info: Applying patch `toc' on input line 45.
+Package microtype Info: Applying patch `eqnum' on input line 45.
+Package microtype Info: Applying patch `footnote' on input line 45.
+Package microtype Info: Applying patch `verbatim' on input line 45.
+LaTeX Info: Redefining \microtypesetup on input line 45.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -579,7 +579,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 47
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 48
 .
 
 (/home/petty/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
@@ -594,7 +594,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 55.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 56.
 
 
 (/home/petty/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
@@ -603,7 +603,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (/home/petty/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 55.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 56.
 
 
 (/home/petty/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -616,14 +616,101 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 {/home/petty/texlive/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/home/petty/
 texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 165.
+put line 166.
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 2
-04.
+05.
 
 (/home/petty/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [2] [3] [4]
-[5] [6] (./main.bbl) [7] (./main.aux)
+) [2]
+<figures/fig1_bitrate_heatmap.pdf, id=159, 289.6568pt x 189.77777pt>
+File: figures/fig1_bitrate_heatmap.pdf Graphic file (type pdf)
+<use figures/fig1_bitrate_heatmap.pdf>
+Package pdftex.def Info: figures/fig1_bitrate_heatmap.pdf  used on input line 2
+46.
+(pdftex.def)             Requested size: 225.48425pt x 147.73936pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<figures/fig3_cross_arch.pdf, id=162, 313.28732pt x 192.39818pt>
+File: figures/fig3_cross_arch.pdf Graphic file (type pdf)
+<use figures/fig3_cross_arch.pdf>
+Package pdftex.def Info: figures/fig3_cross_arch.pdf  used on input line 307.
+(pdftex.def)             Requested size: 251.5004pt x 154.45305pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[3 <./figures/fig1_bitrate_heatmap.pdf>]
+<figures/fig2_long_context.pdf, id=251, 314.93254pt x 190.4465pt>
+File: figures/fig2_long_context.pdf Graphic file (type pdf)
+<use figures/fig2_long_context.pdf>
+Package pdftex.def Info: figures/fig2_long_context.pdf  used on input line 346.
+
+(pdftex.def)             Requested size: 268.84229pt x 162.58643pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<figures/fig8_basis_drift.pdf, id=252, 312.05669pt x 193.44772pt>
+File: figures/fig8_basis_drift.pdf Graphic file (type pdf)
+<use figures/fig8_basis_drift.pdf>
+Package pdftex.def Info: figures/fig8_basis_drift.pdf  used on input line 361.
+(pdftex.def)             Requested size: 225.48425pt x 139.78404pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<figures/fig6_needle.pdf, id=253, 489.98701pt x 181.43158pt>
+File: figures/fig6_needle.pdf Graphic file (type pdf)
+<use figures/fig6_needle.pdf>
+Package pdftex.def Info: figures/fig6_needle.pdf  used on input line 396.
+(pdftex.def)             Requested size: 346.89732pt x 128.45187pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<figures/fig5_v_failure.pdf, id=254, 483.84848pt x 200.59541pt>
+File: figures/fig5_v_failure.pdf Graphic file (type pdf)
+<use figures/fig5_v_failure.pdf>
+Package pdftex.def Info: figures/fig5_v_failure.pdf  used on input line 442.
+(pdftex.def)             Requested size: 368.57965pt x 152.80609pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<figures/fig4_layer_sensitivity.pdf, id=255, 362.9058pt x 176.18446pt>
+File: figures/fig4_layer_sensitivity.pdf Graphic file (type pdf)
+<use figures/fig4_layer_sensitivity.pdf>
+Package pdftex.def Info: figures/fig4_layer_sensitivity.pdf  used on input line
+ 464.
+(pdftex.def)             Requested size: 303.53267pt x 147.37022pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[4]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<figures/fig7_cross_domain.pdf, id=266, 447.36205pt x 203.1923pt>
+File: figures/fig7_cross_domain.pdf Graphic file (type pdf)
+<use figures/fig7_cross_domain.pdf>
+Package pdftex.def Info: figures/fig7_cross_domain.pdf  used on input line 511.
+
+(pdftex.def)             Requested size: 368.57965pt x 167.41556pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[5 <./figures/fig3_cross_arch.pdf> <./figures/fig2_long_context.pdf>] [6 <./fig
+ures/fig8_basis_drift.pdf>] [7 <./figures/fig6_needle.pdf>] [8 <./figures/fig5_
+v_failure.pdf> <./figures/fig4_layer_sensitivity.pdf>] (./main.bbl [9 <./figure
+s/fig7_cross_domain.pdf>]) [10] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -632,36 +719,38 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: F15AB8AFD06C52BA712059C6906FE157;3736.
  ) 
 Here is how much of TeX's memory you used:
- 16464 strings out of 469517
- 258555 string characters out of 5470008
- 713089 words of memory out of 5000000
- 44538 multiletter control sequences out of 15000+600000
- 686394 words of font info for 265 fonts, out of 8000000 for 9000
+ 16634 strings out of 469517
+ 262205 string characters out of 5470008
+ 721539 words of memory out of 5000000
+ 44627 multiletter control sequences out of 15000+600000
+ 692962 words of font info for 313 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,10n,79p,1001b,687s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,10n,79p,1001b,691s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></h
 ome/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></home/p
 etty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/petty/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></home/petty/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></home/petty/texlive/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></home/petty/texlive/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/petty/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmr7.pfb></home/petty/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmr9.pfb></home/petty/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmsy10.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmsy6.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy7.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y9.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam
-10.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm
-10.pfb></home/petty/texlive/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></hom
-e/petty/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></home/petty/texl
-ive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></home/petty/texlive/texmf-dist
-/fonts/type1/urw/times/utmr8a.pfb></home/petty/texlive/texmf-dist/fonts/type1/u
-rw/times/utmri8a.pfb>
-Output written on main.pdf (7 pages, 239100 bytes).
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></home/petty/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></home/petty/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></home/petty/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmib10.pfb></home/petty/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmr10.pfb></home/petty/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr6.pfb></home/petty/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr7.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmr9.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmsy10.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
+6.pfb></home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
+</home/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></home
+/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></home
+/petty/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></home
+/petty/texlive/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></home/petty/texli
+ve/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></home/petty/texlive/texmf-dis
+t/fonts/type1/urw/times/utmb8a.pfb></home/petty/texlive/texmf-dist/fonts/type1/
+urw/times/utmr8a.pfb></home/petty/texlive/texmf-dist/fonts/type1/urw/times/utmr
+i8a.pfb>
+Output written on main.pdf (10 pages, 401192 bytes).
 PDF statistics:
- 315 PDF objects out of 1000 (max. 8388607)
- 262 compressed objects within 3 object streams
- 71 named destinations out of 1000 (max. 500000)
- 62145 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 809 PDF objects out of 1000 (max. 8388607)
+ 355 compressed objects within 4 object streams
+ 82 named destinations out of 1000 (max. 500000)
+ 68329 words of extra memory for PDF output out of 74296 (max. 10000000)
 
