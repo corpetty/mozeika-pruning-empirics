@@ -41,11 +41,11 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}End-to-End Perplexity at Scale}{3}{subsection.4.2}\protected@file@percent }
 \newlabel{sec:scale}{{4.2}{3}{End-to-End Perplexity at Scale}{subsection.4.2}{}}
 \@writefile{toc}{\contentsline {paragraph}{Qwen3 family.}{3}{paragraph*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Cross-architecture comparison.}{3}{paragraph*.10}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces K compression ($k{=}112$/4-bit) across Qwen3 model sizes. CR = $4.27{\times }$ for all.}}{4}{table.caption.9}\protected@file@percent }
 \newlabel{tab:qwen_scale}{{2}{4}{K compression ($k{=}112$/4-bit) across Qwen3 model sizes. CR = $4.27{\times }$ for all}{table.caption.9}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces K compression ($k{=}112$/4-bit) across architectures. $^\dagger $K-only (V excluded; see Section~\ref {sec:v_failure}).}}{4}{table.caption.11}\protected@file@percent }
 \newlabel{tab:cross_arch}{{3}{4}{K compression ($k{=}112$/4-bit) across architectures. $^\dagger $K-only (V excluded; see Section~\ref {sec:v_failure})}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cross-architecture comparison.}{4}{paragraph*.10}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Long-Context Stability}{4}{subsection.4.3}\protected@file@percent }
 \newlabel{sec:long_context}{{4.3}{4}{Long-Context Stability}{subsection.4.3}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Relative PPL vs.\ context length ($k{=}128$/4-bit and $k{=}96$/4-bit on War and Peace).}}{4}{table.caption.13}\protected@file@percent }
@@ -64,54 +64,54 @@
 \newlabel{sec:adaptive}{{4.6}{5}{Adaptive K-Scheduling}{subsection.4.6}{}}
 \@writefile{toc}{\contentsline {paragraph}{Layer sensitivity (Exp.~16).}{5}{paragraph*.23}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Rank-proportional scheduling (Exp.~18).}{5}{paragraph*.24}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Cross-Domain Calibration}{5}{subsection.4.7}\protected@file@percent }
-\newlabel{sec:cross_domain}{{4.7}{5}{Cross-Domain Calibration}{subsection.4.7}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Mean PCA basis overlap (cosine$^2$ of principal angles) between the early context window (0--2K tokens) and progressively later windows. K (blue) drifts slowly and stabilizes. V (red) drifts more but also stabilizes, justifying offline calibration.}}{6}{figure.caption.15}\protected@file@percent }
 \newlabel{fig:drift}{{4}{6}{Mean PCA basis overlap (cosine$^2$ of principal angles) between the early context window (0--2K tokens) and progressively later windows. K (blue) drifts slowly and stabilizes. V (red) drifts more but also stabilizes, justifying offline calibration}{figure.caption.15}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Retrieval accuracy for facts inserted at varied depths and context lengths. Config: $k{=}128$/4-bit vs.\ baseline.}}{6}{table.caption.16}\protected@file@percent }
 \newlabel{tab:needle}{{5}{6}{Retrieval accuracy for facts inserted at varied depths and context lengths. Config: $k{=}128$/4-bit vs.\ baseline}{table.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Cross-Domain Calibration}{6}{subsection.4.7}\protected@file@percent }
+\newlabel{sec:cross_domain}{{4.7}{6}{Cross-Domain Calibration}{subsection.4.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Analysis: Why Does Truncation Dominate?}{6}{section.5}\protected@file@percent }
 \newlabel{sec:analysis}{{5}{6}{Analysis: Why Does Truncation Dominate?}{section.5}{}}
 \@writefile{toc}{\contentsline {paragraph}{Attention score sensitivity.}{6}{paragraph*.27}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Layer-wise error accumulation.}{6}{paragraph*.28}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{V intrinsic dimensionality.}{6}{paragraph*.29}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}The \texttt  {kvpatch} Library}{6}{section.6}\protected@file@percent }
-\newlabel{sec:kvpatch}{{6}{6}{The \texttt {kvpatch} Library}{section.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}API}{6}{subsection.6.1}\protected@file@percent }
-\newlabel{sec:api}{{6.1}{6}{API}{subsection.6.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Needle-in-haystack retrieval accuracy (fact inserted at 5 depths × 4 context lengths). Green = correct, red = incorrect. $k{=}128$/4-bit (center) equals or exceeds baseline at every cell. $k{=}96$/4-bit (right) collapses at 32K context.}}{7}{figure.caption.17}\protected@file@percent }
 \newlabel{fig:needle}{{5}{7}{Needle-in-haystack retrieval accuracy (fact inserted at 5 depths × 4 context lengths). Green = correct, red = incorrect. $k{=}128$/4-bit (center) equals or exceeds baseline at every cell. $k{=}96$/4-bit (right) collapses at 32K context}{figure.caption.17}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces V compression results on Llama-3.1-8B (no QK-norm). QK-norm hypothesis rejected.}}{7}{table.caption.20}\protected@file@percent }
 \newlabel{tab:v_failure}{{6}{7}{V compression results on Llama-3.1-8B (no QK-norm). QK-norm hypothesis rejected}{table.caption.20}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}The \texttt  {kvpatch} Library}{7}{section.6}\protected@file@percent }
+\newlabel{sec:kvpatch}{{6}{7}{The \texttt {kvpatch} Library}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}API}{7}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:api}{{6.1}{7}{API}{subsection.6.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Architecture Support}{7}{subsection.6.2}\protected@file@percent }
 \newlabel{sec:arch_support}{{6.2}{7}{Architecture Support}{subsection.6.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Memory Impact}{7}{subsection.6.3}\protected@file@percent }
 \newlabel{sec:memory}{{6.3}{7}{Memory Impact}{subsection.6.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{7}{section.7}\protected@file@percent }
-\newlabel{sec:discussion}{{7}{7}{Discussion}{section.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{What this means for practitioners.}{7}{paragraph*.30}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \emph  {Left:} V compression scan on Qwen3-14B-AWQ with K fixed at $k{=}112$/4-bit. Rel.\ PPL (log scale) remains far above the 20\% budget for all $k_V < 128$. \emph  {Right:} K vs.\ V compression on Llama-3.1-8B (no QK-norm). V-only at $k{=}112$ gives $12.14{\times }$ PPL; even $k_V{=}124$ ($1.6\%$ truncation) gives $3.45{\times }$. The failure is architecture-independent.}}{8}{figure.caption.21}\protected@file@percent }
 \newlabel{fig:v_fail}{{6}{8}{\emph {Left:} V compression scan on Qwen3-14B-AWQ with K fixed at $k{=}112$/4-bit. Rel.\ PPL (log scale) remains far above the 20\% budget for all $k_V < 128$. \emph {Right:} K vs.\ V compression on Llama-3.1-8B (no QK-norm). V-only at $k{=}112$ gives $12.14{\times }$ PPL; even $k_V{=}124$ ($1.6\%$ truncation) gives $3.45{\times }$. The failure is architecture-independent}{figure.caption.21}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Per-layer $\Delta $PPL under K ablation ($k{=}64$/4-bit, one layer at a time) on Qwen3-14B-AWQ. Red bars: compression hurts. Green bars: compression helps (mild regularization). Layer 37 is the most sensitive by a large margin.}}{8}{figure.caption.22}\protected@file@percent }
 \newlabel{fig:layer_sens}{{7}{8}{Per-layer $\Delta $PPL under K ablation ($k{=}64$/4-bit, one layer at a time) on Qwen3-14B-AWQ. Red bars: compression hurts. Green bars: compression helps (mild regularization). Layer 37 is the most sensitive by a large margin}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{8}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{8}{Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{What this means for practitioners.}{8}{paragraph*.30}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Large models compress better.}{8}{paragraph*.31}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Limitations}{8}{subsection.7.1}\protected@file@percent }
 \newlabel{sec:limitations}{{7.1}{8}{Limitations}{subsection.7.1}{}}
 \@writefile{toc}{\contentsline {paragraph}{Hook overhead.}{8}{paragraph*.32}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Small-model limitation.}{8}{paragraph*.33}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Basis storage.}{8}{paragraph*.34}\protected@file@percent }
 \citation{deepseek2024}
 \bibdata{refs}
 \bibcite{ainslie2023gqa}{{1}{2023}{{Ainslie et~al.}}{{Ainslie, Lee-Thorp, de~Jong, Zeiler, Sanghai, and Xu}}}
-\bibcite{deepseek2024}{{2}{2024}{{DeepSeek-AI}}{{}}}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Adaptive K-scheduling vs.\ uniform at matched mean-$k$ budgets.}}{9}{table.caption.25}\protected@file@percent }
 \newlabel{tab:adaptive}{{7}{9}{Adaptive K-scheduling vs.\ uniform at matched mean-$k$ budgets}{table.caption.25}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Cross-domain calibration transfer: rel.\ PPL for calib$\to $eval domain pairs. \emph  {Left:} $k{=}128$/4-bit is robust (all cells near 1.0). \emph  {Right:} $k{=}96$/4-bit is brittle---some off-diagonal pairs exceed 2.5$\times $. Universal calibration (mixed corpus) is the safest strategy for aggressive $k$.}}{9}{figure.caption.26}\protected@file@percent }
 \newlabel{fig:cross_domain}{{8}{9}{Cross-domain calibration transfer: rel.\ PPL for calib$\to $eval domain pairs. \emph {Left:} $k{=}128$/4-bit is robust (all cells near 1.0). \emph {Right:} $k{=}96$/4-bit is brittle---some off-diagonal pairs exceed 2.5$\times $. Universal calibration (mixed corpus) is the safest strategy for aggressive $k$}{figure.caption.26}{}}
+\@writefile{toc}{\contentsline {paragraph}{Small-model limitation.}{9}{paragraph*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Basis storage.}{9}{paragraph*.34}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Future Work}{9}{subsection.7.2}\protected@file@percent }
 \newlabel{sec:future}{{7.2}{9}{Future Work}{subsection.7.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{9}{section.8}\protected@file@percent }
 \newlabel{sec:conclusion}{{8}{9}{Conclusion}{section.8}{}}
+\bibcite{deepseek2024}{{2}{2024}{{DeepSeek-AI}}{{}}}
 \bibcite{ge2023model}{{3}{2023}{{Ge et~al.}}{{Ge, Zhang, Liu, Zhang, Han, and Gao}}}
 \bibcite{han2025polarquant}{{4}{2025}{{Han et~al.}}{{Han, Kim, Kim, Lee, Ha, Moon, and Shin}}}
 \bibcite{hooper2024kvquant}{{5}{2024}{{Hooper et~al.}}{{Hooper, Kim, Mohammadzadeh, Mahoney, Shao, Keutzer, and Gholami}}}

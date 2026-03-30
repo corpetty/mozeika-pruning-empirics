@@ -252,6 +252,7 @@ single NVIDIA RTX 3090 (24\,GB) via SLURM.
   \label{fig:heatmap}
 \end{figure}
 
+Figure~\ref{fig:heatmap} summarizes the full sweep.
 Moving from $k{=}64$ to $k{=}128$ at fixed 4-bit reduces $\relppl$ from
 $3.11{\times}$ to $1.05{\times}$ ($\Delta{=}2.06{\times}$). Moving from 4-bit to 16-bit at
 fixed $k{=}64$ reduces $\relppl$ from $3.11{\times}$ to $2.43{\times}$
@@ -312,6 +313,7 @@ hypothesis: larger models develop lower-rank functional KV subspaces.
   \label{fig:cross_arch}
 \end{figure}
 
+Figure~\ref{fig:cross_arch} compares all four architectures at $k{=}112$/4-bit.
 Mistral and Phi-3 tolerate $k{=}64$ ($50\%$ truncation) within the budget.
 Llama-3.1 achieves the best K-only result ($1.04{\times}$) of any tested
 architecture.
@@ -352,9 +354,10 @@ architecture.
   \label{fig:long_ctx}
 \end{figure}
 
-$k{=}128$/4-bit is stable within $1.05$--$1.11{\times}$ across all context lengths
-with no accumulation. Per-position analysis confirms compression errors are
-uniformly distributed across token positions.
+As shown in Figure~\ref{fig:long_ctx}, $k{=}128$/4-bit is stable within
+$1.05$--$1.11{\times}$ across all context lengths with no accumulation.
+Per-position analysis confirms compression errors are uniformly distributed
+across token positions.
 
 \begin{figure}[h]
   \centering
@@ -366,8 +369,9 @@ uniformly distributed across token positions.
   \label{fig:drift}
 \end{figure}
 
-\textbf{Basis drift.} PCA basis overlap between early (tokens 0--2K) and late
-(tokens 35K--40K) document positions: K overlap $= 0.825$, V overlap $= 0.702$.
+\textbf{Basis drift.} Figure~\ref{fig:drift} traces PCA basis overlap between
+early (tokens 0--2K) and progressively later windows.
+Final overlap at 35K--40K: K $= 0.825$, V $= 0.702$.
 V drifts more than K but stabilizes. The offline basis remains representative at
 40K tokens.
 
@@ -401,8 +405,9 @@ V drifts more than K but stabilizes. The offline basis remains representative at
   \label{fig:needle}
 \end{figure}
 
-$k{=}128$/4-bit matches or exceeds baseline accuracy at all context lengths,
-achieving $97\%$ overall vs.\ $93\%$ baseline. The marginal improvement at 16K is
+Figure~\ref{fig:needle} shows per-cell retrieval accuracy across context lengths
+and needle depths. $k{=}128$/4-bit matches or exceeds baseline accuracy at all
+context lengths, achieving $97\%$ overall vs.\ $93\%$ baseline. The marginal improvement at 16K is
 consistent with a mild regularization effect from compression noise.
 $k{=}96$/4-bit collapses at 32K (27\%), consistent with its PPL instability above
 16K context.
@@ -448,8 +453,9 @@ Llama-3.1 uses standard GQA without QK-norm, enabling a direct test.
   \label{fig:v_fail}
 \end{figure}
 
-The QK-norm hypothesis is \textbf{rejected}. Llama-3.1 without QK-norm shows
-identical V compression failure---$k_V{=}112$ produces $12.14{\times}$ PPL,
+Figure~\ref{fig:v_fail} presents the V threshold scan and cross-architecture
+comparison. The QK-norm hypothesis is \textbf{rejected}: Llama-3.1 without
+QK-norm shows identical V compression failure---$k_V{=}112$ produces $12.14{\times}$ PPL,
 \emph{worse} than Qwen3 at the same $k$. The hard cliff at $k_V{=}124$
 ($3.45{\times}$ PPL) is architecture-independent: the $\sim$30\% of V variance
 residing in tail principal components (dimensions 113--128 for $d_\text{head}{=}128$)
@@ -470,7 +476,8 @@ is load-bearing signal.
 \end{figure}
 
 \paragraph{Layer sensitivity (Exp.~16).}
-Ablating each of 40 layers at $k{=}64$/4-bit reveals strong heterogeneity. Layer
+Figure~\ref{fig:layer_sens} shows per-layer $\Delta$PPL from ablating each of
+40 layers at $k{=}64$/4-bit, revealing strong heterogeneity. Layer
 37 is most sensitive ($+1.93$ PPL delta). Layers 2, 5, 20, 25, 27, 29, 38 show
 \emph{negative} sensitivity (slight improvement under compression, consistent
 with mild regularization). Late layers near the LM head are most sensitive.
@@ -516,8 +523,9 @@ calibration at $1.63{\times}$.
   \label{fig:cross_domain}
 \end{figure}
 
-\textbf{Practical recommendation:} A single calibration pass on a diverse 2K-token
-corpus generalizes safely at $k{=}128$. For aggressive $k{=}96$, universal
+Figure~\ref{fig:cross_domain} visualizes the calib$\to$eval transfer matrices
+for both configs. \textbf{Practical recommendation:} A single calibration pass
+on a diverse 2K-token corpus generalizes safely at $k{=}128$. For aggressive $k{=}96$, universal
 calibration (mixed-domain) is required.
 
 %------------------------------------------------------------------------------
