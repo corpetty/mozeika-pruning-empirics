@@ -219,8 +219,14 @@ def main():
                 model, bases_by_k[k], k, cfg["bits"], N_KV_HEADS, D_HEAD)
             print(f"  Compression hooks: k={k}, {cfg['bits']}-bit ({len(hooks)} hooks)")
 
-        config_results = {}
+        # Load any partial results for this config
+        config_results = all_results.get(config_name, {})
+
         for task_name, n_fewshot in TASKS:
+            # Skip if already done
+            if task_name in config_results and config_results[task_name].get("acc") is not None:
+                print(f"  Task: {task_name} (skip, already done: acc={config_results[task_name]['acc']:.4f})")
+                continue
             print(f"  Task: {task_name} ({n_fewshot}-shot, limit=500)...", end='', flush=True)
             try:
                 task_result = run_lm_eval_with_model(
@@ -239,12 +245,16 @@ def main():
                 print(f" ERROR: {e}")
                 config_results[task_name] = {"acc": None, "error": str(e)}
 
+            # Save after each task (not just each config)
+            all_results[config_name] = config_results
+            json_path.write_text(json.dumps(all_results, indent=2))
+            print(f"  Saved to {json_path}")
+
         for h in hooks:
             h.remove()
 
         all_results[config_name] = config_results
         json_path.write_text(json.dumps(all_results, indent=2))
-        print(f"  Saved to {json_path}")
 
     # ── Report ──
     print("\nGenerating report...")

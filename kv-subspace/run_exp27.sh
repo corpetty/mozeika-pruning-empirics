@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:rtx3090:1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=60G
-#SBATCH --time=6:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=/home/petty/slurm-logs/exp27-downstream-%j.out
 #SBATCH --error=/home/petty/slurm-logs/exp27-downstream-%j.err
 
