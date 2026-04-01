@@ -53,11 +53,12 @@ N_KV_HEADS   = 8
 D_HEAD       = 128
 
 # Tasks: (lm-eval name, num_fewshot)
+# GSM8K excluded — generate_until is 10-20× slower than MC tasks,
+# impractical within 12h limit for 4 configs.
 TASKS = [
     ("mmlu",           5),
     ("arc_challenge",  25),
     ("hellaswag",      10),
-    ("gsm8k",          5),
 ]
 
 CONFIGS = {
@@ -167,7 +168,7 @@ def run_lm_eval_with_model(model, tokenizer, task_name, num_fewshot, device):
         model=lm,
         tasks=[task_name],
         num_fewshot=num_fewshot,
-        limit=500,       # cap at 500 samples per task for speed (still statistically meaningful)
+        limit=200,       # 200 samples per task — faster runtime, still statistically meaningful (~±7% CI)
         log_samples=False,
     )
     return results["results"][task_name]
@@ -272,8 +273,8 @@ def main():
     report_lines = [
         "# Experiment 27: Downstream Task Accuracy\n",
         f"- Model: {MODEL_NAME}",
-        "- Tasks: MMLU (5-shot), ARC-Challenge (25-shot), HellaSwag (10-shot), GSM8K (5-shot)",
-        "- Limit: 500 samples per task",
+        "- Tasks: MMLU (5-shot), ARC-Challenge (25-shot), HellaSwag (10-shot)",
+        "- Limit: 200 samples per task (~±7% margin, MC tasks only — GSM8K excluded due to generate_until runtime)",
         "- Calibration: WikiText-2 train, K-only compression",
         "",
         "## Results\n",
