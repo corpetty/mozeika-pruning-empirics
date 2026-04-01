@@ -1,0 +1,35 @@
+{
+  "baseline": {
+    "mmlu": {
+      "acc": 0.8022673129056108,
+      "metric_key": "acc,none",
+      "full": {
+        "acc,none": 0.8022673129056108,
+        "acc_stderr,none": 0.003478641595647262,
+        "alias": "mmlu"
+      }
+    },
+    "arc_challenge": {
+      "acc": 0.666,
+      "metric_key": "acc,none",
+      "full": {
+        "alias": "arc_challenge",
+        "acc,none": 0.666,
+        "acc_stderr,none": 0.02111349234774381,
+        "acc_norm,none": 0.674,
+        "acc_norm_stderr,none": 0.020984009562393675
+      }
+    },
+    "hellaswag": {
+      "acc": 0.556,
+      "metric_key": "acc,none",
+      "full": {
+        "alias": "hellaswag",
+        "acc,none": 0.556,
+        "acc_stderr,none": 0.022242244375731048,
+        "acc_norm,none": 0.714,
+        "acc_norm_stderr,none": 0.020229346329177608
+      }
+    }
+  }
+}

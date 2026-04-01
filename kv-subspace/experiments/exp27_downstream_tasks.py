@@ -231,9 +231,20 @@ def main():
             try:
                 task_result = run_lm_eval_with_model(
                     model, tokenizer, task_name, n_fewshot, device)
-                # Extract primary metric
-                metric_key = "acc,none" if "acc,none" in task_result else list(task_result.keys())[0]
-                acc = task_result.get(metric_key, task_result.get("acc", None))
+                # Extract primary metric — prefer acc,none then exact_match,none then first key
+                if "acc,none" in task_result:
+                    metric_key = "acc,none"
+                elif "exact_match,none" in task_result:
+                    metric_key = "exact_match,none"
+                elif "acc_norm,none" in task_result:
+                    metric_key = "acc_norm,none"
+                else:
+                    # pick first key whose value is a float
+                    metric_key = next(
+                        (k for k, v in task_result.items() if isinstance(v, (int, float))),
+                        list(task_result.keys())[0]
+                    )
+                acc = task_result.get(metric_key)
                 config_results[task_name] = {
                     "acc": float(acc) if acc is not None else None,
                     "metric_key": metric_key,
