@@ -443,6 +443,13 @@ def run_lm_eval_with_tracking(model, tokenizer, task_name, num_fewshot, device):
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default=None,
+                        help="Run only this config (baseline|k128_4bit|k112_4bit|k96_4bit). "
+                             "If omitted, runs all configs sequentially.")
+    args = parser.parse_args()
+
     os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
     RESULTS_DIR.mkdir(exist_ok=True)
 
@@ -451,6 +458,14 @@ def main():
     if json_path.exists():
         all_results = json.loads(json_path.read_text())
         print(f"Resuming: {len(all_results)} configs saved")
+
+    # Filter to requested config only
+    configs_to_run = CONFIGS
+    if args.config:
+        if args.config not in CONFIGS:
+            print(f"Unknown config '{args.config}'. Choose from: {list(CONFIGS.keys())}")
+            sys.exit(1)
+        configs_to_run = {args.config: CONFIGS[args.config]}
 
     print(f"Loading model {MODEL_NAME}...")
     device = 'cuda'
@@ -477,7 +492,7 @@ def main():
         bases_by_k[k] = fit_bases(initial_kvs, k)
         print(" done")
 
-    for config_name, cfg in CONFIGS.items():
+    for config_name, cfg in configs_to_run.items():
         if config_name in all_results:
             tasks_done = [t for t in all_results[config_name] if all_results[config_name][t].get("acc") is not None]
             tasks_needed = [t for t, _ in TASKS]
