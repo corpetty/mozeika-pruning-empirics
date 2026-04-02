@@ -49,16 +49,19 @@ MODEL_NAME  = "Qwen/Qwen3-14B-AWQ"
 RESULTS_DIR = Path("results")
 
 CALIB_TOKENS = 2048
+LIMIT        = 300   # samples per task
 N_KV_HEADS   = 8
 D_HEAD       = 128
 
 # Tasks: (lm-eval name, num_fewshot)
-# GSM8K excluded — generate_until is 10-20× slower than MC tasks,
-# impractical within 12h limit for 4 configs.
+# MMLU excluded: 57 subtasks × n_samples = thousands of evals even at low limit.
+# GSM8K excluded: generate_until is 10-20× slower than MC tasks.
+# Keeping fast MC-only tasks that finish in <2h each.
 TASKS = [
-    ("mmlu",           5),
     ("arc_challenge",  25),
     ("hellaswag",      10),
+    ("arc_easy",        0),
+    ("winogrande",      5),
 ]
 
 CONFIGS = {
@@ -168,7 +171,7 @@ def run_lm_eval_with_model(model, tokenizer, task_name, num_fewshot, device):
         model=lm,
         tasks=[task_name],
         num_fewshot=num_fewshot,
-        limit=200,       # 200 samples per task — faster runtime, still statistically meaningful (~±7% CI)
+        limit=LIMIT,
         log_samples=False,
     )
     return results["results"][task_name]
@@ -228,7 +231,7 @@ def main():
             if task_name in config_results and config_results[task_name].get("acc") is not None:
                 print(f"  Task: {task_name} (skip, already done: acc={config_results[task_name]['acc']:.4f})")
                 continue
-            print(f"  Task: {task_name} ({n_fewshot}-shot, limit=500)...", end='', flush=True)
+            print(f"  Task: {task_name} ({n_fewshot}-shot, limit={LIMIT})...", end='', flush=True)
             try:
                 task_result = run_lm_eval_with_model(
                     model, tokenizer, task_name, n_fewshot, device)
