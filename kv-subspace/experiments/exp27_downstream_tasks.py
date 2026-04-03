@@ -342,7 +342,17 @@ def run_lm_eval_with_tracking(model, tokenizer, task_name, num_fewshot, device):
     for i, s in enumerate(samples):
         # lm-eval sample structure varies by task; extract robustly
         # resps is a list of (logprob, is_greedy) or similar per answer choice
-        correct = int(s.get("target", -1))  # index of correct choice (0-based)
+        # lm-eval "target" varies by task: int index, "1"/"2" string (winogrande), or full string
+        _target = s.get("target", -1)
+        try:
+            _t = int(_target)
+            # winogrande uses 1-based "1"/"2"; if doc has option1/option2 it's 1-indexed
+            doc_tmp = s.get("doc", {})
+            if "option1" in doc_tmp and isinstance(_target, str) and _t in (1, 2):
+                _t = _t - 1  # convert to 0-based
+            correct = _t
+        except (ValueError, TypeError):
+            correct = -1  # unparseable; mark as unknown
         resps   = s.get("filtered_resps", s.get("resps", []))
 
         # Extract log probs: lm-eval stores them as [(logprob, ...)] per choice
