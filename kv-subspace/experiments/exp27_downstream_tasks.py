@@ -560,15 +560,20 @@ def main():
                 traceback.print_exc()
                 config_results[task_name] = {"acc": None, "error": str(e)}
 
-            all_results[config_name] = config_results
-            json_path.write_text(json.dumps(all_results, indent=2))
+            # Re-read from disk before write to avoid clobbering concurrent config jobs
+            on_disk = json.loads(json_path.read_text()) if json_path.exists() else {}
+            on_disk[config_name] = config_results
+            json_path.write_text(json.dumps(on_disk, indent=2))
+            all_results = on_disk
             print(f"  Saved → {json_path}")
 
         for h in hooks:
             h.remove()
 
-        all_results[config_name] = config_results
-        json_path.write_text(json.dumps(all_results, indent=2))
+        on_disk = json.loads(json_path.read_text()) if json_path.exists() else {}
+        on_disk[config_name] = config_results
+        json_path.write_text(json.dumps(on_disk, indent=2))
+        all_results = on_disk
 
     # ── Report ────────────────────────────────────────────────────────────────
     print("\nGenerating report...")

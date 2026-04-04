@@ -7706,6 +7706,2573 @@
           "frac_negative": 0.21
         }
       }
+    },
+    "winogrande": {
+      "acc": 0.7766666666666666,
+      "metric_key": "acc,none",
+      "summary": {
+        "alias": "winogrande",
+        "acc,none": 0.7766666666666666,
+        "acc_stderr,none": 0.02408565786731854
+      },
+      "trajectory": {
+        "per_sample": [
+          {
+            "idx": 0,
+            "correct": true,
+            "log_prob_correct": -17.15625,
+            "log_prob_max_dist": -17.15625,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 1,
+            "correct": true,
+            "log_prob_correct": -18.640625,
+            "log_prob_max_dist": -18.1875,
+            "margin": -0.453125,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 2,
+            "correct": false,
+            "log_prob_correct": -21.125,
+            "log_prob_max_dist": -20.78125,
+            "margin": -0.34375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 3,
+            "correct": true,
+            "log_prob_correct": -15.5234375,
+            "log_prob_max_dist": -3.88671875,
+            "margin": -11.63671875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 4,
+            "correct": true,
+            "log_prob_correct": -18.53125,
+            "log_prob_max_dist": -15.1640625,
+            "margin": -3.3671875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 5,
+            "correct": true,
+            "log_prob_correct": -21.40625,
+            "log_prob_max_dist": -13.8671875,
+            "margin": -7.5390625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 6,
+            "correct": true,
+            "log_prob_correct": -19.5,
+            "log_prob_max_dist": -17.1875,
+            "margin": -2.3125,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 7,
+            "correct": true,
+            "log_prob_correct": -18.984375,
+            "log_prob_max_dist": -18.984375,
+            "margin": 0.0,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 8,
+            "correct": true,
+            "log_prob_correct": -22.546875,
+            "log_prob_max_dist": -22.546875,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 9,
+            "correct": true,
+            "log_prob_correct": -26.875,
+            "log_prob_max_dist": -24.078125,
+            "margin": -2.796875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 10,
+            "correct": false,
+            "log_prob_correct": -40.1875,
+            "log_prob_max_dist": -34.6875,
+            "margin": -5.5,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 11,
+            "correct": true,
+            "log_prob_correct": -8.125,
+            "log_prob_max_dist": -8.125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 12,
+            "correct": true,
+            "log_prob_correct": -9.1953125,
+            "log_prob_max_dist": -3.607421875,
+            "margin": -5.587890625,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 13,
+            "correct": false,
+            "log_prob_correct": -25.5625,
+            "log_prob_max_dist": -25.5625,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 14,
+            "correct": true,
+            "log_prob_correct": -15.5234375,
+            "log_prob_max_dist": -15.5234375,
+            "margin": 0.0,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 15,
+            "correct": true,
+            "log_prob_correct": -43.59375,
+            "log_prob_max_dist": -34.0,
+            "margin": -9.59375,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 16,
+            "correct": true,
+            "log_prob_correct": -32.3125,
+            "log_prob_max_dist": -32.3125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 17,
+            "correct": false,
+            "log_prob_correct": -21.46875,
+            "log_prob_max_dist": -21.46875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 18,
+            "correct": true,
+            "log_prob_correct": -28.65625,
+            "log_prob_max_dist": -27.828125,
+            "margin": -0.828125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 19,
+            "correct": true,
+            "log_prob_correct": -10.78125,
+            "log_prob_max_dist": -10.78125,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 20,
+            "correct": false,
+            "log_prob_correct": -12.203125,
+            "log_prob_max_dist": -10.9140625,
+            "margin": -1.2890625,
+            "question_len_tokens": 35
+          },
+          {
+            "idx": 21,
+            "correct": false,
+            "log_prob_correct": -13.171875,
+            "log_prob_max_dist": -12.109375,
+            "margin": -1.0625,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 22,
+            "correct": false,
+            "log_prob_correct": -40.6875,
+            "log_prob_max_dist": -38.59375,
+            "margin": -2.09375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 23,
+            "correct": true,
+            "log_prob_correct": -16.515625,
+            "log_prob_max_dist": -11.703125,
+            "margin": -4.8125,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 24,
+            "correct": true,
+            "log_prob_correct": -17.75,
+            "log_prob_max_dist": -17.75,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 25,
+            "correct": true,
+            "log_prob_correct": -13.609375,
+            "log_prob_max_dist": -8.703125,
+            "margin": -4.90625,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 26,
+            "correct": true,
+            "log_prob_correct": -15.78125,
+            "log_prob_max_dist": -15.71875,
+            "margin": -0.0625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 27,
+            "correct": false,
+            "log_prob_correct": -19.171875,
+            "log_prob_max_dist": -19.171875,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 28,
+            "correct": true,
+            "log_prob_correct": -23.15625,
+            "log_prob_max_dist": -13.21875,
+            "margin": -9.9375,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 29,
+            "correct": true,
+            "log_prob_correct": -22.0,
+            "log_prob_max_dist": -18.4375,
+            "margin": -3.5625,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 30,
+            "correct": true,
+            "log_prob_correct": -14.8828125,
+            "log_prob_max_dist": -10.1328125,
+            "margin": -4.75,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 31,
+            "correct": true,
+            "log_prob_correct": -38.625,
+            "log_prob_max_dist": -37.9375,
+            "margin": -0.6875,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 32,
+            "correct": false,
+            "log_prob_correct": -45.5,
+            "log_prob_max_dist": -43.71875,
+            "margin": -1.78125,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 33,
+            "correct": true,
+            "log_prob_correct": -40.71875,
+            "log_prob_max_dist": -34.21875,
+            "margin": -6.5,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 34,
+            "correct": false,
+            "log_prob_correct": -30.5,
+            "log_prob_max_dist": -27.875,
+            "margin": -2.625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 35,
+            "correct": true,
+            "log_prob_correct": -23.875,
+            "log_prob_max_dist": -23.875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 36,
+            "correct": false,
+            "log_prob_correct": -14.0390625,
+            "log_prob_max_dist": -11.921875,
+            "margin": -2.1171875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 37,
+            "correct": true,
+            "log_prob_correct": -12.6171875,
+            "log_prob_max_dist": -6.23046875,
+            "margin": -6.38671875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 38,
+            "correct": true,
+            "log_prob_correct": -27.640625,
+            "log_prob_max_dist": -27.640625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 39,
+            "correct": true,
+            "log_prob_correct": -20.90625,
+            "log_prob_max_dist": -20.90625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 40,
+            "correct": true,
+            "log_prob_correct": -16.296875,
+            "log_prob_max_dist": -9.6484375,
+            "margin": -6.6484375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 41,
+            "correct": true,
+            "log_prob_correct": -6.8515625,
+            "log_prob_max_dist": -2.826171875,
+            "margin": -4.025390625,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 42,
+            "correct": true,
+            "log_prob_correct": -8.4453125,
+            "log_prob_max_dist": -8.4453125,
+            "margin": 0.0,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 43,
+            "correct": true,
+            "log_prob_correct": -10.984375,
+            "log_prob_max_dist": -9.671875,
+            "margin": -1.3125,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 44,
+            "correct": true,
+            "log_prob_correct": -16.328125,
+            "log_prob_max_dist": -16.328125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 45,
+            "correct": true,
+            "log_prob_correct": -36.40625,
+            "log_prob_max_dist": -32.96875,
+            "margin": -3.4375,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 46,
+            "correct": true,
+            "log_prob_correct": -28.40625,
+            "log_prob_max_dist": -28.40625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 47,
+            "correct": true,
+            "log_prob_correct": -21.703125,
+            "log_prob_max_dist": -21.703125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 48,
+            "correct": true,
+            "log_prob_correct": -35.90625,
+            "log_prob_max_dist": -35.90625,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 49,
+            "correct": true,
+            "log_prob_correct": -44.25,
+            "log_prob_max_dist": -42.5,
+            "margin": -1.75,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 50,
+            "correct": true,
+            "log_prob_correct": -7.6640625,
+            "log_prob_max_dist": -6.72265625,
+            "margin": -0.94140625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 51,
+            "correct": true,
+            "log_prob_correct": -5.296875,
+            "log_prob_max_dist": -5.296875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 52,
+            "correct": false,
+            "log_prob_correct": -14.328125,
+            "log_prob_max_dist": -14.328125,
+            "margin": 0.0,
+            "question_len_tokens": 32
+          },
+          {
+            "idx": 53,
+            "correct": true,
+            "log_prob_correct": -28.71875,
+            "log_prob_max_dist": -28.71875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 54,
+            "correct": true,
+            "log_prob_correct": -36.21875,
+            "log_prob_max_dist": -33.09375,
+            "margin": -3.125,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 55,
+            "correct": false,
+            "log_prob_correct": -16.53125,
+            "log_prob_max_dist": -15.984375,
+            "margin": -0.546875,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 56,
+            "correct": true,
+            "log_prob_correct": -6.25,
+            "log_prob_max_dist": -6.25,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 57,
+            "correct": true,
+            "log_prob_correct": -46.34375,
+            "log_prob_max_dist": -46.34375,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 58,
+            "correct": true,
+            "log_prob_correct": -15.7421875,
+            "log_prob_max_dist": -12.734375,
+            "margin": -3.0078125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 59,
+            "correct": true,
+            "log_prob_correct": -33.1875,
+            "log_prob_max_dist": -26.5625,
+            "margin": -6.625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 60,
+            "correct": true,
+            "log_prob_correct": -17.03125,
+            "log_prob_max_dist": -17.03125,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 61,
+            "correct": false,
+            "log_prob_correct": -41.625,
+            "log_prob_max_dist": -38.71875,
+            "margin": -2.90625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 62,
+            "correct": true,
+            "log_prob_correct": -16.375,
+            "log_prob_max_dist": -16.375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 63,
+            "correct": false,
+            "log_prob_correct": -7.23828125,
+            "log_prob_max_dist": -7.23828125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 64,
+            "correct": true,
+            "log_prob_correct": -14.609375,
+            "log_prob_max_dist": -14.609375,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 65,
+            "correct": true,
+            "log_prob_correct": -6.71875,
+            "log_prob_max_dist": -6.71875,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 66,
+            "correct": true,
+            "log_prob_correct": -24.078125,
+            "log_prob_max_dist": -23.65625,
+            "margin": -0.421875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 67,
+            "correct": true,
+            "log_prob_correct": -27.546875,
+            "log_prob_max_dist": -27.546875,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 68,
+            "correct": false,
+            "log_prob_correct": -22.515625,
+            "log_prob_max_dist": -22.171875,
+            "margin": -0.34375,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 69,
+            "correct": true,
+            "log_prob_correct": -13.46875,
+            "log_prob_max_dist": -8.1015625,
+            "margin": -5.3671875,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 70,
+            "correct": true,
+            "log_prob_correct": -27.953125,
+            "log_prob_max_dist": -22.78125,
+            "margin": -5.171875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 71,
+            "correct": true,
+            "log_prob_correct": -19.109375,
+            "log_prob_max_dist": -13.796875,
+            "margin": -5.3125,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 72,
+            "correct": true,
+            "log_prob_correct": -13.71875,
+            "log_prob_max_dist": -5.89453125,
+            "margin": -7.82421875,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 73,
+            "correct": true,
+            "log_prob_correct": -10.7421875,
+            "log_prob_max_dist": -10.7421875,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 74,
+            "correct": true,
+            "log_prob_correct": -6.9921875,
+            "log_prob_max_dist": -6.19921875,
+            "margin": -0.79296875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 75,
+            "correct": false,
+            "log_prob_correct": -29.984375,
+            "log_prob_max_dist": -27.421875,
+            "margin": -2.5625,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 76,
+            "correct": false,
+            "log_prob_correct": -23.140625,
+            "log_prob_max_dist": -18.25,
+            "margin": -4.890625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 77,
+            "correct": true,
+            "log_prob_correct": -20.234375,
+            "log_prob_max_dist": -18.953125,
+            "margin": -1.28125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 78,
+            "correct": true,
+            "log_prob_correct": -8.21875,
+            "log_prob_max_dist": -8.21875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 79,
+            "correct": true,
+            "log_prob_correct": -56.5625,
+            "log_prob_max_dist": -50.125,
+            "margin": -6.4375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 80,
+            "correct": false,
+            "log_prob_correct": -53.0625,
+            "log_prob_max_dist": -51.90625,
+            "margin": -1.15625,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 81,
+            "correct": true,
+            "log_prob_correct": -12.9765625,
+            "log_prob_max_dist": -10.1015625,
+            "margin": -2.875,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 82,
+            "correct": true,
+            "log_prob_correct": -15.9140625,
+            "log_prob_max_dist": -15.9140625,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 83,
+            "correct": true,
+            "log_prob_correct": -11.453125,
+            "log_prob_max_dist": -11.328125,
+            "margin": -0.125,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 84,
+            "correct": true,
+            "log_prob_correct": -9.1953125,
+            "log_prob_max_dist": -9.1953125,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 85,
+            "correct": true,
+            "log_prob_correct": -19.703125,
+            "log_prob_max_dist": -19.265625,
+            "margin": -0.4375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 86,
+            "correct": true,
+            "log_prob_correct": -14.53125,
+            "log_prob_max_dist": -14.53125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 87,
+            "correct": true,
+            "log_prob_correct": -23.734375,
+            "log_prob_max_dist": -22.453125,
+            "margin": -1.28125,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 88,
+            "correct": true,
+            "log_prob_correct": -27.359375,
+            "log_prob_max_dist": -27.359375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 89,
+            "correct": true,
+            "log_prob_correct": -30.71875,
+            "log_prob_max_dist": -26.984375,
+            "margin": -3.734375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 90,
+            "correct": true,
+            "log_prob_correct": -18.9375,
+            "log_prob_max_dist": -18.375,
+            "margin": -0.5625,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 91,
+            "correct": true,
+            "log_prob_correct": -9.1328125,
+            "log_prob_max_dist": -9.1328125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 92,
+            "correct": true,
+            "log_prob_correct": -25.8125,
+            "log_prob_max_dist": -21.375,
+            "margin": -4.4375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 93,
+            "correct": true,
+            "log_prob_correct": -24.015625,
+            "log_prob_max_dist": -24.015625,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 94,
+            "correct": true,
+            "log_prob_correct": -21.109375,
+            "log_prob_max_dist": -14.5625,
+            "margin": -6.546875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 95,
+            "correct": true,
+            "log_prob_correct": -9.2421875,
+            "log_prob_max_dist": -9.2421875,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 96,
+            "correct": true,
+            "log_prob_correct": -18.609375,
+            "log_prob_max_dist": -17.78125,
+            "margin": -0.828125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 97,
+            "correct": true,
+            "log_prob_correct": -10.6015625,
+            "log_prob_max_dist": -6.44921875,
+            "margin": -4.15234375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 98,
+            "correct": true,
+            "log_prob_correct": -10.921875,
+            "log_prob_max_dist": -10.921875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 99,
+            "correct": true,
+            "log_prob_correct": -41.59375,
+            "log_prob_max_dist": -41.59375,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 100,
+            "correct": true,
+            "log_prob_correct": -13.296875,
+            "log_prob_max_dist": -13.296875,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 101,
+            "correct": true,
+            "log_prob_correct": -11.21875,
+            "log_prob_max_dist": -7.60546875,
+            "margin": -3.61328125,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 102,
+            "correct": true,
+            "log_prob_correct": -9.234375,
+            "log_prob_max_dist": -9.234375,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 103,
+            "correct": true,
+            "log_prob_correct": -19.640625,
+            "log_prob_max_dist": -17.3125,
+            "margin": -2.328125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 104,
+            "correct": true,
+            "log_prob_correct": -11.9609375,
+            "log_prob_max_dist": -11.9609375,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 105,
+            "correct": true,
+            "log_prob_correct": -15.8203125,
+            "log_prob_max_dist": -10.2734375,
+            "margin": -5.546875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 106,
+            "correct": true,
+            "log_prob_correct": -27.5,
+            "log_prob_max_dist": -23.359375,
+            "margin": -4.140625,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 107,
+            "correct": true,
+            "log_prob_correct": -12.859375,
+            "log_prob_max_dist": -9.84375,
+            "margin": -3.015625,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 108,
+            "correct": true,
+            "log_prob_correct": -18.140625,
+            "log_prob_max_dist": -18.140625,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 109,
+            "correct": true,
+            "log_prob_correct": -10.671875,
+            "log_prob_max_dist": -5.421875,
+            "margin": -5.25,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 110,
+            "correct": true,
+            "log_prob_correct": -12.7421875,
+            "log_prob_max_dist": -12.7421875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 111,
+            "correct": true,
+            "log_prob_correct": -42.25,
+            "log_prob_max_dist": -42.25,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 112,
+            "correct": true,
+            "log_prob_correct": -18.8125,
+            "log_prob_max_dist": -18.8125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 113,
+            "correct": true,
+            "log_prob_correct": -38.375,
+            "log_prob_max_dist": -37.78125,
+            "margin": -0.59375,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 114,
+            "correct": true,
+            "log_prob_correct": -13.234375,
+            "log_prob_max_dist": -13.234375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 115,
+            "correct": true,
+            "log_prob_correct": -19.765625,
+            "log_prob_max_dist": -17.6875,
+            "margin": -2.078125,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 116,
+            "correct": true,
+            "log_prob_correct": -18.328125,
+            "log_prob_max_dist": -18.328125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 117,
+            "correct": true,
+            "log_prob_correct": -4.53125,
+            "log_prob_max_dist": -4.53125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 118,
+            "correct": false,
+            "log_prob_correct": -14.46875,
+            "log_prob_max_dist": -14.46875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 119,
+            "correct": true,
+            "log_prob_correct": -12.375,
+            "log_prob_max_dist": -7.3203125,
+            "margin": -5.0546875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 120,
+            "correct": true,
+            "log_prob_correct": -13.671875,
+            "log_prob_max_dist": -13.671875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 121,
+            "correct": true,
+            "log_prob_correct": -11.609375,
+            "log_prob_max_dist": -10.546875,
+            "margin": -1.0625,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 122,
+            "correct": false,
+            "log_prob_correct": -19.046875,
+            "log_prob_max_dist": -17.53125,
+            "margin": -1.515625,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 123,
+            "correct": true,
+            "log_prob_correct": -23.265625,
+            "log_prob_max_dist": -15.9140625,
+            "margin": -7.3515625,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 124,
+            "correct": true,
+            "log_prob_correct": -12.6015625,
+            "log_prob_max_dist": -12.6015625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 125,
+            "correct": false,
+            "log_prob_correct": -11.3828125,
+            "log_prob_max_dist": -11.3828125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 126,
+            "correct": true,
+            "log_prob_correct": -22.3125,
+            "log_prob_max_dist": -22.3125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 127,
+            "correct": false,
+            "log_prob_correct": -26.734375,
+            "log_prob_max_dist": -25.359375,
+            "margin": -1.375,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 128,
+            "correct": true,
+            "log_prob_correct": -26.375,
+            "log_prob_max_dist": -24.25,
+            "margin": -2.125,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 129,
+            "correct": false,
+            "log_prob_correct": -7.64453125,
+            "log_prob_max_dist": -7.0,
+            "margin": -0.64453125,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 130,
+            "correct": true,
+            "log_prob_correct": -15.2265625,
+            "log_prob_max_dist": -15.2265625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 131,
+            "correct": false,
+            "log_prob_correct": -28.640625,
+            "log_prob_max_dist": -28.09375,
+            "margin": -0.546875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 132,
+            "correct": true,
+            "log_prob_correct": -30.046875,
+            "log_prob_max_dist": -30.046875,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 133,
+            "correct": true,
+            "log_prob_correct": -32.96875,
+            "log_prob_max_dist": -32.96875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 134,
+            "correct": true,
+            "log_prob_correct": -14.890625,
+            "log_prob_max_dist": -14.890625,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 135,
+            "correct": true,
+            "log_prob_correct": -20.34375,
+            "log_prob_max_dist": -16.421875,
+            "margin": -3.921875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 136,
+            "correct": true,
+            "log_prob_correct": -3.837890625,
+            "log_prob_max_dist": -3.837890625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 137,
+            "correct": true,
+            "log_prob_correct": -16.890625,
+            "log_prob_max_dist": -16.890625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 138,
+            "correct": false,
+            "log_prob_correct": -13.5,
+            "log_prob_max_dist": -13.5,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 139,
+            "correct": true,
+            "log_prob_correct": -15.0,
+            "log_prob_max_dist": -15.0,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 140,
+            "correct": false,
+            "log_prob_correct": -8.5,
+            "log_prob_max_dist": -8.5,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 141,
+            "correct": true,
+            "log_prob_correct": -29.25,
+            "log_prob_max_dist": -29.25,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 142,
+            "correct": true,
+            "log_prob_correct": -11.4921875,
+            "log_prob_max_dist": -11.4921875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 143,
+            "correct": true,
+            "log_prob_correct": -13.8515625,
+            "log_prob_max_dist": -13.8515625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 144,
+            "correct": false,
+            "log_prob_correct": -46.0625,
+            "log_prob_max_dist": -46.0625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 145,
+            "correct": true,
+            "log_prob_correct": -37.65625,
+            "log_prob_max_dist": -37.65625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 146,
+            "correct": false,
+            "log_prob_correct": -11.359375,
+            "log_prob_max_dist": -10.484375,
+            "margin": -0.875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 147,
+            "correct": true,
+            "log_prob_correct": -9.5390625,
+            "log_prob_max_dist": -8.40625,
+            "margin": -1.1328125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 148,
+            "correct": false,
+            "log_prob_correct": -31.390625,
+            "log_prob_max_dist": -27.046875,
+            "margin": -4.34375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 149,
+            "correct": true,
+            "log_prob_correct": -9.90625,
+            "log_prob_max_dist": -9.90625,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 150,
+            "correct": true,
+            "log_prob_correct": -32.5625,
+            "log_prob_max_dist": -30.59375,
+            "margin": -1.96875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 151,
+            "correct": true,
+            "log_prob_correct": -17.453125,
+            "log_prob_max_dist": -17.453125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 152,
+            "correct": true,
+            "log_prob_correct": -34.15625,
+            "log_prob_max_dist": -32.8125,
+            "margin": -1.34375,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 153,
+            "correct": true,
+            "log_prob_correct": -39.90625,
+            "log_prob_max_dist": -32.09375,
+            "margin": -7.8125,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 154,
+            "correct": false,
+            "log_prob_correct": -11.6953125,
+            "log_prob_max_dist": -11.6953125,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 155,
+            "correct": false,
+            "log_prob_correct": -27.3125,
+            "log_prob_max_dist": -26.671875,
+            "margin": -0.640625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 156,
+            "correct": true,
+            "log_prob_correct": -13.1328125,
+            "log_prob_max_dist": -13.1328125,
+            "margin": 0.0,
+            "question_len_tokens": 33
+          },
+          {
+            "idx": 157,
+            "correct": false,
+            "log_prob_correct": -18.34375,
+            "log_prob_max_dist": -18.34375,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 158,
+            "correct": true,
+            "log_prob_correct": -22.96875,
+            "log_prob_max_dist": -22.96875,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 159,
+            "correct": true,
+            "log_prob_correct": -13.234375,
+            "log_prob_max_dist": -13.234375,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 160,
+            "correct": false,
+            "log_prob_correct": -47.96875,
+            "log_prob_max_dist": -47.21875,
+            "margin": -0.75,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 161,
+            "correct": true,
+            "log_prob_correct": -46.09375,
+            "log_prob_max_dist": -44.15625,
+            "margin": -1.9375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 162,
+            "correct": false,
+            "log_prob_correct": -13.171875,
+            "log_prob_max_dist": -13.171875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 163,
+            "correct": true,
+            "log_prob_correct": -40.90625,
+            "log_prob_max_dist": -40.90625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 164,
+            "correct": false,
+            "log_prob_correct": -24.65625,
+            "log_prob_max_dist": -15.296875,
+            "margin": -9.359375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 165,
+            "correct": true,
+            "log_prob_correct": -16.9375,
+            "log_prob_max_dist": -10.2890625,
+            "margin": -6.6484375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 166,
+            "correct": true,
+            "log_prob_correct": -10.0859375,
+            "log_prob_max_dist": -9.3828125,
+            "margin": -0.703125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 167,
+            "correct": true,
+            "log_prob_correct": -9.546875,
+            "log_prob_max_dist": -9.546875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 168,
+            "correct": true,
+            "log_prob_correct": -14.390625,
+            "log_prob_max_dist": -14.390625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 169,
+            "correct": true,
+            "log_prob_correct": -20.828125,
+            "log_prob_max_dist": -20.828125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 170,
+            "correct": false,
+            "log_prob_correct": -11.9296875,
+            "log_prob_max_dist": -11.328125,
+            "margin": -0.6015625,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 171,
+            "correct": true,
+            "log_prob_correct": -6.40625,
+            "log_prob_max_dist": -6.01953125,
+            "margin": -0.38671875,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 172,
+            "correct": true,
+            "log_prob_correct": -23.984375,
+            "log_prob_max_dist": -21.171875,
+            "margin": -2.8125,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 173,
+            "correct": true,
+            "log_prob_correct": -12.0390625,
+            "log_prob_max_dist": -9.296875,
+            "margin": -2.7421875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 174,
+            "correct": false,
+            "log_prob_correct": -8.0625,
+            "log_prob_max_dist": -8.0625,
+            "margin": 0.0,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 175,
+            "correct": true,
+            "log_prob_correct": -14.90625,
+            "log_prob_max_dist": -14.90625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 176,
+            "correct": false,
+            "log_prob_correct": -14.6953125,
+            "log_prob_max_dist": -14.6953125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 177,
+            "correct": false,
+            "log_prob_correct": -40.5625,
+            "log_prob_max_dist": -31.234375,
+            "margin": -9.328125,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 178,
+            "correct": true,
+            "log_prob_correct": -13.8515625,
+            "log_prob_max_dist": -10.7421875,
+            "margin": -3.109375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 179,
+            "correct": true,
+            "log_prob_correct": -16.46875,
+            "log_prob_max_dist": -5.8984375,
+            "margin": -10.5703125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 180,
+            "correct": true,
+            "log_prob_correct": -11.1015625,
+            "log_prob_max_dist": -10.109375,
+            "margin": -0.9921875,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 181,
+            "correct": true,
+            "log_prob_correct": -9.1953125,
+            "log_prob_max_dist": -9.1953125,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 182,
+            "correct": false,
+            "log_prob_correct": -10.3671875,
+            "log_prob_max_dist": -10.3671875,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 183,
+            "correct": true,
+            "log_prob_correct": -15.328125,
+            "log_prob_max_dist": -15.328125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 184,
+            "correct": true,
+            "log_prob_correct": -17.34375,
+            "log_prob_max_dist": -12.2578125,
+            "margin": -5.0859375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 185,
+            "correct": true,
+            "log_prob_correct": -16.328125,
+            "log_prob_max_dist": -16.328125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 186,
+            "correct": true,
+            "log_prob_correct": -22.828125,
+            "log_prob_max_dist": -22.828125,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 187,
+            "correct": true,
+            "log_prob_correct": -64.4375,
+            "log_prob_max_dist": -64.4375,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 188,
+            "correct": true,
+            "log_prob_correct": -25.65625,
+            "log_prob_max_dist": -22.21875,
+            "margin": -3.4375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 189,
+            "correct": true,
+            "log_prob_correct": -16.84375,
+            "log_prob_max_dist": -16.84375,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 190,
+            "correct": true,
+            "log_prob_correct": -39.0,
+            "log_prob_max_dist": -35.03125,
+            "margin": -3.96875,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 191,
+            "correct": true,
+            "log_prob_correct": -28.640625,
+            "log_prob_max_dist": -26.015625,
+            "margin": -2.625,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 192,
+            "correct": true,
+            "log_prob_correct": -12.984375,
+            "log_prob_max_dist": -10.6171875,
+            "margin": -2.3671875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 193,
+            "correct": false,
+            "log_prob_correct": -11.890625,
+            "log_prob_max_dist": -9.5546875,
+            "margin": -2.3359375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 194,
+            "correct": true,
+            "log_prob_correct": -16.015625,
+            "log_prob_max_dist": -12.3359375,
+            "margin": -3.6796875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 195,
+            "correct": false,
+            "log_prob_correct": -24.46875,
+            "log_prob_max_dist": -24.46875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 196,
+            "correct": true,
+            "log_prob_correct": -52.09375,
+            "log_prob_max_dist": -52.09375,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 197,
+            "correct": false,
+            "log_prob_correct": -11.890625,
+            "log_prob_max_dist": -11.234375,
+            "margin": -0.65625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 198,
+            "correct": false,
+            "log_prob_correct": -28.875,
+            "log_prob_max_dist": -28.875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 199,
+            "correct": true,
+            "log_prob_correct": -26.671875,
+            "log_prob_max_dist": -26.671875,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 200,
+            "correct": true,
+            "log_prob_correct": -19.59375,
+            "log_prob_max_dist": -16.9375,
+            "margin": -2.65625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 201,
+            "correct": true,
+            "log_prob_correct": -20.984375,
+            "log_prob_max_dist": -20.984375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 202,
+            "correct": true,
+            "log_prob_correct": -26.015625,
+            "log_prob_max_dist": -26.015625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 203,
+            "correct": true,
+            "log_prob_correct": -16.828125,
+            "log_prob_max_dist": -15.359375,
+            "margin": -1.46875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 204,
+            "correct": true,
+            "log_prob_correct": -14.7109375,
+            "log_prob_max_dist": -14.7109375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 205,
+            "correct": false,
+            "log_prob_correct": -10.4296875,
+            "log_prob_max_dist": -10.1640625,
+            "margin": -0.265625,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 206,
+            "correct": false,
+            "log_prob_correct": -8.5703125,
+            "log_prob_max_dist": -8.5703125,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 207,
+            "correct": false,
+            "log_prob_correct": -26.203125,
+            "log_prob_max_dist": -25.484375,
+            "margin": -0.71875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 208,
+            "correct": true,
+            "log_prob_correct": -21.859375,
+            "log_prob_max_dist": -14.140625,
+            "margin": -7.71875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 209,
+            "correct": true,
+            "log_prob_correct": -27.71875,
+            "log_prob_max_dist": -27.71875,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 210,
+            "correct": true,
+            "log_prob_correct": -22.875,
+            "log_prob_max_dist": -19.03125,
+            "margin": -3.84375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 211,
+            "correct": true,
+            "log_prob_correct": -13.5,
+            "log_prob_max_dist": -13.5,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 212,
+            "correct": true,
+            "log_prob_correct": -19.125,
+            "log_prob_max_dist": -18.84375,
+            "margin": -0.28125,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 213,
+            "correct": true,
+            "log_prob_correct": -11.859375,
+            "log_prob_max_dist": -11.859375,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 214,
+            "correct": true,
+            "log_prob_correct": -15.1796875,
+            "log_prob_max_dist": -14.1953125,
+            "margin": -0.984375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 215,
+            "correct": true,
+            "log_prob_correct": -12.265625,
+            "log_prob_max_dist": -12.265625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 216,
+            "correct": true,
+            "log_prob_correct": -42.8125,
+            "log_prob_max_dist": -36.84375,
+            "margin": -5.96875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 217,
+            "correct": true,
+            "log_prob_correct": -17.25,
+            "log_prob_max_dist": -13.09375,
+            "margin": -4.15625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 218,
+            "correct": true,
+            "log_prob_correct": -33.6875,
+            "log_prob_max_dist": -33.6875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 219,
+            "correct": true,
+            "log_prob_correct": -12.1484375,
+            "log_prob_max_dist": -12.1484375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 220,
+            "correct": true,
+            "log_prob_correct": -37.9375,
+            "log_prob_max_dist": -37.9375,
+            "margin": 0.0,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 221,
+            "correct": true,
+            "log_prob_correct": -31.0625,
+            "log_prob_max_dist": -27.375,
+            "margin": -3.6875,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 222,
+            "correct": false,
+            "log_prob_correct": -36.0625,
+            "log_prob_max_dist": -36.0625,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 223,
+            "correct": true,
+            "log_prob_correct": -19.28125,
+            "log_prob_max_dist": -15.734375,
+            "margin": -3.546875,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 224,
+            "correct": true,
+            "log_prob_correct": -23.734375,
+            "log_prob_max_dist": -23.734375,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 225,
+            "correct": false,
+            "log_prob_correct": -16.296875,
+            "log_prob_max_dist": -16.296875,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 226,
+            "correct": false,
+            "log_prob_correct": -10.6328125,
+            "log_prob_max_dist": -9.796875,
+            "margin": -0.8359375,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 227,
+            "correct": true,
+            "log_prob_correct": -57.15625,
+            "log_prob_max_dist": -57.15625,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 228,
+            "correct": true,
+            "log_prob_correct": -26.46875,
+            "log_prob_max_dist": -19.125,
+            "margin": -7.34375,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 229,
+            "correct": true,
+            "log_prob_correct": -19.46875,
+            "log_prob_max_dist": -19.46875,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 230,
+            "correct": true,
+            "log_prob_correct": -14.734375,
+            "log_prob_max_dist": -14.734375,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 231,
+            "correct": false,
+            "log_prob_correct": -13.421875,
+            "log_prob_max_dist": -13.421875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 232,
+            "correct": true,
+            "log_prob_correct": -15.6484375,
+            "log_prob_max_dist": -15.6484375,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 233,
+            "correct": true,
+            "log_prob_correct": -10.5390625,
+            "log_prob_max_dist": -7.125,
+            "margin": -3.4140625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 234,
+            "correct": true,
+            "log_prob_correct": -11.8203125,
+            "log_prob_max_dist": -11.8203125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 235,
+            "correct": true,
+            "log_prob_correct": -42.34375,
+            "log_prob_max_dist": -42.34375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 236,
+            "correct": true,
+            "log_prob_correct": -20.484375,
+            "log_prob_max_dist": -16.796875,
+            "margin": -3.6875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 237,
+            "correct": false,
+            "log_prob_correct": -33.78125,
+            "log_prob_max_dist": -32.03125,
+            "margin": -1.75,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 238,
+            "correct": true,
+            "log_prob_correct": -24.484375,
+            "log_prob_max_dist": -21.203125,
+            "margin": -3.28125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 239,
+            "correct": true,
+            "log_prob_correct": -25.90625,
+            "log_prob_max_dist": -21.9375,
+            "margin": -3.96875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 240,
+            "correct": true,
+            "log_prob_correct": -24.1875,
+            "log_prob_max_dist": -24.1875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 241,
+            "correct": true,
+            "log_prob_correct": -19.546875,
+            "log_prob_max_dist": -14.46875,
+            "margin": -5.078125,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 242,
+            "correct": true,
+            "log_prob_correct": -44.09375,
+            "log_prob_max_dist": -44.09375,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 243,
+            "correct": true,
+            "log_prob_correct": -20.5625,
+            "log_prob_max_dist": -20.5625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 244,
+            "correct": true,
+            "log_prob_correct": -12.6796875,
+            "log_prob_max_dist": -8.96875,
+            "margin": -3.7109375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 245,
+            "correct": true,
+            "log_prob_correct": -6.94140625,
+            "log_prob_max_dist": -6.94140625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 246,
+            "correct": true,
+            "log_prob_correct": -15.453125,
+            "log_prob_max_dist": -5.8671875,
+            "margin": -9.5859375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 247,
+            "correct": true,
+            "log_prob_correct": -26.78125,
+            "log_prob_max_dist": -24.859375,
+            "margin": -1.921875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 248,
+            "correct": true,
+            "log_prob_correct": -17.046875,
+            "log_prob_max_dist": -16.875,
+            "margin": -0.171875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 249,
+            "correct": true,
+            "log_prob_correct": -21.265625,
+            "log_prob_max_dist": -21.265625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 250,
+            "correct": true,
+            "log_prob_correct": -25.25,
+            "log_prob_max_dist": -22.328125,
+            "margin": -2.921875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 251,
+            "correct": true,
+            "log_prob_correct": -13.3984375,
+            "log_prob_max_dist": -13.3984375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 252,
+            "correct": false,
+            "log_prob_correct": -14.171875,
+            "log_prob_max_dist": -14.171875,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 253,
+            "correct": true,
+            "log_prob_correct": -31.0,
+            "log_prob_max_dist": -29.6875,
+            "margin": -1.3125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 254,
+            "correct": false,
+            "log_prob_correct": -31.03125,
+            "log_prob_max_dist": -30.21875,
+            "margin": -0.8125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 255,
+            "correct": false,
+            "log_prob_correct": -17.515625,
+            "log_prob_max_dist": -17.515625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 256,
+            "correct": true,
+            "log_prob_correct": -13.1640625,
+            "log_prob_max_dist": -13.1640625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 257,
+            "correct": true,
+            "log_prob_correct": -15.4140625,
+            "log_prob_max_dist": -15.4140625,
+            "margin": 0.0,
+            "question_len_tokens": 32
+          },
+          {
+            "idx": 258,
+            "correct": true,
+            "log_prob_correct": -35.0,
+            "log_prob_max_dist": -29.234375,
+            "margin": -5.765625,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 259,
+            "correct": true,
+            "log_prob_correct": -7.23828125,
+            "log_prob_max_dist": -7.23828125,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 260,
+            "correct": true,
+            "log_prob_correct": -20.3125,
+            "log_prob_max_dist": -15.25,
+            "margin": -5.0625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 261,
+            "correct": false,
+            "log_prob_correct": -27.78125,
+            "log_prob_max_dist": -27.78125,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 262,
+            "correct": true,
+            "log_prob_correct": -13.34375,
+            "log_prob_max_dist": -12.5078125,
+            "margin": -0.8359375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 263,
+            "correct": false,
+            "log_prob_correct": -23.09375,
+            "log_prob_max_dist": -23.09375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 264,
+            "correct": true,
+            "log_prob_correct": -23.609375,
+            "log_prob_max_dist": -23.609375,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 265,
+            "correct": true,
+            "log_prob_correct": -32.125,
+            "log_prob_max_dist": -29.921875,
+            "margin": -2.203125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 266,
+            "correct": true,
+            "log_prob_correct": -32.125,
+            "log_prob_max_dist": -32.125,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 267,
+            "correct": false,
+            "log_prob_correct": -10.9453125,
+            "log_prob_max_dist": -8.921875,
+            "margin": -2.0234375,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 268,
+            "correct": true,
+            "log_prob_correct": -13.15625,
+            "log_prob_max_dist": -10.84375,
+            "margin": -2.3125,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 269,
+            "correct": true,
+            "log_prob_correct": -28.109375,
+            "log_prob_max_dist": -26.921875,
+            "margin": -1.1875,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 270,
+            "correct": true,
+            "log_prob_correct": -16.84375,
+            "log_prob_max_dist": -10.8359375,
+            "margin": -6.0078125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 271,
+            "correct": true,
+            "log_prob_correct": -21.609375,
+            "log_prob_max_dist": -21.609375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 272,
+            "correct": false,
+            "log_prob_correct": -18.875,
+            "log_prob_max_dist": -18.875,
+            "margin": 0.0,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 273,
+            "correct": true,
+            "log_prob_correct": -19.8125,
+            "log_prob_max_dist": -11.734375,
+            "margin": -8.078125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 274,
+            "correct": false,
+            "log_prob_correct": -8.90625,
+            "log_prob_max_dist": -8.90625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 275,
+            "correct": true,
+            "log_prob_correct": -15.9765625,
+            "log_prob_max_dist": -10.2421875,
+            "margin": -5.734375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 276,
+            "correct": true,
+            "log_prob_correct": -7.87890625,
+            "log_prob_max_dist": -7.87890625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 277,
+            "correct": true,
+            "log_prob_correct": -27.203125,
+            "log_prob_max_dist": -27.203125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 278,
+            "correct": true,
+            "log_prob_correct": -14.1640625,
+            "log_prob_max_dist": -12.046875,
+            "margin": -2.1171875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 279,
+            "correct": true,
+            "log_prob_correct": -30.375,
+            "log_prob_max_dist": -24.25,
+            "margin": -6.125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 280,
+            "correct": true,
+            "log_prob_correct": -24.125,
+            "log_prob_max_dist": -24.125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 281,
+            "correct": true,
+            "log_prob_correct": -13.5390625,
+            "log_prob_max_dist": -6.1328125,
+            "margin": -7.40625,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 282,
+            "correct": false,
+            "log_prob_correct": -19.6875,
+            "log_prob_max_dist": -19.578125,
+            "margin": -0.109375,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 283,
+            "correct": true,
+            "log_prob_correct": -43.15625,
+            "log_prob_max_dist": -33.375,
+            "margin": -9.78125,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 284,
+            "correct": true,
+            "log_prob_correct": -17.515625,
+            "log_prob_max_dist": -14.9296875,
+            "margin": -2.5859375,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 285,
+            "correct": true,
+            "log_prob_correct": -30.671875,
+            "log_prob_max_dist": -25.84375,
+            "margin": -4.828125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 286,
+            "correct": true,
+            "log_prob_correct": -31.1875,
+            "log_prob_max_dist": -23.890625,
+            "margin": -7.296875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 287,
+            "correct": true,
+            "log_prob_correct": -12.671875,
+            "log_prob_max_dist": -12.671875,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 288,
+            "correct": true,
+            "log_prob_correct": -12.6015625,
+            "log_prob_max_dist": -9.671875,
+            "margin": -2.9296875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 289,
+            "correct": true,
+            "log_prob_correct": -21.703125,
+            "log_prob_max_dist": -11.8203125,
+            "margin": -9.8828125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 290,
+            "correct": false,
+            "log_prob_correct": -35.09375,
+            "log_prob_max_dist": -35.09375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 291,
+            "correct": true,
+            "log_prob_correct": -22.859375,
+            "log_prob_max_dist": -18.09375,
+            "margin": -4.765625,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 292,
+            "correct": true,
+            "log_prob_correct": -15.2109375,
+            "log_prob_max_dist": -15.2109375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 293,
+            "correct": true,
+            "log_prob_correct": -17.578125,
+            "log_prob_max_dist": -13.5234375,
+            "margin": -4.0546875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 294,
+            "correct": true,
+            "log_prob_correct": -27.921875,
+            "log_prob_max_dist": -13.2109375,
+            "margin": -14.7109375,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 295,
+            "correct": false,
+            "log_prob_correct": -14.875,
+            "log_prob_max_dist": -12.5546875,
+            "margin": -2.3203125,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 296,
+            "correct": false,
+            "log_prob_correct": -16.671875,
+            "log_prob_max_dist": -14.1015625,
+            "margin": -2.5703125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 297,
+            "correct": false,
+            "log_prob_correct": -12.296875,
+            "log_prob_max_dist": -12.296875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 298,
+            "correct": false,
+            "log_prob_correct": -12.28125,
+            "log_prob_max_dist": -12.015625,
+            "margin": -0.265625,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 299,
+            "correct": true,
+            "log_prob_correct": -11.640625,
+            "log_prob_max_dist": -11.640625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          }
+        ],
+        "cumulative_accuracy": [
+          {
+            "after_n": 10,
+            "acc": 0.9
+          },
+          {
+            "after_n": 20,
+            "acc": 0.8
+          },
+          {
+            "after_n": 30,
+            "acc": 0.7333
+          },
+          {
+            "after_n": 40,
+            "acc": 0.725
+          },
+          {
+            "after_n": 50,
+            "acc": 0.78
+          },
+          {
+            "after_n": 60,
+            "acc": 0.7833
+          },
+          {
+            "after_n": 70,
+            "acc": 0.7714
+          },
+          {
+            "after_n": 80,
+            "acc": 0.775
+          },
+          {
+            "after_n": 90,
+            "acc": 0.7889
+          },
+          {
+            "after_n": 100,
+            "acc": 0.81
+          },
+          {
+            "after_n": 110,
+            "acc": 0.8273
+          },
+          {
+            "after_n": 120,
+            "acc": 0.8333
+          },
+          {
+            "after_n": 130,
+            "acc": 0.8154
+          },
+          {
+            "after_n": 140,
+            "acc": 0.8143
+          },
+          {
+            "after_n": 150,
+            "acc": 0.8
+          },
+          {
+            "after_n": 160,
+            "acc": 0.7937
+          },
+          {
+            "after_n": 170,
+            "acc": 0.7882
+          },
+          {
+            "after_n": 180,
+            "acc": 0.7778
+          },
+          {
+            "after_n": 190,
+            "acc": 0.7842
+          },
+          {
+            "after_n": 200,
+            "acc": 0.775
+          },
+          {
+            "after_n": 210,
+            "acc": 0.7714
+          },
+          {
+            "after_n": 220,
+            "acc": 0.7818
+          },
+          {
+            "after_n": 230,
+            "acc": 0.7783
+          },
+          {
+            "after_n": 240,
+            "acc": 0.7792
+          },
+          {
+            "after_n": 250,
+            "acc": 0.788
+          },
+          {
+            "after_n": 260,
+            "acc": 0.7846
+          },
+          {
+            "after_n": 270,
+            "acc": 0.7815
+          },
+          {
+            "after_n": 280,
+            "acc": 0.7821
+          },
+          {
+            "after_n": 290,
+            "acc": 0.7862
+          },
+          {
+            "after_n": 300,
+            "acc": 0.7767
+          }
+        ],
+        "accuracy_by_len_bin": {
+          "0-64": {
+            "n": 300,
+            "acc": 0.7767
+          },
+          "64-128": {
+            "n": 0,
+            "acc": null
+          },
+          "128-256": {
+            "n": 0,
+            "acc": null
+          },
+          "256-512": {
+            "n": 0,
+            "acc": null
+          },
+          "512-99999": {
+            "n": 0,
+            "acc": null
+          }
+        },
+        "margin_stats": {
+          "mean": -1.839453125,
+          "std": 2.6741322330941757,
+          "p10": -5.7375,
+          "p25": -3.009765625,
+          "median": -0.3125,
+          "p75": 0.0,
+          "p90": 0.0,
+          "frac_negative": 0.5233333333333333
+        }
+      }
     }
   },
   "k128_4bit": {
@@ -15415,6 +17982,2573 @@
           "frac_negative": 0.21
         }
       }
+    },
+    "winogrande": {
+      "acc": 0.7533333333333333,
+      "metric_key": "acc,none",
+      "summary": {
+        "alias": "winogrande",
+        "acc,none": 0.7533333333333333,
+        "acc_stderr,none": 0.024929480622100805
+      },
+      "trajectory": {
+        "per_sample": [
+          {
+            "idx": 0,
+            "correct": true,
+            "log_prob_correct": -17.09375,
+            "log_prob_max_dist": -17.09375,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 1,
+            "correct": false,
+            "log_prob_correct": -17.890625,
+            "log_prob_max_dist": -17.890625,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 2,
+            "correct": true,
+            "log_prob_correct": -22.15625,
+            "log_prob_max_dist": -22.15625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 3,
+            "correct": true,
+            "log_prob_correct": -15.3671875,
+            "log_prob_max_dist": -3.744140625,
+            "margin": -11.623046875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 4,
+            "correct": true,
+            "log_prob_correct": -17.6875,
+            "log_prob_max_dist": -16.640625,
+            "margin": -1.046875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 5,
+            "correct": true,
+            "log_prob_correct": -22.828125,
+            "log_prob_max_dist": -15.3671875,
+            "margin": -7.4609375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 6,
+            "correct": true,
+            "log_prob_correct": -19.203125,
+            "log_prob_max_dist": -17.203125,
+            "margin": -2.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 7,
+            "correct": true,
+            "log_prob_correct": -18.390625,
+            "log_prob_max_dist": -18.390625,
+            "margin": 0.0,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 8,
+            "correct": true,
+            "log_prob_correct": -24.484375,
+            "log_prob_max_dist": -24.484375,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 9,
+            "correct": false,
+            "log_prob_correct": -24.53125,
+            "log_prob_max_dist": -24.53125,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 10,
+            "correct": false,
+            "log_prob_correct": -39.78125,
+            "log_prob_max_dist": -35.15625,
+            "margin": -4.625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 11,
+            "correct": true,
+            "log_prob_correct": -8.6796875,
+            "log_prob_max_dist": -8.6796875,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 12,
+            "correct": true,
+            "log_prob_correct": -10.375,
+            "log_prob_max_dist": -3.623046875,
+            "margin": -6.751953125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 13,
+            "correct": false,
+            "log_prob_correct": -24.84375,
+            "log_prob_max_dist": -24.84375,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 14,
+            "correct": true,
+            "log_prob_correct": -16.75,
+            "log_prob_max_dist": -16.75,
+            "margin": 0.0,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 15,
+            "correct": true,
+            "log_prob_correct": -42.875,
+            "log_prob_max_dist": -32.28125,
+            "margin": -10.59375,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 16,
+            "correct": true,
+            "log_prob_correct": -33.71875,
+            "log_prob_max_dist": -33.71875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 17,
+            "correct": false,
+            "log_prob_correct": -22.1875,
+            "log_prob_max_dist": -22.1875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 18,
+            "correct": true,
+            "log_prob_correct": -28.8125,
+            "log_prob_max_dist": -28.25,
+            "margin": -0.5625,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 19,
+            "correct": true,
+            "log_prob_correct": -10.5859375,
+            "log_prob_max_dist": -10.5859375,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 20,
+            "correct": false,
+            "log_prob_correct": -11.7265625,
+            "log_prob_max_dist": -11.203125,
+            "margin": -0.5234375,
+            "question_len_tokens": 35
+          },
+          {
+            "idx": 21,
+            "correct": false,
+            "log_prob_correct": -13.0703125,
+            "log_prob_max_dist": -12.03125,
+            "margin": -1.0390625,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 22,
+            "correct": false,
+            "log_prob_correct": -39.375,
+            "log_prob_max_dist": -38.375,
+            "margin": -1.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 23,
+            "correct": true,
+            "log_prob_correct": -16.234375,
+            "log_prob_max_dist": -11.75,
+            "margin": -4.484375,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 24,
+            "correct": true,
+            "log_prob_correct": -16.28125,
+            "log_prob_max_dist": -16.28125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 25,
+            "correct": true,
+            "log_prob_correct": -13.453125,
+            "log_prob_max_dist": -8.546875,
+            "margin": -4.90625,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 26,
+            "correct": false,
+            "log_prob_correct": -15.375,
+            "log_prob_max_dist": -15.375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 27,
+            "correct": false,
+            "log_prob_correct": -18.5,
+            "log_prob_max_dist": -18.5,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 28,
+            "correct": true,
+            "log_prob_correct": -23.546875,
+            "log_prob_max_dist": -12.890625,
+            "margin": -10.65625,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 29,
+            "correct": true,
+            "log_prob_correct": -21.78125,
+            "log_prob_max_dist": -18.0,
+            "margin": -3.78125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 30,
+            "correct": true,
+            "log_prob_correct": -13.8125,
+            "log_prob_max_dist": -9.25,
+            "margin": -4.5625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 31,
+            "correct": false,
+            "log_prob_correct": -37.5,
+            "log_prob_max_dist": -37.5,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 32,
+            "correct": false,
+            "log_prob_correct": -46.90625,
+            "log_prob_max_dist": -43.25,
+            "margin": -3.65625,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 33,
+            "correct": true,
+            "log_prob_correct": -40.46875,
+            "log_prob_max_dist": -32.09375,
+            "margin": -8.375,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 34,
+            "correct": false,
+            "log_prob_correct": -29.78125,
+            "log_prob_max_dist": -29.421875,
+            "margin": -0.359375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 35,
+            "correct": true,
+            "log_prob_correct": -22.59375,
+            "log_prob_max_dist": -22.59375,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 36,
+            "correct": false,
+            "log_prob_correct": -14.4140625,
+            "log_prob_max_dist": -12.1328125,
+            "margin": -2.28125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 37,
+            "correct": true,
+            "log_prob_correct": -11.0,
+            "log_prob_max_dist": -6.125,
+            "margin": -4.875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 38,
+            "correct": true,
+            "log_prob_correct": -28.609375,
+            "log_prob_max_dist": -28.609375,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 39,
+            "correct": true,
+            "log_prob_correct": -19.875,
+            "log_prob_max_dist": -19.875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 40,
+            "correct": true,
+            "log_prob_correct": -14.9140625,
+            "log_prob_max_dist": -10.015625,
+            "margin": -4.8984375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 41,
+            "correct": true,
+            "log_prob_correct": -6.66796875,
+            "log_prob_max_dist": -2.81640625,
+            "margin": -3.8515625,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 42,
+            "correct": true,
+            "log_prob_correct": -7.828125,
+            "log_prob_max_dist": -7.828125,
+            "margin": 0.0,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 43,
+            "correct": false,
+            "log_prob_correct": -8.9140625,
+            "log_prob_max_dist": -8.9140625,
+            "margin": 0.0,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 44,
+            "correct": true,
+            "log_prob_correct": -15.703125,
+            "log_prob_max_dist": -15.703125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 45,
+            "correct": true,
+            "log_prob_correct": -37.71875,
+            "log_prob_max_dist": -33.6875,
+            "margin": -4.03125,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 46,
+            "correct": true,
+            "log_prob_correct": -27.390625,
+            "log_prob_max_dist": -27.390625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 47,
+            "correct": true,
+            "log_prob_correct": -22.640625,
+            "log_prob_max_dist": -22.640625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 48,
+            "correct": true,
+            "log_prob_correct": -34.1875,
+            "log_prob_max_dist": -34.1875,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 49,
+            "correct": true,
+            "log_prob_correct": -41.40625,
+            "log_prob_max_dist": -40.1875,
+            "margin": -1.21875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 50,
+            "correct": true,
+            "log_prob_correct": -8.0546875,
+            "log_prob_max_dist": -7.03125,
+            "margin": -1.0234375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 51,
+            "correct": true,
+            "log_prob_correct": -5.546875,
+            "log_prob_max_dist": -5.546875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 52,
+            "correct": false,
+            "log_prob_correct": -14.6171875,
+            "log_prob_max_dist": -14.6171875,
+            "margin": 0.0,
+            "question_len_tokens": 32
+          },
+          {
+            "idx": 53,
+            "correct": true,
+            "log_prob_correct": -28.828125,
+            "log_prob_max_dist": -28.828125,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 54,
+            "correct": true,
+            "log_prob_correct": -35.5625,
+            "log_prob_max_dist": -34.21875,
+            "margin": -1.34375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 55,
+            "correct": false,
+            "log_prob_correct": -16.515625,
+            "log_prob_max_dist": -16.234375,
+            "margin": -0.28125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 56,
+            "correct": true,
+            "log_prob_correct": -6.59375,
+            "log_prob_max_dist": -6.59375,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 57,
+            "correct": true,
+            "log_prob_correct": -44.375,
+            "log_prob_max_dist": -44.375,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 58,
+            "correct": true,
+            "log_prob_correct": -15.671875,
+            "log_prob_max_dist": -12.4453125,
+            "margin": -3.2265625,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 59,
+            "correct": true,
+            "log_prob_correct": -33.0,
+            "log_prob_max_dist": -25.203125,
+            "margin": -7.796875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 60,
+            "correct": true,
+            "log_prob_correct": -16.796875,
+            "log_prob_max_dist": -16.796875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 61,
+            "correct": false,
+            "log_prob_correct": -40.375,
+            "log_prob_max_dist": -40.125,
+            "margin": -0.25,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 62,
+            "correct": true,
+            "log_prob_correct": -15.984375,
+            "log_prob_max_dist": -15.984375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 63,
+            "correct": false,
+            "log_prob_correct": -6.27734375,
+            "log_prob_max_dist": -6.27734375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 64,
+            "correct": true,
+            "log_prob_correct": -14.2578125,
+            "log_prob_max_dist": -14.2578125,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 65,
+            "correct": true,
+            "log_prob_correct": -6.30078125,
+            "log_prob_max_dist": -6.30078125,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 66,
+            "correct": true,
+            "log_prob_correct": -24.546875,
+            "log_prob_max_dist": -24.28125,
+            "margin": -0.265625,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 67,
+            "correct": true,
+            "log_prob_correct": -26.984375,
+            "log_prob_max_dist": -26.984375,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 68,
+            "correct": false,
+            "log_prob_correct": -22.359375,
+            "log_prob_max_dist": -21.75,
+            "margin": -0.609375,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 69,
+            "correct": true,
+            "log_prob_correct": -12.921875,
+            "log_prob_max_dist": -8.1640625,
+            "margin": -4.7578125,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 70,
+            "correct": true,
+            "log_prob_correct": -27.203125,
+            "log_prob_max_dist": -23.484375,
+            "margin": -3.71875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 71,
+            "correct": true,
+            "log_prob_correct": -19.484375,
+            "log_prob_max_dist": -13.71875,
+            "margin": -5.765625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 72,
+            "correct": true,
+            "log_prob_correct": -13.7421875,
+            "log_prob_max_dist": -5.92578125,
+            "margin": -7.81640625,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 73,
+            "correct": true,
+            "log_prob_correct": -12.0,
+            "log_prob_max_dist": -12.0,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 74,
+            "correct": true,
+            "log_prob_correct": -7.31640625,
+            "log_prob_max_dist": -5.71875,
+            "margin": -1.59765625,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 75,
+            "correct": false,
+            "log_prob_correct": -29.46875,
+            "log_prob_max_dist": -27.625,
+            "margin": -1.84375,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 76,
+            "correct": false,
+            "log_prob_correct": -22.21875,
+            "log_prob_max_dist": -19.59375,
+            "margin": -2.625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 77,
+            "correct": true,
+            "log_prob_correct": -20.265625,
+            "log_prob_max_dist": -19.296875,
+            "margin": -0.96875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 78,
+            "correct": true,
+            "log_prob_correct": -8.4609375,
+            "log_prob_max_dist": -8.4609375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 79,
+            "correct": true,
+            "log_prob_correct": -53.34375,
+            "log_prob_max_dist": -49.8125,
+            "margin": -3.53125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 80,
+            "correct": false,
+            "log_prob_correct": -49.8125,
+            "log_prob_max_dist": -49.53125,
+            "margin": -0.28125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 81,
+            "correct": true,
+            "log_prob_correct": -12.9296875,
+            "log_prob_max_dist": -10.0546875,
+            "margin": -2.875,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 82,
+            "correct": true,
+            "log_prob_correct": -16.625,
+            "log_prob_max_dist": -16.625,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 83,
+            "correct": false,
+            "log_prob_correct": -10.234375,
+            "log_prob_max_dist": -10.234375,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 84,
+            "correct": true,
+            "log_prob_correct": -7.625,
+            "log_prob_max_dist": -7.625,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 85,
+            "correct": true,
+            "log_prob_correct": -19.515625,
+            "log_prob_max_dist": -18.515625,
+            "margin": -1.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 86,
+            "correct": true,
+            "log_prob_correct": -13.7890625,
+            "log_prob_max_dist": -13.7890625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 87,
+            "correct": true,
+            "log_prob_correct": -25.359375,
+            "log_prob_max_dist": -22.421875,
+            "margin": -2.9375,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 88,
+            "correct": true,
+            "log_prob_correct": -28.109375,
+            "log_prob_max_dist": -28.109375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 89,
+            "correct": true,
+            "log_prob_correct": -31.203125,
+            "log_prob_max_dist": -26.96875,
+            "margin": -4.234375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 90,
+            "correct": true,
+            "log_prob_correct": -19.984375,
+            "log_prob_max_dist": -19.5625,
+            "margin": -0.421875,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 91,
+            "correct": true,
+            "log_prob_correct": -9.2265625,
+            "log_prob_max_dist": -9.2265625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 92,
+            "correct": true,
+            "log_prob_correct": -24.53125,
+            "log_prob_max_dist": -21.796875,
+            "margin": -2.734375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 93,
+            "correct": true,
+            "log_prob_correct": -23.609375,
+            "log_prob_max_dist": -23.609375,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 94,
+            "correct": true,
+            "log_prob_correct": -20.859375,
+            "log_prob_max_dist": -15.734375,
+            "margin": -5.125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 95,
+            "correct": true,
+            "log_prob_correct": -9.75,
+            "log_prob_max_dist": -9.75,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 96,
+            "correct": false,
+            "log_prob_correct": -17.5,
+            "log_prob_max_dist": -17.5,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 97,
+            "correct": true,
+            "log_prob_correct": -10.8828125,
+            "log_prob_max_dist": -5.98046875,
+            "margin": -4.90234375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 98,
+            "correct": true,
+            "log_prob_correct": -11.4921875,
+            "log_prob_max_dist": -11.4921875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 99,
+            "correct": true,
+            "log_prob_correct": -41.59375,
+            "log_prob_max_dist": -41.59375,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 100,
+            "correct": true,
+            "log_prob_correct": -13.8046875,
+            "log_prob_max_dist": -13.8046875,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 101,
+            "correct": true,
+            "log_prob_correct": -11.75,
+            "log_prob_max_dist": -8.0078125,
+            "margin": -3.7421875,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 102,
+            "correct": true,
+            "log_prob_correct": -9.046875,
+            "log_prob_max_dist": -9.046875,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 103,
+            "correct": true,
+            "log_prob_correct": -19.71875,
+            "log_prob_max_dist": -17.890625,
+            "margin": -1.828125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 104,
+            "correct": true,
+            "log_prob_correct": -13.21875,
+            "log_prob_max_dist": -13.21875,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 105,
+            "correct": true,
+            "log_prob_correct": -16.046875,
+            "log_prob_max_dist": -9.75,
+            "margin": -6.296875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 106,
+            "correct": true,
+            "log_prob_correct": -28.0,
+            "log_prob_max_dist": -23.96875,
+            "margin": -4.03125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 107,
+            "correct": true,
+            "log_prob_correct": -12.609375,
+            "log_prob_max_dist": -9.3984375,
+            "margin": -3.2109375,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 108,
+            "correct": true,
+            "log_prob_correct": -18.015625,
+            "log_prob_max_dist": -18.015625,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 109,
+            "correct": true,
+            "log_prob_correct": -10.1171875,
+            "log_prob_max_dist": -6.359375,
+            "margin": -3.7578125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 110,
+            "correct": true,
+            "log_prob_correct": -12.8046875,
+            "log_prob_max_dist": -12.8046875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 111,
+            "correct": true,
+            "log_prob_correct": -41.75,
+            "log_prob_max_dist": -41.75,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 112,
+            "correct": true,
+            "log_prob_correct": -19.6875,
+            "log_prob_max_dist": -19.6875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 113,
+            "correct": true,
+            "log_prob_correct": -36.96875,
+            "log_prob_max_dist": -36.40625,
+            "margin": -0.5625,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 114,
+            "correct": true,
+            "log_prob_correct": -13.40625,
+            "log_prob_max_dist": -13.40625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 115,
+            "correct": true,
+            "log_prob_correct": -19.0625,
+            "log_prob_max_dist": -17.484375,
+            "margin": -1.578125,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 116,
+            "correct": true,
+            "log_prob_correct": -18.234375,
+            "log_prob_max_dist": -18.234375,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 117,
+            "correct": true,
+            "log_prob_correct": -4.4765625,
+            "log_prob_max_dist": -4.4765625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 118,
+            "correct": false,
+            "log_prob_correct": -13.921875,
+            "log_prob_max_dist": -13.921875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 119,
+            "correct": true,
+            "log_prob_correct": -13.1796875,
+            "log_prob_max_dist": -7.8359375,
+            "margin": -5.34375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 120,
+            "correct": false,
+            "log_prob_correct": -13.7421875,
+            "log_prob_max_dist": -13.328125,
+            "margin": -0.4140625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 121,
+            "correct": true,
+            "log_prob_correct": -13.4765625,
+            "log_prob_max_dist": -11.5390625,
+            "margin": -1.9375,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 122,
+            "correct": false,
+            "log_prob_correct": -18.546875,
+            "log_prob_max_dist": -18.25,
+            "margin": -0.296875,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 123,
+            "correct": true,
+            "log_prob_correct": -21.03125,
+            "log_prob_max_dist": -14.6328125,
+            "margin": -6.3984375,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 124,
+            "correct": true,
+            "log_prob_correct": -13.3671875,
+            "log_prob_max_dist": -13.3671875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 125,
+            "correct": false,
+            "log_prob_correct": -11.1171875,
+            "log_prob_max_dist": -11.1171875,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 126,
+            "correct": true,
+            "log_prob_correct": -20.59375,
+            "log_prob_max_dist": -20.59375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 127,
+            "correct": false,
+            "log_prob_correct": -27.28125,
+            "log_prob_max_dist": -24.921875,
+            "margin": -2.359375,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 128,
+            "correct": true,
+            "log_prob_correct": -26.640625,
+            "log_prob_max_dist": -25.03125,
+            "margin": -1.609375,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 129,
+            "correct": false,
+            "log_prob_correct": -7.5078125,
+            "log_prob_max_dist": -6.671875,
+            "margin": -0.8359375,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 130,
+            "correct": true,
+            "log_prob_correct": -15.203125,
+            "log_prob_max_dist": -15.203125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 131,
+            "correct": false,
+            "log_prob_correct": -28.5,
+            "log_prob_max_dist": -28.390625,
+            "margin": -0.109375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 132,
+            "correct": true,
+            "log_prob_correct": -29.71875,
+            "log_prob_max_dist": -29.71875,
+            "margin": 0.0,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 133,
+            "correct": true,
+            "log_prob_correct": -33.1875,
+            "log_prob_max_dist": -33.1875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 134,
+            "correct": true,
+            "log_prob_correct": -14.8671875,
+            "log_prob_max_dist": -14.8671875,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 135,
+            "correct": true,
+            "log_prob_correct": -19.578125,
+            "log_prob_max_dist": -17.09375,
+            "margin": -2.484375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 136,
+            "correct": true,
+            "log_prob_correct": -4.0078125,
+            "log_prob_max_dist": -4.0078125,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 137,
+            "correct": true,
+            "log_prob_correct": -17.3125,
+            "log_prob_max_dist": -17.3125,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 138,
+            "correct": false,
+            "log_prob_correct": -13.1328125,
+            "log_prob_max_dist": -13.1328125,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 139,
+            "correct": true,
+            "log_prob_correct": -15.578125,
+            "log_prob_max_dist": -15.578125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 140,
+            "correct": false,
+            "log_prob_correct": -8.4921875,
+            "log_prob_max_dist": -8.4921875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 141,
+            "correct": true,
+            "log_prob_correct": -28.15625,
+            "log_prob_max_dist": -28.15625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 142,
+            "correct": true,
+            "log_prob_correct": -13.6875,
+            "log_prob_max_dist": -13.6875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 143,
+            "correct": true,
+            "log_prob_correct": -13.4921875,
+            "log_prob_max_dist": -13.4921875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 144,
+            "correct": false,
+            "log_prob_correct": -44.125,
+            "log_prob_max_dist": -44.125,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 145,
+            "correct": false,
+            "log_prob_correct": -38.28125,
+            "log_prob_max_dist": -38.0625,
+            "margin": -0.21875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 146,
+            "correct": false,
+            "log_prob_correct": -11.625,
+            "log_prob_max_dist": -10.4765625,
+            "margin": -1.1484375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 147,
+            "correct": true,
+            "log_prob_correct": -9.59375,
+            "log_prob_max_dist": -8.296875,
+            "margin": -1.296875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 148,
+            "correct": false,
+            "log_prob_correct": -32.09375,
+            "log_prob_max_dist": -28.578125,
+            "margin": -3.515625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 149,
+            "correct": true,
+            "log_prob_correct": -10.234375,
+            "log_prob_max_dist": -10.234375,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 150,
+            "correct": true,
+            "log_prob_correct": -32.90625,
+            "log_prob_max_dist": -30.578125,
+            "margin": -2.328125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 151,
+            "correct": true,
+            "log_prob_correct": -17.78125,
+            "log_prob_max_dist": -17.78125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 152,
+            "correct": true,
+            "log_prob_correct": -33.3125,
+            "log_prob_max_dist": -31.53125,
+            "margin": -1.78125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 153,
+            "correct": true,
+            "log_prob_correct": -39.125,
+            "log_prob_max_dist": -32.25,
+            "margin": -6.875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 154,
+            "correct": false,
+            "log_prob_correct": -11.5,
+            "log_prob_max_dist": -11.5,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 155,
+            "correct": false,
+            "log_prob_correct": -27.984375,
+            "log_prob_max_dist": -25.0625,
+            "margin": -2.921875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 156,
+            "correct": false,
+            "log_prob_correct": -13.171875,
+            "log_prob_max_dist": -12.84375,
+            "margin": -0.328125,
+            "question_len_tokens": 33
+          },
+          {
+            "idx": 157,
+            "correct": false,
+            "log_prob_correct": -17.515625,
+            "log_prob_max_dist": -17.515625,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 158,
+            "correct": true,
+            "log_prob_correct": -20.859375,
+            "log_prob_max_dist": -20.859375,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 159,
+            "correct": true,
+            "log_prob_correct": -13.4765625,
+            "log_prob_max_dist": -13.4765625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 160,
+            "correct": true,
+            "log_prob_correct": -47.375,
+            "log_prob_max_dist": -47.375,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 161,
+            "correct": true,
+            "log_prob_correct": -48.125,
+            "log_prob_max_dist": -43.90625,
+            "margin": -4.21875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 162,
+            "correct": false,
+            "log_prob_correct": -12.7890625,
+            "log_prob_max_dist": -12.7890625,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 163,
+            "correct": true,
+            "log_prob_correct": -40.3125,
+            "log_prob_max_dist": -40.3125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 164,
+            "correct": false,
+            "log_prob_correct": -24.453125,
+            "log_prob_max_dist": -15.015625,
+            "margin": -9.4375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 165,
+            "correct": true,
+            "log_prob_correct": -17.171875,
+            "log_prob_max_dist": -10.125,
+            "margin": -7.046875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 166,
+            "correct": false,
+            "log_prob_correct": -9.890625,
+            "log_prob_max_dist": -9.890625,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 167,
+            "correct": true,
+            "log_prob_correct": -10.6875,
+            "log_prob_max_dist": -10.6875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 168,
+            "correct": true,
+            "log_prob_correct": -15.171875,
+            "log_prob_max_dist": -15.171875,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 169,
+            "correct": true,
+            "log_prob_correct": -22.859375,
+            "log_prob_max_dist": -22.859375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 170,
+            "correct": true,
+            "log_prob_correct": -10.4296875,
+            "log_prob_max_dist": -10.4296875,
+            "margin": 0.0,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 171,
+            "correct": false,
+            "log_prob_correct": -5.72265625,
+            "log_prob_max_dist": -5.72265625,
+            "margin": 0.0,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 172,
+            "correct": true,
+            "log_prob_correct": -24.1875,
+            "log_prob_max_dist": -21.140625,
+            "margin": -3.046875,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 173,
+            "correct": true,
+            "log_prob_correct": -12.0546875,
+            "log_prob_max_dist": -9.828125,
+            "margin": -2.2265625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 174,
+            "correct": false,
+            "log_prob_correct": -7.35546875,
+            "log_prob_max_dist": -7.35546875,
+            "margin": 0.0,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 175,
+            "correct": true,
+            "log_prob_correct": -15.625,
+            "log_prob_max_dist": -15.625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 176,
+            "correct": false,
+            "log_prob_correct": -14.8203125,
+            "log_prob_max_dist": -14.8203125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 177,
+            "correct": false,
+            "log_prob_correct": -38.625,
+            "log_prob_max_dist": -31.890625,
+            "margin": -6.734375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 178,
+            "correct": true,
+            "log_prob_correct": -12.4765625,
+            "log_prob_max_dist": -10.1484375,
+            "margin": -2.328125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 179,
+            "correct": true,
+            "log_prob_correct": -16.1875,
+            "log_prob_max_dist": -5.48046875,
+            "margin": -10.70703125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 180,
+            "correct": true,
+            "log_prob_correct": -10.890625,
+            "log_prob_max_dist": -10.0,
+            "margin": -0.890625,
+            "question_len_tokens": 31
+          },
+          {
+            "idx": 181,
+            "correct": true,
+            "log_prob_correct": -9.6484375,
+            "log_prob_max_dist": -9.6484375,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 182,
+            "correct": true,
+            "log_prob_correct": -11.5390625,
+            "log_prob_max_dist": -10.125,
+            "margin": -1.4140625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 183,
+            "correct": true,
+            "log_prob_correct": -14.265625,
+            "log_prob_max_dist": -14.265625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 184,
+            "correct": true,
+            "log_prob_correct": -17.65625,
+            "log_prob_max_dist": -10.2578125,
+            "margin": -7.3984375,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 185,
+            "correct": true,
+            "log_prob_correct": -15.5234375,
+            "log_prob_max_dist": -15.5234375,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 186,
+            "correct": true,
+            "log_prob_correct": -21.75,
+            "log_prob_max_dist": -21.75,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 187,
+            "correct": true,
+            "log_prob_correct": -65.5625,
+            "log_prob_max_dist": -65.5625,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 188,
+            "correct": true,
+            "log_prob_correct": -25.640625,
+            "log_prob_max_dist": -22.1875,
+            "margin": -3.453125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 189,
+            "correct": true,
+            "log_prob_correct": -17.390625,
+            "log_prob_max_dist": -17.390625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 190,
+            "correct": true,
+            "log_prob_correct": -37.96875,
+            "log_prob_max_dist": -35.125,
+            "margin": -2.84375,
+            "question_len_tokens": 26
+          },
+          {
+            "idx": 191,
+            "correct": true,
+            "log_prob_correct": -29.328125,
+            "log_prob_max_dist": -24.953125,
+            "margin": -4.375,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 192,
+            "correct": true,
+            "log_prob_correct": -12.5546875,
+            "log_prob_max_dist": -10.6171875,
+            "margin": -1.9375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 193,
+            "correct": false,
+            "log_prob_correct": -13.140625,
+            "log_prob_max_dist": -9.9375,
+            "margin": -3.203125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 194,
+            "correct": true,
+            "log_prob_correct": -15.703125,
+            "log_prob_max_dist": -11.8828125,
+            "margin": -3.8203125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 195,
+            "correct": false,
+            "log_prob_correct": -24.96875,
+            "log_prob_max_dist": -24.96875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 196,
+            "correct": false,
+            "log_prob_correct": -53.1875,
+            "log_prob_max_dist": -52.15625,
+            "margin": -1.03125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 197,
+            "correct": true,
+            "log_prob_correct": -11.375,
+            "log_prob_max_dist": -11.375,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 198,
+            "correct": false,
+            "log_prob_correct": -29.234375,
+            "log_prob_max_dist": -29.234375,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 199,
+            "correct": true,
+            "log_prob_correct": -27.390625,
+            "log_prob_max_dist": -27.390625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 200,
+            "correct": false,
+            "log_prob_correct": -17.4375,
+            "log_prob_max_dist": -17.4375,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 201,
+            "correct": true,
+            "log_prob_correct": -21.640625,
+            "log_prob_max_dist": -21.640625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 202,
+            "correct": true,
+            "log_prob_correct": -26.3125,
+            "log_prob_max_dist": -26.3125,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 203,
+            "correct": true,
+            "log_prob_correct": -19.828125,
+            "log_prob_max_dist": -17.140625,
+            "margin": -2.6875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 204,
+            "correct": true,
+            "log_prob_correct": -14.515625,
+            "log_prob_max_dist": -14.515625,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 205,
+            "correct": false,
+            "log_prob_correct": -11.1328125,
+            "log_prob_max_dist": -10.4375,
+            "margin": -0.6953125,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 206,
+            "correct": false,
+            "log_prob_correct": -9.3359375,
+            "log_prob_max_dist": -9.3359375,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 207,
+            "correct": true,
+            "log_prob_correct": -25.703125,
+            "log_prob_max_dist": -25.703125,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 208,
+            "correct": true,
+            "log_prob_correct": -20.96875,
+            "log_prob_max_dist": -13.3203125,
+            "margin": -7.6484375,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 209,
+            "correct": true,
+            "log_prob_correct": -29.84375,
+            "log_prob_max_dist": -29.84375,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 210,
+            "correct": true,
+            "log_prob_correct": -23.359375,
+            "log_prob_max_dist": -21.0,
+            "margin": -2.359375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 211,
+            "correct": true,
+            "log_prob_correct": -13.65625,
+            "log_prob_max_dist": -13.65625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 212,
+            "correct": true,
+            "log_prob_correct": -20.0625,
+            "log_prob_max_dist": -19.265625,
+            "margin": -0.796875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 213,
+            "correct": true,
+            "log_prob_correct": -12.265625,
+            "log_prob_max_dist": -12.265625,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 214,
+            "correct": true,
+            "log_prob_correct": -15.296875,
+            "log_prob_max_dist": -14.625,
+            "margin": -0.671875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 215,
+            "correct": true,
+            "log_prob_correct": -11.4375,
+            "log_prob_max_dist": -11.4375,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 216,
+            "correct": true,
+            "log_prob_correct": -43.0,
+            "log_prob_max_dist": -37.875,
+            "margin": -5.125,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 217,
+            "correct": true,
+            "log_prob_correct": -17.0625,
+            "log_prob_max_dist": -13.765625,
+            "margin": -3.296875,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 218,
+            "correct": true,
+            "log_prob_correct": -33.96875,
+            "log_prob_max_dist": -33.96875,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 219,
+            "correct": true,
+            "log_prob_correct": -11.8125,
+            "log_prob_max_dist": -11.8125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 220,
+            "correct": true,
+            "log_prob_correct": -38.59375,
+            "log_prob_max_dist": -38.59375,
+            "margin": 0.0,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 221,
+            "correct": true,
+            "log_prob_correct": -30.90625,
+            "log_prob_max_dist": -27.421875,
+            "margin": -3.484375,
+            "question_len_tokens": 28
+          },
+          {
+            "idx": 222,
+            "correct": true,
+            "log_prob_correct": -35.15625,
+            "log_prob_max_dist": -34.6875,
+            "margin": -0.46875,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 223,
+            "correct": true,
+            "log_prob_correct": -19.875,
+            "log_prob_max_dist": -15.453125,
+            "margin": -4.421875,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 224,
+            "correct": true,
+            "log_prob_correct": -24.96875,
+            "log_prob_max_dist": -24.96875,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 225,
+            "correct": false,
+            "log_prob_correct": -16.40625,
+            "log_prob_max_dist": -16.40625,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 226,
+            "correct": false,
+            "log_prob_correct": -11.6640625,
+            "log_prob_max_dist": -9.8984375,
+            "margin": -1.765625,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 227,
+            "correct": true,
+            "log_prob_correct": -54.0625,
+            "log_prob_max_dist": -54.0625,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 228,
+            "correct": true,
+            "log_prob_correct": -26.484375,
+            "log_prob_max_dist": -18.78125,
+            "margin": -7.703125,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 229,
+            "correct": true,
+            "log_prob_correct": -19.84375,
+            "log_prob_max_dist": -19.84375,
+            "margin": 0.0,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 230,
+            "correct": true,
+            "log_prob_correct": -15.984375,
+            "log_prob_max_dist": -15.984375,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 231,
+            "correct": false,
+            "log_prob_correct": -13.7890625,
+            "log_prob_max_dist": -13.7890625,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 232,
+            "correct": true,
+            "log_prob_correct": -16.171875,
+            "log_prob_max_dist": -16.171875,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 233,
+            "correct": true,
+            "log_prob_correct": -10.265625,
+            "log_prob_max_dist": -6.53125,
+            "margin": -3.734375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 234,
+            "correct": false,
+            "log_prob_correct": -11.8515625,
+            "log_prob_max_dist": -11.7421875,
+            "margin": -0.109375,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 235,
+            "correct": true,
+            "log_prob_correct": -41.875,
+            "log_prob_max_dist": -41.875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 236,
+            "correct": true,
+            "log_prob_correct": -18.859375,
+            "log_prob_max_dist": -15.6640625,
+            "margin": -3.1953125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 237,
+            "correct": false,
+            "log_prob_correct": -34.5625,
+            "log_prob_max_dist": -32.1875,
+            "margin": -2.375,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 238,
+            "correct": true,
+            "log_prob_correct": -25.921875,
+            "log_prob_max_dist": -21.015625,
+            "margin": -4.90625,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 239,
+            "correct": true,
+            "log_prob_correct": -26.328125,
+            "log_prob_max_dist": -20.5625,
+            "margin": -5.765625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 240,
+            "correct": true,
+            "log_prob_correct": -24.6875,
+            "log_prob_max_dist": -24.6875,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 241,
+            "correct": true,
+            "log_prob_correct": -19.75,
+            "log_prob_max_dist": -14.234375,
+            "margin": -5.515625,
+            "question_len_tokens": 16
+          },
+          {
+            "idx": 242,
+            "correct": true,
+            "log_prob_correct": -42.40625,
+            "log_prob_max_dist": -42.40625,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 243,
+            "correct": true,
+            "log_prob_correct": -21.328125,
+            "log_prob_max_dist": -21.328125,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 244,
+            "correct": true,
+            "log_prob_correct": -13.0625,
+            "log_prob_max_dist": -8.375,
+            "margin": -4.6875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 245,
+            "correct": true,
+            "log_prob_correct": -5.9453125,
+            "log_prob_max_dist": -5.9453125,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 246,
+            "correct": true,
+            "log_prob_correct": -15.453125,
+            "log_prob_max_dist": -5.984375,
+            "margin": -9.46875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 247,
+            "correct": true,
+            "log_prob_correct": -27.359375,
+            "log_prob_max_dist": -24.875,
+            "margin": -2.484375,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 248,
+            "correct": true,
+            "log_prob_correct": -17.40625,
+            "log_prob_max_dist": -16.375,
+            "margin": -1.03125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 249,
+            "correct": true,
+            "log_prob_correct": -20.953125,
+            "log_prob_max_dist": -20.953125,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 250,
+            "correct": true,
+            "log_prob_correct": -24.546875,
+            "log_prob_max_dist": -24.140625,
+            "margin": -0.40625,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 251,
+            "correct": true,
+            "log_prob_correct": -13.3515625,
+            "log_prob_max_dist": -13.3515625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 252,
+            "correct": false,
+            "log_prob_correct": -13.796875,
+            "log_prob_max_dist": -13.796875,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 253,
+            "correct": true,
+            "log_prob_correct": -32.6875,
+            "log_prob_max_dist": -31.28125,
+            "margin": -1.40625,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 254,
+            "correct": false,
+            "log_prob_correct": -32.96875,
+            "log_prob_max_dist": -29.515625,
+            "margin": -3.453125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 255,
+            "correct": false,
+            "log_prob_correct": -17.0625,
+            "log_prob_max_dist": -17.0625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 256,
+            "correct": true,
+            "log_prob_correct": -12.5390625,
+            "log_prob_max_dist": -12.5390625,
+            "margin": 0.0,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 257,
+            "correct": true,
+            "log_prob_correct": -15.828125,
+            "log_prob_max_dist": -15.828125,
+            "margin": 0.0,
+            "question_len_tokens": 32
+          },
+          {
+            "idx": 258,
+            "correct": true,
+            "log_prob_correct": -36.65625,
+            "log_prob_max_dist": -29.328125,
+            "margin": -7.328125,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 259,
+            "correct": true,
+            "log_prob_correct": -6.28125,
+            "log_prob_max_dist": -6.28125,
+            "margin": 0.0,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 260,
+            "correct": true,
+            "log_prob_correct": -18.875,
+            "log_prob_max_dist": -16.90625,
+            "margin": -1.96875,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 261,
+            "correct": false,
+            "log_prob_correct": -27.90625,
+            "log_prob_max_dist": -27.90625,
+            "margin": 0.0,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 262,
+            "correct": true,
+            "log_prob_correct": -14.109375,
+            "log_prob_max_dist": -13.3828125,
+            "margin": -0.7265625,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 263,
+            "correct": false,
+            "log_prob_correct": -23.65625,
+            "log_prob_max_dist": -23.65625,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 264,
+            "correct": true,
+            "log_prob_correct": -24.0,
+            "log_prob_max_dist": -24.0,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 265,
+            "correct": true,
+            "log_prob_correct": -30.640625,
+            "log_prob_max_dist": -29.1875,
+            "margin": -1.453125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 266,
+            "correct": true,
+            "log_prob_correct": -32.65625,
+            "log_prob_max_dist": -32.65625,
+            "margin": 0.0,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 267,
+            "correct": false,
+            "log_prob_correct": -10.8359375,
+            "log_prob_max_dist": -8.8203125,
+            "margin": -2.015625,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 268,
+            "correct": true,
+            "log_prob_correct": -13.6953125,
+            "log_prob_max_dist": -12.1875,
+            "margin": -1.5078125,
+            "question_len_tokens": 30
+          },
+          {
+            "idx": 269,
+            "correct": true,
+            "log_prob_correct": -28.84375,
+            "log_prob_max_dist": -26.4375,
+            "margin": -2.40625,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 270,
+            "correct": true,
+            "log_prob_correct": -17.15625,
+            "log_prob_max_dist": -11.3515625,
+            "margin": -5.8046875,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 271,
+            "correct": true,
+            "log_prob_correct": -19.796875,
+            "log_prob_max_dist": -19.796875,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 272,
+            "correct": false,
+            "log_prob_correct": -18.71875,
+            "log_prob_max_dist": -18.71875,
+            "margin": 0.0,
+            "question_len_tokens": 29
+          },
+          {
+            "idx": 273,
+            "correct": true,
+            "log_prob_correct": -19.09375,
+            "log_prob_max_dist": -11.7890625,
+            "margin": -7.3046875,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 274,
+            "correct": false,
+            "log_prob_correct": -9.203125,
+            "log_prob_max_dist": -9.203125,
+            "margin": 0.0,
+            "question_len_tokens": 19
+          },
+          {
+            "idx": 275,
+            "correct": true,
+            "log_prob_correct": -15.453125,
+            "log_prob_max_dist": -10.984375,
+            "margin": -4.46875,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 276,
+            "correct": true,
+            "log_prob_correct": -7.640625,
+            "log_prob_max_dist": -7.640625,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 277,
+            "correct": true,
+            "log_prob_correct": -26.6875,
+            "log_prob_max_dist": -26.6875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 278,
+            "correct": true,
+            "log_prob_correct": -12.4140625,
+            "log_prob_max_dist": -11.8515625,
+            "margin": -0.5625,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 279,
+            "correct": true,
+            "log_prob_correct": -29.546875,
+            "log_prob_max_dist": -25.015625,
+            "margin": -4.53125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 280,
+            "correct": true,
+            "log_prob_correct": -23.453125,
+            "log_prob_max_dist": -23.453125,
+            "margin": 0.0,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 281,
+            "correct": true,
+            "log_prob_correct": -13.9140625,
+            "log_prob_max_dist": -5.875,
+            "margin": -8.0390625,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 282,
+            "correct": true,
+            "log_prob_correct": -20.40625,
+            "log_prob_max_dist": -20.40625,
+            "margin": 0.0,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 283,
+            "correct": true,
+            "log_prob_correct": -43.96875,
+            "log_prob_max_dist": -33.5625,
+            "margin": -10.40625,
+            "question_len_tokens": 24
+          },
+          {
+            "idx": 284,
+            "correct": true,
+            "log_prob_correct": -17.59375,
+            "log_prob_max_dist": -15.0546875,
+            "margin": -2.5390625,
+            "question_len_tokens": 27
+          },
+          {
+            "idx": 285,
+            "correct": true,
+            "log_prob_correct": -29.796875,
+            "log_prob_max_dist": -23.96875,
+            "margin": -5.828125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 286,
+            "correct": true,
+            "log_prob_correct": -31.53125,
+            "log_prob_max_dist": -24.203125,
+            "margin": -7.328125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 287,
+            "correct": true,
+            "log_prob_correct": -12.1875,
+            "log_prob_max_dist": -12.1875,
+            "margin": 0.0,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 288,
+            "correct": true,
+            "log_prob_correct": -13.25,
+            "log_prob_max_dist": -10.21875,
+            "margin": -3.03125,
+            "question_len_tokens": 20
+          },
+          {
+            "idx": 289,
+            "correct": true,
+            "log_prob_correct": -20.875,
+            "log_prob_max_dist": -13.09375,
+            "margin": -7.78125,
+            "question_len_tokens": 23
+          },
+          {
+            "idx": 290,
+            "correct": false,
+            "log_prob_correct": -36.0,
+            "log_prob_max_dist": -36.0,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 291,
+            "correct": true,
+            "log_prob_correct": -21.703125,
+            "log_prob_max_dist": -18.0,
+            "margin": -3.703125,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 292,
+            "correct": true,
+            "log_prob_correct": -15.875,
+            "log_prob_max_dist": -15.875,
+            "margin": 0.0,
+            "question_len_tokens": 21
+          },
+          {
+            "idx": 293,
+            "correct": true,
+            "log_prob_correct": -18.203125,
+            "log_prob_max_dist": -12.4453125,
+            "margin": -5.7578125,
+            "question_len_tokens": 18
+          },
+          {
+            "idx": 294,
+            "correct": true,
+            "log_prob_correct": -27.6875,
+            "log_prob_max_dist": -13.1875,
+            "margin": -14.5,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 295,
+            "correct": false,
+            "log_prob_correct": -13.8203125,
+            "log_prob_max_dist": -12.7890625,
+            "margin": -1.03125,
+            "question_len_tokens": 17
+          },
+          {
+            "idx": 296,
+            "correct": false,
+            "log_prob_correct": -16.5,
+            "log_prob_max_dist": -13.375,
+            "margin": -3.125,
+            "question_len_tokens": 22
+          },
+          {
+            "idx": 297,
+            "correct": false,
+            "log_prob_correct": -12.8046875,
+            "log_prob_max_dist": -12.8046875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 298,
+            "correct": false,
+            "log_prob_correct": -13.5078125,
+            "log_prob_max_dist": -12.15625,
+            "margin": -1.3515625,
+            "question_len_tokens": 25
+          },
+          {
+            "idx": 299,
+            "correct": true,
+            "log_prob_correct": -11.8046875,
+            "log_prob_max_dist": -11.8046875,
+            "margin": 0.0,
+            "question_len_tokens": 25
+          }
+        ],
+        "cumulative_accuracy": [
+          {
+            "after_n": 10,
+            "acc": 0.8
+          },
+          {
+            "after_n": 20,
+            "acc": 0.75
+          },
+          {
+            "after_n": 30,
+            "acc": 0.6667
+          },
+          {
+            "after_n": 40,
+            "acc": 0.65
+          },
+          {
+            "after_n": 50,
+            "acc": 0.7
+          },
+          {
+            "after_n": 60,
+            "acc": 0.7167
+          },
+          {
+            "after_n": 70,
+            "acc": 0.7143
+          },
+          {
+            "after_n": 80,
+            "acc": 0.725
+          },
+          {
+            "after_n": 90,
+            "acc": 0.7333
+          },
+          {
+            "after_n": 100,
+            "acc": 0.75
+          },
+          {
+            "after_n": 110,
+            "acc": 0.7727
+          },
+          {
+            "after_n": 120,
+            "acc": 0.7833
+          },
+          {
+            "after_n": 130,
+            "acc": 0.7615
+          },
+          {
+            "after_n": 140,
+            "acc": 0.7643
+          },
+          {
+            "after_n": 150,
+            "acc": 0.7467
+          },
+          {
+            "after_n": 160,
+            "acc": 0.7375
+          },
+          {
+            "after_n": 170,
+            "acc": 0.7353
+          },
+          {
+            "after_n": 180,
+            "acc": 0.7278
+          },
+          {
+            "after_n": 190,
+            "acc": 0.7421
+          },
+          {
+            "after_n": 200,
+            "acc": 0.735
+          },
+          {
+            "after_n": 210,
+            "acc": 0.7333
+          },
+          {
+            "after_n": 220,
+            "acc": 0.7455
+          },
+          {
+            "after_n": 230,
+            "acc": 0.7478
+          },
+          {
+            "after_n": 240,
+            "acc": 0.7458
+          },
+          {
+            "after_n": 250,
+            "acc": 0.756
+          },
+          {
+            "after_n": 260,
+            "acc": 0.7538
+          },
+          {
+            "after_n": 270,
+            "acc": 0.7519
+          },
+          {
+            "after_n": 280,
+            "acc": 0.7536
+          },
+          {
+            "after_n": 290,
+            "acc": 0.7621
+          },
+          {
+            "after_n": 300,
+            "acc": 0.7533
+          }
+        ],
+        "accuracy_by_len_bin": {
+          "0-64": {
+            "n": 300,
+            "acc": 0.7533
+          },
+          "64-128": {
+            "n": 0,
+            "acc": null
+          },
+          "128-256": {
+            "n": 0,
+            "acc": null
+          },
+          "256-512": {
+            "n": 0,
+            "acc": null
+          },
+          "512-99999": {
+            "n": 0,
+            "acc": null
+          }
+        },
+        "margin_stats": {
+          "mean": -1.761953125,
+          "std": 2.6627261301404035,
+          "p10": -5.75859375,
+          "p25": -2.9609375,
+          "median": 0.0,
+          "p75": 0.0,
+          "p90": 0.0,
+          "frac_negative": 0.49333333333333335
+        }
+      }
     }
   },
   "k96_4bit": {
@@ -17986,6 +23120,21 @@
           "frac_negative": 0.49333333333333335
         }
       }
+    },
+    "hellaswag": {
+      "acc": 0.4733,
+      "metric_key": "acc",
+      "note": "restored from slurm log job 92"
+    },
+    "arc_easy": {
+      "acc": 0.63,
+      "metric_key": "acc",
+      "note": "restored from slurm log job 92"
+    },
+    "winogrande": {
+      "acc": 0.6667,
+      "metric_key": "acc",
+      "note": "restored from slurm log job 92"
     }
   },
   "k112_4bit": {
