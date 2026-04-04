@@ -99,9 +99,11 @@ def fit_bases(k_arrays, k_max=128):
     return bases
 
 
-def chunked_cross_entropy(model, input_ids, bases, k_assign, device, chunk=512):
-    """Compute PPL with K-subspace compression hooks."""
-    from compress import subspace_polar_quantize
+def chunked_cross_entropy(model, input_ids, bases, k_assign, device, chunk=512, verbose=False):
+    """Compute PPL with K-subspace compression hooks.
+    
+    If verbose=True, prints per-chunk PPL progression for trajectory tracking.
+    """
     layer_names = list(find_attention_layers(model))
     n_layers = len(layer_names)
     hooks = []
@@ -149,6 +151,17 @@ def chunked_cross_entropy(model, input_ids, bases, k_assign, device, chunk=512):
         h.remove()
 
     targets = input_ids[0, 1:]
+    
+    if verbose and len(targets) > chunk:
+        # Print per-chunk PPL for trajectory tracking
+        n_chunks = (len(targets) + chunk - 1) // chunk
+        for ci in range(n_chunks):
+            s = ci * chunk
+            e = min(s + chunk, len(targets))
+            chunk_ppl = float(torch.exp(-torch.nn.functional.log_softmax(logits[s:e], dim=-1)[torch.arange(e - s), targets[s:e]].mean()).cpu())
+            if ci % 2 == 0 or ci == n_chunks - 1:
+                print(f"    Chunk {ci}/{n_chunks} (pos={s}-{e}): chunk_ppl={chunk_ppl:.4f}")
+
     log_probs = torch.nn.functional.log_softmax(logits[:-1], dim=-1)
     nll = -log_probs[torch.arange(len(targets)), targets].mean()
     return float(torch.exp(nll).cpu())
@@ -182,28 +195,111 @@ def main():
     eval_ids = get_wikitext2_tokens(tokenizer, "test", EVAL_TOKENS)
     eval_t = torch.tensor([eval_ids], dtype=torch.long, device=device)
 
-    # Baseline PPL (no compression hooks — k=128 skips all hooks)
+    # ── Baseline PPL ─────────────────────────────────────────────────────────
+    print("\n--- Baseline ---")
     baseline_assign = {i: 128 for i in range(n_layers)}
     baseline_ppl = chunked_cross_entropy(model, eval_t, {}, baseline_assign, device)
-    print(f"\nBaseline PPL: {baseline_ppl:.4f}")
+    print(f"Baseline PPL (k=128 no-op): {baseline_ppl:.4f}")
 
-    # Sweep k values
+    if baseline_ppl < 4.0 or baseline_ppl > 50.0:
+        print(f"  WARNING: Baseline PPL={baseline_ppl:.4f} is outside expected range (6-20)")
+        print(f"  If < 4.0: likely memorization of WikiText-2 test split")
+        print(f"  If > 50: model loading or eval token bug")
+    else:
+        print(f"  ✓ Baseline PPL in reasonable range for WikiText-2")
+
+    # ── Diagnostics ──────────────────────────────────────────────────────────
+    print("\n--- Diagnostics (startup sanity checks) ---")
+
+    # No-op sanity: k=d_head should reproduce baseline
+    print("  No-op sanity (k=128, should match baseline)...")
+    no_op_assign = {i: 128 for i in range(n_layers)}
+    no_op_ppl = chunked_cross_entropy(model, eval_t, {}, no_op_assign, device)
+    print(f"    Baseline PPL: {baseline_ppl:.4f}")
+    print(f"    No-op PPL:    {no_op_ppl:.4f}")
+    if abs(no_op_ppl - baseline_ppl) > 0.01:
+        print("    WARNING: no-op mismatch! Hook may be broken.")
+    else:
+        print("    ✓ No-op matches baseline")
+
+    # Variance explained
+    print("  Variance explained at key k values...")
+    for key in list(bases.keys())[:3]:  # first 3 layers/heads
+        U, mean = bases[key]
+        X_c = (kvs[key]['K'] - kvs[key]['K'].mean(0))
+        sv = np.linalg.svd(X_c, compute_uv=False)
+        total_var = (sv ** 2).sum()
+        for kv in [64, 96, 112, 128]:
+            cum = (sv[:kv] ** 2).sum() / total_var if kv <= len(sv) else 1.0
+            if kv in [64, 128]:
+                print(f"    {key}: k={kv} → {cum:.4f} variance explained")
+        break  # just show first layer/heads
+
+    # Basis stability (first half vs second half of calib)
+    print("  Basis stability (first vs second half of calibration)...")
+    stability_checks = 0
+    for key in list(bases.keys())[:5]:
+        X = kvs[key]['K']
+        half = len(X) // 2
+        U1 = np.linalg.svd(X[:half] - X[:half].mean(0), full_matrices=False)[0][:, :128]
+        U2 = np.linalg.svd(X[half:] - X[half:].mean(0), full_matrices=False)[0][:, :128]
+        sim = np.abs(np.diag(U1.T @ U2)).mean()
+        if sim < 0.85:
+            print(f"    WARNING: {key} stability={sim:.4f} < 0.85 (calib too noisy?)")
+        stability_checks += 1
+    print(f"    Checked {stability_checks} layers/heads")
+
+    # Calib/eval overlap
+    calib_overlap = set(calib_ids) & set(eval_ids)
+    if len(calib_overlap) > len(eval_ids) * 0.1:
+        print(f"    WARNING: {len(calib_overlap)} eval tokens overlap with calibration!")
+    else:
+        print("    ✓ Calib/eval overlap minimal")
+
+    print(f"\n--- Main sweep ---")
+
+    # Sweep k values with incremental saves
     csv_path = RESULTS_DIR / "exp30_mistral_ppl.csv"
-    fieldnames = ["k", "bits", "ppl", "rel_ppl"]
-    results = []
+    fieldnames = ["k", "bits", "ppl", "rel_ppl", "chunk_ppls"]
+    all_results = []
+
+    # Load existing results if resuming
+    if csv_path.exists():
+        import csv as csv_std
+        with open(csv_path, "r") as f:
+            reader = csv_std.DictReader(f)
+            all_results = list(reader)
+        print(f"  Loaded {len(all_results)} prior results from {csv_path}")
 
     with open(csv_path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
 
         for k in K_CANDIDATES:
+            # Skip if already done (resume after crash)
+            exists = any(r["k"] == str(k) for r in all_results)
+            if exists:
+                print(f"  k={k:3d}: SKIPPED (already in CSV)")
+                continue
+
             k_assign = {i: k for i in range(n_layers)}
-            ppl = chunked_cross_entropy(model, eval_t, bases, k_assign, device)
+            print(f"  k={k:3d}/{BITS}-bit: running...")
+            ppl = chunked_cross_entropy(model, eval_t, bases, k_assign, device, verbose=True)
             rel_ppl = ppl / baseline_ppl
-            row = dict(k=k, bits=BITS, ppl=ppl, rel_ppl=rel_ppl)
-            results.append(row)
+            chunk_ppls = "TODO"  # would need chunked_forward to accumulate
+            row = dict(k=k, bits=BITS, ppl=f"{ppl:.4f}", rel_ppl=f"{rel_ppl:.4f}", chunk_ppls=chunk_ppls)
+            all_results.append(row)
             w.writerow(row)
-            print(f"  k={k:3d}/{BITS}-bit: PPL={ppl:.4f} rel={rel_ppl:.4f}")
+            f.flush()
+            print(f"  k={k:3d}/{BITS}-bit: PPL={ppl:.4f} rel={rel_ppl:.4f} ✓ saved")
+
+            # Monotonicity check
+            if len(all_results) > 1:
+                prev_ppl = float(all_results[-2]["ppl"])
+                if ppl > prev_ppl + 0.01:
+                    print(f"    ✓ Monotonic: PPL rose from {prev_ppl:.4f} to {ppl:.4f}")
+                else:
+                    print(f"    WARNING: PPL did not increase monotonically ({prev_ppl:.4f} → {ppl:.4f})")
 
     # Report
     lines = [
