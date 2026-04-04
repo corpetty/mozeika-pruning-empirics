@@ -96,104 +96,50 @@ def rank_proportional_assignment(sensitivities, budget_k):
     return k_assign
 
 
-def collect_kvs_for_basis(model, tokenizer, token_ids, device):
-    """Collect K,V vectors across all layers/heads for PCA basis fitting."""
-    layer_names = find_attention_layers(model)
-    kvs = {}  # {(layer_idx, head_idx): {'K': [...], 'V': [...]}}
+def collect_kvs_for_basis(model, input_ids, n_kv_heads=8, d_head=128):
+    """
+    Collect K and V projections for PCA basis fitting.
+    Returns {(layer_idx, head_idx): {'K': (T, d_head), 'V': (T, d_head)}}
+
+    This is the PROVEN pattern from exp24. Do NOT modify.
+    """
+    kv_store = {}
     hooks = []
-    n_kv_heads = 8
-    d_head = 128
 
-    for layer_idx, lname in enumerate(layer_names):
-        layer = dict(model.named_modules())[lname]
+    for layer_idx, attn in find_attention_layers(model):
+        for kv_type, proj_name in [('K', 'k_proj'), ('V', 'v_proj')]:
+            proj = getattr(attn, proj_name)
+            def make_hook(li, kvt, nh, dh):
+                def hook(module, inp, out):
+                    x = out.detach().cpu().float()
+                    x = x.reshape(x.shape[0], x.shape[1], nh, dh)[0]  # (T, nh, dh)
+                    for h_idx in range(nh):
+                        key = (li, h_idx)
+                        if key not in kv_store:
+                            kv_store[key] = {'K': [], 'V': []}
+                        kv_store[key][kvt].append(x[:, h_idx, :].numpy())
+                return hook
+            hooks.append(proj.register_forward_hook(make_hook(layer_idx, kv_type, n_kv_heads, d_head)))
 
-        def make_hook(li):
-            def hook_fn(module, args, kwargs, output):
-                # past_key_value stored in output or via module state
-                # We use the input hidden states to get K/V
-                pass
-            return hook_fn
-
-    # Simpler: run forward, capture k_proj and v_proj outputs via hooks
-    for layer_idx, lname in enumerate(layer_names):
-        base = dict(model.named_modules())[lname]
-        # Qwen3 attention: base has k_proj, v_proj submodules
-        try:
-            k_mod = base.k_proj
-            v_mod = base.v_proj
-        except AttributeError:
-            continue
-
-        def make_kv_hook(li):
-            def hook_fn(module, inp, out):
-                # out: (B, T, n_kv_heads*d_head)
-                T = out.shape[1]
-                mat = out[0].detach().float().cpu().numpy()  # (T, n_kv_heads*d_head)
-                mat = mat.reshape(T, n_kv_heads, d_head)
-                for hi in range(n_kv_heads):
-                    key = (li, hi)
-                    if key not in kvs:
-                        kvs[key] = {'K': [], 'V': []}
-                    # Store for K or V depending on which module
-                    return mat[:, hi, :]
-            return hook_fn
-
-        # Separate hooks for k and v
-        def make_k_hook(li):
-            def hook_fn(module, inp, out):
-                T = out.shape[1]
-                mat = out[0].detach().float().cpu().numpy()
-                mat = mat.reshape(T, n_kv_heads, d_head)
-                for hi in range(n_kv_heads):
-                    key = (li, hi)
-                    if key not in kvs:
-                        kvs[key] = {'K': [], 'V': []}
-                    kvs[key]['K'].append(mat[:, hi, :])
-            return hook_fn
-
-        def make_v_hook(li):
-            def hook_fn(module, inp, out):
-                T = out.shape[1]
-                mat = out[0].detach().float().cpu().numpy()
-                mat = mat.reshape(T, n_kv_heads, d_head)
-                for hi in range(n_kv_heads):
-                    key = (li, hi)
-                    if key not in kvs:
-                        kvs[key] = {'K': [], 'V': []}
-                    kvs[key]['V'].append(mat[:, hi, :])
-            return hook_fn
-
-        hooks.append(k_mod.register_forward_hook(make_k_hook(layer_idx)))
-        hooks.append(v_mod.register_forward_hook(make_v_hook(layer_idx)))
-
-    input_ids = torch.tensor([token_ids], dtype=torch.long, device=device)
     with torch.no_grad():
-        model(input_ids=input_ids, use_cache=False)
+        model(input_ids=input_ids)
 
     for h in hooks:
         h.remove()
 
-    # Stack
-    out = {}
-    for key, d in kvs.items():
-        out[key] = {
-            'K': np.vstack(d['K']) if d['K'] else np.zeros((0, d_head)),
-            'V': np.vstack(d['V']) if d['V'] else np.zeros((0, d_head)),
-        }
-    return out
+    return {k: {kv: np.concatenate(v, axis=0) for kv, v in d.items()}
+            for k, d in kv_store.items()}
 
 
 def chunked_cross_entropy(model, tokenizer, token_ids, k_assign, bases, device, chunk=512):
     """Compute PPL with K-subspace compression hooks, chunked projection."""
-    layer_names = find_attention_layers(model)
-    hooks = []
     n_kv_heads = 8
     d_head = 128
+    hooks = []
 
-    for layer_idx, lname in enumerate(layer_names):
-        base_mod = dict(model.named_modules())[lname]
+    for layer_idx, attn_mod in find_attention_layers(model):
         try:
-            k_mod = base_mod.k_proj
+            k_mod = attn_mod.k_proj
         except AttributeError:
             continue
         k_val = k_assign[layer_idx]
@@ -242,15 +188,15 @@ def chunked_cross_entropy(model, tokenizer, token_ids, k_assign, bases, device, 
     return float(torch.exp(nll).cpu())
 
 
-def fit_bases(kvs, k_max=128):
-    """Fit PCA bases for all (layer, head) pairs."""
+def fit_bases(k_arrays, k_max=128):
+    """Fit PCA bases for all (layer, head) pairs. k_arrays = {(li,hi): np.array(T,d)}."""
     bases = {}
-    for key, d in kvs.items():
-        X = d['K']
+    for key, X in k_arrays.items():
         if len(X) < k_max:
             continue
-        U, s, Vt = np.linalg.svd(X - X.mean(0, keepdims=True), full_matrices=False)
-        bases[key] = (Vt.T, X.mean(0))  # (U_cols, mean)
+        X_centered = X - X.mean(0, keepdims=True)
+        _, _, Vt = np.linalg.svd(X_centered, full_matrices=False)
+        bases[key] = (Vt[:k_max].T, X.mean(0))  # (d, k), mean
     return bases
 
 
@@ -290,9 +236,10 @@ def main():
 
         calib_tokens = get_wikitext2_tokens(tokenizer, "train", CALIB_TOKENS, offset_tokens=calib_offset)
 
+        calib_tensor = torch.tensor([calib_tokens], dtype=torch.long, device=device)
         print("  Collecting KVs for basis fitting...")
-        kvs = collect_kvs_for_basis(model, tokenizer, calib_tokens, device)
-        bases = fit_bases(kvs)
+        kvs = collect_kvs_for_basis(model, calib_tensor)
+        bases = fit_bases({k: v['K'] for k, v in kvs.items()})  # K-only
         print(f"  Fitted {len(bases)} bases")
 
         # Baseline PPL (no hooks)
