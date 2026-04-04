@@ -11,21 +11,35 @@ import torch
 from pathlib import Path
 
 
-def get_model_and_tokenizer(model_name: str):
-    """Load model (AWQ preferred, then standard HF). Returns (model, tokenizer)."""
-    from transformers import AutoTokenizer
+def get_model_and_tokenizer(model_name: str, awq=True):
+    """Load model (AWQ preferred, then standard HF). Returns (model, tokenizer).
+    
+    Args:
+        model_name: HuggingFace model path
+        awq: If True, use AutoAWQ loader. If False, use standard transformers.
+    """
+    from transformers import AutoTokenizer, AutoModelForCausalLM
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    # Use autoawq directly — avoids transformers gptqmodel dependency
-    from awq import AutoAWQForCausalLM
-    # Reserve headroom for activations at large context lengths (32K+).
-    # Without this, device_map="auto" packs weights leaving no room for 32K MLP intermediates.
-    # Cap at 20GiB on GPU0 to leave ~3.5GiB for activation buffers.
-    max_mem = {0: "20GiB", "cpu": "32GiB"}
-    model = AutoAWQForCausalLM.from_quantized(
-        model_name, fuse_layers=False, device_map="auto", max_memory=max_mem
-    )
-    print(f"Loaded AWQ model: {model_name}")
+    if awq:
+        # Use autoawq directly — avoids transformers gptqmodel dependency
+        from awq import AutoAWQForCausalLM
+        # Reserve headroom for activations at large context lengths (32K+).
+        # Without this, device_map="auto" packs weights leaving no room for 32K MLP intermediates.
+        # Cap at 20GiB on GPU0 to leave ~3.5GiB for activation buffers.
+        max_mem = {0: "20GiB", "cpu": "32GiB"}
+        model = AutoAWQForCausalLM.from_quantized(
+            model_name, fuse_layers=False, device_map="auto", max_memory=max_mem
+        )
+        print(f"Loaded AWQ model: {model_name}")
+    else:
+        # Standard HuggingFace model (fp16/bf16, not quantized)
+        torch_dtype = torch.float16
+        max_mem = {0: "22GiB", "cpu": "32GiB"}
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name, torch_dtype=torch_dtype, device_map="auto", max_memory=max_mem
+        )
+        print(f"Loaded standard model: {model_name} ({torch_dtype})")
     return model, tokenizer
 
 

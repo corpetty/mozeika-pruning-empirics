@@ -174,7 +174,7 @@ def main():
     os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
     print("Loading Mistral-7B-v0.3...")
-    model, tokenizer = get_model_and_tokenizer(MODEL_NAME)
+    model, tokenizer = get_model_and_tokenizer(MODEL_NAME, awq=False)
     device = next(model.parameters()).device
     n_layers = len(list(find_attention_layers(model)))
     print(f"  {n_layers} layers, {N_KV_HEADS} KV heads, d_head={D_HEAD}")
