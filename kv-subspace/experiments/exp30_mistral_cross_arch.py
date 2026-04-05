@@ -241,8 +241,14 @@ def main():
     for key in list(bases.keys())[:5]:
         X = kvs[key]['K']
         half = len(X) // 2
-        U1 = np.linalg.svd(X[:half] - X[:half].mean(0), full_matrices=False)[0][:, :128]
-        U2 = np.linalg.svd(X[half:] - X[half:].mean(0), full_matrices=False)[0][:, :128]
+        if half < 64:
+            continue  # too few samples for meaningful SVD
+        U1 = np.linalg.svd(X[:half] - X[:half].mean(0), full_matrices=False)[0]
+        U2 = np.linalg.svd(X[half:] - X[half:].mean(0), full_matrices=False)[0]
+        # Trim to same number of components (min of both)
+        k_sv = min(U1.shape[1], U2.shape[1], 128)
+        U1 = U1[:, :k_sv]
+        U2 = U2[:, :k_sv]
         sim = np.abs(np.diag(U1.T @ U2)).mean()
         if sim < 0.85:
             print(f"    WARNING: {key} stability={sim:.4f} < 0.85 (calib too noisy?)")
