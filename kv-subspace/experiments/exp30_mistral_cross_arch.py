@@ -245,10 +245,12 @@ def main():
             continue  # too few samples for meaningful SVD
         U1 = np.linalg.svd(X[:half] - X[:half].mean(0), full_matrices=False)[0]
         U2 = np.linalg.svd(X[half:] - X[half:].mean(0), full_matrices=False)[0]
-        # Trim to same number of components (min of both)
-        k_sv = min(U1.shape[1], U2.shape[1], 128)
-        U1 = U1[:, :k_sv]
-        U2 = U2[:, :k_sv]
+        # Both U matrices: (n_rows, n_components). For matmul U1.T @ U2 we need n_rows to match.
+        # Trim rows to the smaller half, then trim columns to min features.
+        min_rows = min(U1.shape[0], U2.shape[0])
+        min_cols = min(U1.shape[1], U2.shape[1], 128)
+        U1 = U1[:min_rows, :min_cols]
+        U2 = U2[:min_rows, :min_cols]
         sim = np.abs(np.diag(U1.T @ U2)).mean()
         if sim < 0.85:
             print(f"    WARNING: {key} stability={sim:.4f} < 0.85 (calib too noisy?)")
