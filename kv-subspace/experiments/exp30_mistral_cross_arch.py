@@ -320,7 +320,7 @@ def main():
         "| k | bits | PPL | Rel PPL |",
         "|---|------|-----|---------|",
     ]
-    for r in results:
+    for r in all_results:
         lines.append(f"| {r['k']} | {r['bits']} | {r['ppl']:.4f} | {r['rel_ppl']:.4f}x |")
 
     lines += [
