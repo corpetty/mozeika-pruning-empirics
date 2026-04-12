@@ -1,89 +1,179 @@
 # SubRotQ Implementation Log
 
-**Project:** Ollama/llama.cpp SubRotQ K-cache compression for 60-80K context  
-**Machine:** bugger (dual RTX 3090 24GB, Ubuntu 24.04)  
-**Goal:** 2-2.5× context increase over baseline 32K
+## Phase 1: Build llama.cpp ✅ (Complete)
+- **Duration:** 10 minutes
+- **Cost:** $0.18
+- **Status:** llama.cpp cloned to `/tmp/llama.cpp`, built with CUDA support
+- **Branch:** `subrotq-kv-compression`
 
----
+## Phase 2: CUDA Kernels ✅ (Complete)  
+- **Duration:** 5 minutes (4 steps)
+- **Cost:** $0.98
+- **Files created:**
+  - `ggml/src/ggml-subrotq.h` - Header with compression API
+  - `ggml/src/ggml-subrotq.cu` - CUDA kernels (compress/decompress)
+  - `SUBROTQ_INTEGRATION.md` - Integration documentation
+- **Build:** ✅ Compiles cleanly
 
-## Phase 1: Setup & Environment ✅ COMPLETE
+### CUDA Implementation Details
+**Compression kernel:**
+- Centers input: `x_centered = k_fp16 - mean`
+- Projects to subspace: `z[i] = dot(x_centered, U[:, i])` for i in 0..k
+- Quantizes to 4-bit: maps z ∈ [-3σ, 3σ] → [0, 15]
+- Packs two 4-bit values per byte using `atomicOr`
 
-**Date:** 2026-04-12 14:10-14:20 UTC  
-**Duration:** 10 minutes  
-**Cost:** $0.18 (Claude Code)
+**Decompression kernel:**
+- Unpacks 4-bit values from packed bytes
+- Dequantizes: [0, 15] → [-3σ, 3σ] scaled by per-dimension σ
+- Reconstructs: `x[i] = U[i,:] @ z + mean[i]`
 
-### Tasks Completed
+## Phase 3: KV Cache Integration ✅ (Complete)
+- **Duration:** 9 minutes (79 turns)
+- **Cost:** $2.71
+- **Status:** End-to-end pipeline wired, builds successfully
 
-1. ✅ **Environment check**
-   - CUDA toolkit: Available (detected by llama.cpp build)
-   - GPUs: 2× RTX 3090 (48GB total VRAM)
-   - CPUs: 64 cores
+### Files Modified (11 total, +182 lines)
+1. `src/llama-kv-cache.h` - KV cache structure + SubRotQ params
+2. `include/llama.h` - Context params (`use_subrotq`, `subrotq_rank`, `subrotq_bits`)
+3. `common/common.h` - Common params
+4. `src/llama-memory.h` - Memory params  
+5. `src/llama-context.cpp` - Default values + wiring
+6. `common/common.cpp` - Param conversion
+7. `common/arg.cpp` - CLI args (`--subrotq`, `--subrotq-rank N`, `--subrotq-bits N`)
+8. `src/llama-kv-cache.cpp` - Compress/decompress hooks in `cpy_k()` and `get_k()`
+9. `src/llama-model.cpp` - Init wiring (`create_memory()` calls `kv->init_subrotq()`)
 
-2. ✅ **Clone llama.cpp**
-   - Repository: https://github.com/ggerganov/llama.cpp.git
-   - Location: /tmp/llama.cpp
-   - Commit: 547765a93 (latest master, 2026-04-12)
-   - Branch: `subrotq-kv-compression` (created)
-
-3. ✅ **Build with CUDA**
-   - Configuration:
-     - GGML_CUDA=ON
-     - CMAKE_CUDA_ARCHITECTURES=86 (RTX 3090)
-     - GGML_CUDA_FA=ON (Flash Attention)
-     - CMAKE_BUILD_TYPE=Release
-   - Build output: /tmp/llama.cpp/build/bin/
-   - CUDA backend: Verified (detected 2 CUDA devices, 48248 MiB total)
-   - Libraries: libggml-cuda.so built successfully
-
-4. ✅ **Verification**
-   - Binary: llama-cli exists and CUDA is enabled
-   - Test output: "ggml_cuda_init: found 2 CUDA devices"
-
-### Build Configuration (from CMakeCache.txt)
-
+### Integration Details
+**KV Cache Structure:**
+```cpp
+struct subrotq_layer_params {
+    int32_t k;        // Subspace rank (128)
+    int32_t n_bits;   // Quantization bits (4)
+    int32_t d_head;   // Head dimension (128)
+    float * U;        // PCA basis [d_head × k], device memory
+    float * mean;     // Mean vector [d_head], device memory
+    float * scale;    // Per-dimension scale [k], device memory
+};
 ```
-CMAKE_CUDA_ARCHITECTURES=86
-GGML_CUDA=ON
-GGML_CUDA_FA=ON
-GGML_CUDA_FA_ALL_QUANTS=OFF
-GGML_CUDA_GRAPHS=ON
-GGML_CUDA_NCCL=ON
+
+**Compression hook** (`llama_kv_cache::cpy_k()`):
+- Placeholder with debug logging
+- Falls through to fp16 storage
+- Comment marks where `ggml_subrotq_compress_k()` will be called
+
+**Decompression hook** (`llama_kv_cache::get_k()`):
+- Placeholder with debug logging
+- Falls through to fp16 view
+- Comment marks where `ggml_subrotq_decompress_k()` will be called
+
+**Identity initialization** (`llama_kv_cache::init_subrotq()`):
+- Allocates CUDA device memory for each layer/head
+- U = truncated identity matrix (first k columns)
+- mean = zero vector
+- scale = all ones
+- Logs initialization progress
+
+### Build Status
+✅ All 11 files compile cleanly with no errors
+
+## Phase 4: Activate CUDA Kernel Calls ✅ (Complete)
+**Goal:** Replace placeholder hooks with actual CUDA kernel calls
+
+**Duration:** 11 minutes (61 turns + 28 turns)
+**Cost:** $2.32 + $0.53 = $2.85
+
+### Implementation Details
+
+**Architectural challenge:** `cpy_k()`/`get_k()` are graph-building functions that run before tensor data exists, so they can't call CUDA kernels directly.
+
+**Solution:**
+- **Decompression** (`get_k`): Runs synchronously before graph eval (K cache has persistent data)
+- **Compression** (`cpy_k`): Deferred to `subrotq_post_eval_compress()` called after graph eval
+
+**Files Modified:**
+- `src/llama-kv-cache.cpp` - Added compression/decompression helpers and post-eval hook
+- `src/llama-context.cpp` - Wire `subrotq_post_eval_compress()` after `graph_compute()` in `process_ubatch()`
+
+**New Methods:**
+```cpp
+void llama_kv_cache::subrotq_decompress_k_layer(int ikv);
+void llama_kv_cache::subrotq_compress_k_layer(int ikv);
+void llama_kv_cache::subrotq_post_eval_compress();
 ```
 
-### Files Created
+**Safety features:**
+- Bounds checking on layer/head indices
+- Null pointer checks for K cache tensors
+- CUDA stream synchronization after kernel launches
+- `subrotq_has_compressed` flag to skip decompression on first eval
 
-- `/tmp/llama.cpp/` — Full repository clone
-- `/tmp/llama.cpp/build/` — Build artifacts
-- `/tmp/llama.cpp/build/bin/llama-cli` — Main binary (415MB total build output)
+**Build Status:** ✅ Compiles cleanly with no errors or warnings
 
-### Notes
+**CLI Flags:** ✅ Working
+```bash
+--subrotq                    # Enable SubRotQ compression
+--subrotq-rank N            # PCA rank (default: 128)
+--subrotq-bits N            # Quantization bits (default: 4)
+```
 
-- Build completed without errors
-- CUDA FA (Flash Attention) enabled but FA_ALL_QUANTS disabled (can enable later if needed)
-- Both GPUs visible to llama.cpp (GPU0 + GPU1)
-- Ready for Phase 2 (SubRotQ kernel implementation)
+## Phase 5: Calibration Pipeline (Future)
+**Goal:** Replace identity initialization with real PCA basis from calibration data
 
----
+**Tasks:**
+- Collect K vectors from calibration set (e.g., WikiText-2 train split)
+- Compute per-layer, per-head PCA basis (SVD on centered K matrix)
+- Save basis parameters to file (e.g., `.subrotq` binary format)
+- Load basis parameters at init time instead of identity matrices
 
-## Phase 2: Core SubRotQ Implementation (In Progress)
+**Estimated duration:** 1-2 hours
+**Estimated cost:** $2-5 (includes running calibration on WikiText-2)
 
-**Status:** Not started  
-**Next steps:**
-1. Create `ggml-subrotq.h` and `ggml-subrotq.cu`
-2. Implement compress/decompress CUDA kernels
-3. Integrate into llama.cpp KV cache hooks
+## Total Progress
+- **Phase 1:** ✅ Build llama.cpp with CUDA ($0.18, 10 min)
+- **Phase 2:** ✅ CUDA kernels ($0.98, 5 min)
+- **Phase 3:** ✅ KV cache integration ($2.71, 9 min)
+- **Phase 4:** ✅ Activate CUDA kernels ($2.85, 11 min)
+- **Phase 5:** ⏸️ Not started (real calibration)
 
----
+**Total cost:** $6.72  
+**Total duration:** ~35 minutes
 
-## Timeline
+## Phase 5: Testing with Identity Basis (Next)
+**Goal:** Verify the SubRotQ pipeline works end-to-end with identity initialization
 
-| Phase | Status | Duration | Cost |
-|-------|--------|----------|------|
-| 1. Setup | ✅ Complete | 10 min | $0.18 |
-| 2. Core Implementation | 🔄 Pending | ~8h est | TBD |
-| 3. Calibration | 🔄 Pending | ~3h est | TBD |
-| 4. Integration | 🔄 Pending | ~4h est | TBD |
-| 5. Testing | 🔄 Pending | ~3h est | TBD |
+**Test plan:**
+1. Download a small GGUF model (e.g., TinyLlama-1.1B)
+2. Run with `--subrotq --subrotq-rank 128 --subrotq-bits 4`
+3. Verify debug logs show:
+   - SubRotQ initialization for all layers/heads
+   - Decompression calls in `get_k()`
+   - Compression calls in `post_eval_compress()`
+4. Check output quality (should match baseline since identity basis doesn't compress)
+5. Monitor GPU memory usage
 
-**Total elapsed:** 10 minutes  
-**Estimated remaining:** ~18 hours
+**Expected outcome:** Pipeline works but memory usage same as baseline (identity basis is lossless but doesn't compress)
+
+## Phase 6: Real Calibration (Future)
+**Goal:** Replace identity initialization with real PCA basis
+
+**Tasks:**
+- Collect K vectors from WikiText-2 train split using existing `collect_kvs_for_basis()` code
+- Compute per-layer, per-head PCA via SVD
+- Save basis to binary file (`.subrotq` format)
+- Load basis at init instead of identity
+- Test with Gemma4 26B and measure:
+  - Context length increase (target: 32K → 60-70K)
+  - Quality (PPL, NIAH)
+  - Memory savings
+
+## Old Testing Plan (Phase 4) - OBSOLETE
+1. Build with `--subrotq` enabled
+2. Run `llama-cli` on Gemma4 26B with small prompt (1K tokens)
+3. Verify debug logs show SubRotQ init + compress/decompress calls
+4. Check output quality (should be same as baseline with identity basis)
+5. Monitor GPU memory usage (should be ~same as baseline since identity doesn't compress)
+
+## Expected Final State
+- **Working SubRotQ pipeline** with identity initialization (Phase 4)
+- **2× context increase** after calibration (Phase 5): 32K → 60-70K tokens
+- **Production-ready** for Ollama integration

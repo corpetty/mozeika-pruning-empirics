@@ -1,0 +1,802 @@
+"""
+33_neuron_then_weight_pruning.py
+
+Two-phase pruning strategy on LeNet-300-100 / MNIST:
+
+  Phase 1 — Architecture pruning (neuron Glauber)
+    E₁ = L(w ⊙ z) + η/2·||w||² + ρ₁·Σ_{h∈fc1} z_h + ρ₂·Σ_{h∈fc2} z_h
+
+    z_h ∈ {0,1} is a per-neuron mask. Killing neuron h zeros the entire
+    row of W^l (fan-out) and the entire column of W^{l+1} (fan-in).
+    Output: compact architecture 784 → k₁ → k₂ → 10 with dead neurons
+    physically removed.
+
+  Phase 2 — Weight pruning (weight Glauber on the compact network)
+    E₂ = L(w ⊙ s) + η/2·||w||² + Σ_l ρ_l · Σ_{i,j∈l} s_{ij}
+
+    Standard per-weight Glauber, identical to experiment 32, but starting
+    from the structurally smaller architecture from phase 1.
+
+Outputs (results/):
+  33_phase1_records.json   — per-round data for architecture pruning
+  33_phase2_records.json   — per-round data for weight pruning
+  33_summary.json          — key numbers: k1, k2, final sparsity, accuracy
+"""
+
+import json
+import math
+import os
+from copy import deepcopy
+from dataclasses import dataclass, field
+from typing import Tuple
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
+# ---------------------------------------------------------------------------
+# Shared helpers
+# ---------------------------------------------------------------------------
+
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "results")
+DATA_ROOT   = "/home/petty/.openclaw/workspace-ai-research/data"
+DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+def set_seed(s: int):
+    torch.manual_seed(s)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(s)
+
+
+@torch.no_grad()
+def eval_ce(model, loader) -> Tuple[float, float]:
+    """Pure CE (no L2). Returns (mean_ce, accuracy)."""
+    model.eval()
+    total_ce = total_correct = total = 0
+    for x, y in loader:
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        logits = model(x)
+        total_ce      += F.cross_entropy(logits, y, reduction="sum").item()
+        total_correct += (logits.argmax(1) == y).sum().item()
+        total         += y.size(0)
+    return total_ce / total, total_correct / total
+
+
+def l2_penalty(params, eta: float) -> torch.Tensor:
+    dev = next(iter(params)).device
+    return 0.5 * eta * sum(p.pow(2).sum() for p in params)
+
+
+@torch.no_grad()
+def eval_energy_p1(model, train_ce: float, loader, cfg) -> float:
+    """Full phase-1 energy: CE + L2 + ρ₁·Σz₁ + ρ₂·Σz₂  (per sample).
+    train_ce is already computed — reuse it to avoid an extra forward pass."""
+    l2 = 0.5 * cfg.eta * sum(p.pow(2).sum().item() for p in model.parameters())
+    sparsity = (cfg.rho1 * model.z1.sum() + cfg.rho2 * model.z2.sum()).item()
+    n = sum(len(y) for _, y in loader)
+    return train_ce + (l2 + sparsity) / n
+
+
+@torch.no_grad()
+def eval_energy_p2(model, train_ce: float, loader, cfg) -> float:
+    """Full phase-2 energy: CE + masked L2 + Σ_l ρ_l·active_l  (per sample).
+    train_ce is already computed — reuse it to avoid an extra forward pass."""
+    l2_w = 0.5 * cfg.eta_w * sum((l.effective_weight()**2).sum().item() for l in model.layers())
+    l2_b = 0.5 * cfg.eta_b * (
+        (model.fc1.effective_bias()**2).sum().item()
+        + (model.fc2.effective_bias()**2).sum().item()
+        + (model.fc3.bias**2).sum().item()
+    )
+    rho_ws = list(cfg.rho_w)
+    rho_bs = list(cfg.rho_b) + [None]
+    sparsity = 0.0
+    for layer, rho_w, rho_b in zip(model.layers(), rho_ws, rho_bs):
+        sparsity += rho_w * layer.weight_mask.sum().item()
+        if layer.bias_mask is not None and rho_b is not None:
+            sparsity += rho_b * layer.bias_mask.sum().item()
+    n = sum(len(y) for _, y in loader)
+    return train_ce + (l2_w + l2_b + sparsity) / n
+
+
+# ===========================================================================
+# PHASE 1 — ARCHITECTURE PRUNING (neuron Glauber)
+# ===========================================================================
+
+class NeuronMaskedLeNet(nn.Module):
+    """
+    LeNet-300-100 with per-neuron masks on fc1 and fc2.
+
+    z1[h] = 1  → neuron h in fc1 is alive
+    z1[h] = 0  → neuron h is dead: its OUTPUT is gated to zero.
+                 W_h_in (row h of fc1.weight) and bias_h are PRESERVED
+                 so the neuron can regrow — never zero the stored parameters.
+
+    Gating is done entirely in the forward pass via z·activation.
+    The optimizer sees zero gradients for dead neurons' parameters
+    (via grad masking after backward, to block L2 updates on dead weights).
+
+    The fc3 output layer is never pruned (it has a fixed 10 neurons).
+    """
+
+    def __init__(self, n1: int = 300, n2: int = 100):
+        super().__init__()
+        self.n1 = n1
+        self.n2 = n2
+        self.fc1 = nn.Linear(784, n1)
+        self.fc2 = nn.Linear(n1,  n2)
+        self.fc3 = nn.Linear(n2,  10)
+        self.register_buffer("z1", torch.ones(n1))   # fc1 neuron mask
+        self.register_buffer("z2", torch.ones(n2))   # fc2 neuron mask
+        nn.init.kaiming_uniform_(self.fc1.weight, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(self.fc2.weight, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(self.fc3.weight, a=math.sqrt(5))
+
+    def forward(self, x):
+        x = x.view(x.size(0), -1)
+        # Gate dead neurons via z in the forward pass — stored weights untouched.
+        # Dead neuron h: z[h]=0 → pre-activation computed but output zeroed.
+        # Stored W_h_in and bias_h survive for potential regrowth.
+        w1 = self.fc1.weight * self.z1.unsqueeze(1)
+        h1 = F.relu(F.linear(x,  w1,  self.fc1.bias * self.z1))
+        h1 = h1 * self.z1                                  # kill dead activations
+
+        w2 = self.fc2.weight * self.z1.unsqueeze(0) * self.z2.unsqueeze(1)
+        h2 = F.relu(F.linear(h1, w2,  self.fc2.bias * self.z2))
+        h2 = h2 * self.z2
+
+        return self.fc3(h2)
+
+    @torch.no_grad()
+    def neuron_sparsity(self) -> float:
+        total  = self.n1 + self.n2
+        active = int(self.z1.sum()) + int(self.z2.sum())
+        return 1.0 - active / total
+
+    @torch.no_grad()
+    def alive_counts(self):
+        return int(self.z1.sum()), int(self.z2.sum())
+
+
+@dataclass
+class Phase1Cfg:
+    # architecture
+    n1: int   = 300
+    n2: int   = 100
+    # training
+    lr: float = 1e-3
+    eta: float = 1e-4               # L2 on all weights
+    batch_size: int = 128
+    pretrain_epochs: int = 5
+    train_epochs_per_round: int = 2
+    finetune_epochs: int = 3
+    max_rounds: int = 80
+    target_neuron_sparsity: float = 0.60   # stop when 60% of neurons dead
+    # Glauber
+    rho1: float = 5e-7              # penalty per alive fc1 neuron
+    rho2: float = 1e-6              # penalty per alive fc2 neuron (fc2 is smaller)
+    fisher_batches: int = 50
+    eps_curv: float = 1e-12
+    allow_regrowth: bool = True
+    T_start: float = 1e-6
+    temp_steps: int = 20
+    sweeps_per_round: int = 3
+    seed: int = 0
+
+    def T_at(self, r):
+        step = min(r - 1, self.temp_steps - 1)
+        return self.T_start * (1.0 - step / max(self.temp_steps - 1, 1))
+
+    def beta_at(self, r):
+        T = self.T_at(r)
+        return float("inf") if T <= 0 else 1.0 / T
+
+
+def _train_epoch_neuron(model, loader, cfg: Phase1Cfg):
+    model.train()
+    opt = torch.optim.Adam(model.parameters(), lr=cfg.lr)
+    all_params = list(model.parameters())
+    for x, y in loader:
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        opt.zero_grad(set_to_none=True)
+        loss = F.cross_entropy(model(x), y) + l2_penalty(all_params, cfg.eta)
+        loss.backward()
+        # zero grads of dead neurons so they stay zero
+        with torch.no_grad():
+            model.fc1.weight.grad.mul_(model.z1.unsqueeze(1))
+            if model.fc1.bias.grad is not None:
+                model.fc1.bias.grad.mul_(model.z1)
+            model.fc2.weight.grad.mul_(model.z1.unsqueeze(0))
+            model.fc2.weight.grad.mul_(model.z2.unsqueeze(1))
+            if model.fc2.bias.grad is not None:
+                model.fc2.bias.grad.mul_(model.z2)
+            model.fc3.weight.grad.mul_(model.z2.unsqueeze(0))
+        opt.step()
+        # NOTE: stored weight values are NOT zeroed — dead neurons' parameters
+        # are preserved for potential regrowth. Gating is forward-pass only.
+
+
+def _train_neuron(model, loader, cfg, epochs):
+    for _ in range(epochs):
+        _train_epoch_neuron(model, loader, cfg)
+
+
+def _estimate_neuron_fisher(model, loader, cfg: Phase1Cfg):
+    """
+    Per-neuron Fisher: F_h = mean over batches of (∂L/∂a_h)²
+    where a_h is the pre-ReLU activation of neuron h.
+
+    We use the squared gradient of the loss w.r.t. the neuron's bias as a
+    proxy (same scale as OBD curvature used in weight pruning).
+    """
+    model.train()
+    fish1 = torch.zeros(cfg.n1, device=DEVICE)
+    grad1 = torch.zeros(cfg.n1, device=DEVICE)
+    fish2 = torch.zeros(cfg.n2, device=DEVICE)
+    grad2 = torch.zeros(cfg.n2, device=DEVICE)
+
+    batches = 0
+    for x, y in loader:
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        model.zero_grad(set_to_none=True)
+        F.cross_entropy(model(x), y).backward()
+        with torch.no_grad():
+            g1 = model.fc1.bias.grad if model.fc1.bias.grad is not None else torch.zeros(cfg.n1, device=DEVICE)
+            g2 = model.fc2.bias.grad if model.fc2.bias.grad is not None else torch.zeros(cfg.n2, device=DEVICE)
+            fish1 += g1 ** 2
+            grad1 += g1
+            fish2 += g2 ** 2
+            grad2 += g2
+        batches += 1
+        if batches >= cfg.fisher_batches:
+            break
+
+    fish1 /= max(1, batches)
+    grad1 /= max(1, batches)
+    fish2 /= max(1, batches)
+    grad2 /= max(1, batches)
+    return fish1, grad1, fish2, grad2
+
+
+def _glauber_neuron_sweep(model, fish1, grad1, fish2, grad2, cfg: Phase1Cfg, r: int):
+    """
+    Glauber flip on z1 and z2.
+
+    ΔE for killing neuron h (z_h: 1→0):
+        ΔE_kill = -0.5·rho + 0.5·F_h·w_eff_h²    (approximate OBD term)
+                 where F_h ≈ fisher_bias_h and w_eff_h ≈ bias_h (proxy)
+
+    ΔE for regrowing neuron h (z_h: 0→1):
+        ΔE_grow = +0.5·rho - 0.5·grad_h²/F_h      (expected ΔL from restoring)
+
+    flip probability: sigmoid(-β·ΔE)
+    """
+    beta = cfg.beta_at(r)
+
+    def _sweep_layer(z, fish, grad, rho, weight_rows):
+        # weight_rows: (n_neurons, fan_in) — row norms used as proxy for neuron "size"
+        w2 = (weight_rows ** 2).sum(dim=1)   # squared L2 norm of each neuron's weights
+        active  = z.bool()
+        delta   = torch.empty_like(z)
+
+        # ΔE for killing (active neurons):
+        #   save rho (sparsity term), lose 0.5*F*||w||^2 (OBD approximation of loss increase)
+        delta[active]  = -rho + 0.5 * fish[active] * w2[active]
+
+        # ΔE for regrowing (dead neurons):
+        #   pay rho, gain 0.5*grad^2/F (expected loss decrease)
+        if cfg.allow_regrowth:
+            delta[~active] = rho - 0.5 * grad[~active] ** 2 / (fish[~active] + cfg.eps_curv)
+        else:
+            delta[~active] = float("inf")
+
+        if math.isinf(beta):
+            p = (delta < 0).float()
+        else:
+            p = torch.sigmoid(-beta * delta)
+
+        flips = torch.rand_like(p) < p.clamp(0, 1)
+        z[flips] = 1.0 - z[flips]
+        return int((flips & active).sum()), int((flips & ~active).sum())
+
+    with torch.no_grad():
+        p1, r1 = _sweep_layer(model.z1, fish1 + cfg.eps_curv, grad1, cfg.rho1, model.fc1.weight.detach())
+        p2, r2 = _sweep_layer(model.z2, fish2 + cfg.eps_curv, grad2, cfg.rho2, model.fc2.weight.detach())
+        # z masks updated in-place; stored weight values are NOT zeroed.
+        # Forward pass gates outputs via z·activation — parameters survive.
+
+    return p1, r1, p2, r2
+
+
+def run_phase1(train_loader, train_eval_loader, test_loader, cfg: Phase1Cfg):
+    set_seed(cfg.seed)
+    model = NeuronMaskedLeNet(cfg.n1, cfg.n2).to(DEVICE)
+
+    print("\n" + "="*60)
+    print("PHASE 1 — Architecture pruning (neuron Glauber)")
+    print(f"  rho1={cfg.rho1:.1e}  rho2={cfg.rho2:.1e}  T_start={cfg.T_start:.1e}")
+    print("="*60)
+
+    _train_neuron(model, train_loader, cfg, cfg.pretrain_epochs)
+    train_ce, train_acc = eval_ce(model, train_eval_loader)
+    test_ce,  test_acc  = eval_ce(model, test_loader)
+    energy = eval_energy_p1(model, train_ce, train_eval_loader, cfg)
+    k1, k2 = model.alive_counts()
+    spar = model.neuron_sparsity()
+    print(f"R00 | spar={spar:.4f} | acc={test_acc:.4f} | k1={k1} k2={k2} | "
+          f"train_ce={train_ce:.4f} test_ce={test_ce:.4f} energy={energy:.4f}")
+
+    records = [{
+        "round": 0, "sparsity": spar, "k1": k1, "k2": k2,
+        "train_ce": train_ce, "train_acc": train_acc,
+        "test_ce": test_ce,   "test_acc": test_acc,
+        "gap": train_ce - test_ce,
+        "energy": energy,
+        "pruned_fc1": 0, "pruned_fc2": 0,
+        "regrown_fc1": 0, "regrown_fc2": 0,
+    }]
+
+    for r in range(1, cfg.max_rounds + 1):
+        _train_neuron(model, train_loader, cfg, cfg.train_epochs_per_round)
+
+        agg = {"p1": 0, "r1": 0, "p2": 0, "r2": 0}
+        for _ in range(cfg.sweeps_per_round):
+            fish1, grad1, fish2, grad2 = _estimate_neuron_fisher(model, train_loader, cfg)
+            p1, rg1, p2, rg2 = _glauber_neuron_sweep(model, fish1, grad1, fish2, grad2, cfg, r)
+            agg["p1"] += p1; agg["r1"] += rg1
+            agg["p2"] += p2; agg["r2"] += rg2
+
+        _train_neuron(model, train_loader, cfg, cfg.finetune_epochs)
+
+        train_ce, train_acc = eval_ce(model, train_eval_loader)
+        test_ce,  test_acc  = eval_ce(model, test_loader)
+        energy = eval_energy_p1(model, train_ce, train_eval_loader, cfg)
+        k1, k2 = model.alive_counts()
+        spar = model.neuron_sparsity()
+        gap  = train_ce - test_ce
+
+        rec = {
+            "round": r, "sparsity": spar, "k1": k1, "k2": k2,
+            "train_ce": train_ce, "train_acc": train_acc,
+            "test_ce": test_ce,   "test_acc": test_acc,
+            "gap": gap,
+            "energy": energy,
+            "pruned_fc1": agg["p1"], "pruned_fc2": agg["p2"],
+            "regrown_fc1": agg["r1"], "regrown_fc2": agg["r2"],
+        }
+        records.append(rec)
+        print(f"R{r:02d} | spar={spar:.4f} | acc={test_acc:.4f} | k1={k1:3d} k2={k2:3d} | "
+              f"gap={gap:+.4f} | E={energy:.4f} | "
+              f"prune=({agg['p1']},{agg['p2']}) regrow=({agg['r1']},{agg['r2']})")
+
+        if spar >= cfg.target_neuron_sparsity:
+            print(f"  → Target neuron sparsity {cfg.target_neuron_sparsity} reached.")
+            break
+
+    return model, records
+
+
+# ===========================================================================
+# PHASE 2 — WEIGHT PRUNING on the compact architecture
+# ===========================================================================
+
+class MaskedLinear(nn.Module):
+    def __init__(self, in_features, out_features, bias=True, prune_bias=False):
+        super().__init__()
+        self.weight = nn.Parameter(torch.empty(out_features, in_features))
+        self.bias   = nn.Parameter(torch.empty(out_features)) if bias else None
+        self.register_buffer("weight_mask", torch.ones(out_features, in_features))
+        if bias and prune_bias:
+            self.register_buffer("bias_mask", torch.ones(out_features))
+        else:
+            self.bias_mask = None
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+        if self.bias is not None:
+            fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in)
+            nn.init.uniform_(self.bias, -bound, bound)
+
+    def effective_weight(self):
+        return self.weight * self.weight_mask
+
+    def effective_bias(self):
+        if self.bias is None: return None
+        return self.bias if self.bias_mask is None else self.bias * self.bias_mask
+
+    def forward(self, x):
+        return F.linear(x, self.effective_weight(), self.effective_bias())
+
+    @torch.no_grad()
+    def zero_masked_parameters_(self):
+        # NOTE: intentionally a no-op — stored weight values are preserved for
+        # regrowth. Gating happens in effective_weight()/effective_bias() only.
+        pass
+
+    @torch.no_grad()
+    def zero_masked_grads_(self):
+        if self.weight.grad is not None:
+            self.weight.grad.mul_(self.weight_mask)
+        if self.bias is not None and self.bias.grad is not None and self.bias_mask is not None:
+            self.bias.grad.mul_(self.bias_mask)
+
+
+def build_compact_masked_net(phase1_model: NeuronMaskedLeNet) -> nn.Module:
+    """
+    Extract the alive neurons from the phase-1 model and build a new
+    MaskedLinear network with the reduced architecture.
+    Copies weights for alive neurons only.
+    """
+    k1 = int(phase1_model.z1.sum())
+    k2 = int(phase1_model.z2.sum())
+
+    if k1 == 0 or k2 == 0:
+        raise RuntimeError(
+            f"Phase 1 collapsed the network: k1={k1}, k2={k2}. "
+            "Reduce rho1/rho2 or increase pretrain_epochs."
+        )
+
+    alive1 = phase1_model.z1.bool()
+    alive2 = phase1_model.z2.bool()
+
+    print(f"\n  Compact architecture: 784 → {k1} → {k2} → 10")
+
+    net = nn.ModuleDict({
+        "fc1": MaskedLinear(784, k1, bias=True, prune_bias=True),
+        "fc2": MaskedLinear(k1,  k2, bias=True, prune_bias=True),
+        "fc3": MaskedLinear(k2,  10, bias=True, prune_bias=False),
+    })
+
+    with torch.no_grad():
+        net["fc1"].weight.data.copy_(phase1_model.fc1.weight.data[alive1, :])
+        net["fc1"].bias.data.copy_(phase1_model.fc1.bias.data[alive1])
+        net["fc2"].weight.data.copy_(phase1_model.fc2.weight.data[alive2][:, alive1])
+        net["fc2"].bias.data.copy_(phase1_model.fc2.bias.data[alive2])
+        net["fc3"].weight.data.copy_(phase1_model.fc3.weight.data[:, alive2])
+        net["fc3"].bias.data.copy_(phase1_model.fc3.bias.data)
+
+    class CompactNet(nn.Module):
+        def __init__(self, layers):
+            super().__init__()
+            self.fc1 = layers["fc1"]
+            self.fc2 = layers["fc2"]
+            self.fc3 = layers["fc3"]
+
+        def forward(self, x):
+            x = x.view(x.size(0), -1)
+            return self.fc3(F.relu(self.fc2(F.relu(self.fc1(x)))))
+
+        def layers(self):
+            return [self.fc1, self.fc2, self.fc3]
+
+    return CompactNet(net).to(DEVICE)
+
+
+@dataclass
+class Phase2Cfg:
+    lr: float = 1e-3
+    eta_w: float = 1e-4
+    eta_b: float = 1e-4
+    batch_size: int = 128
+    train_epochs_per_round: int = 2
+    finetune_epochs: int = 2
+    max_rounds: int = 60
+    fisher_batches: int = 50
+    rho_w: Tuple = (1e-7, 2e-7, 5e-8)
+    rho_b: Tuple = (1e-7, 2e-7)
+    target_sparsity: float = 0.99
+    eps_curv: float = 1e-12
+    allow_regrowth: bool = True
+    max_flip_fraction: float = 0.2
+    T_start: float = 1e-7
+    temp_steps: int = 20
+    sweeps_per_round: int = 3
+    seed: int = 0
+
+    def T_at(self, r):
+        step = min(r - 1, self.temp_steps - 1)
+        return self.T_start * (1.0 - step / max(self.temp_steps - 1, 1))
+
+    def beta_at(self, r):
+        T = self.T_at(r)
+        return float("inf") if T <= 0 else 1.0 / T
+
+
+def _masked_l2(model, cfg: Phase2Cfg):
+    dev = next(model.parameters()).device
+    out = torch.zeros((), device=dev)
+    out += 0.5 * cfg.eta_w * sum((l.effective_weight() ** 2).sum() for l in model.layers())
+    out += 0.5 * cfg.eta_b * (
+        (model.fc1.effective_bias() ** 2).sum()
+        + (model.fc2.effective_bias() ** 2).sum()
+        + (model.fc3.bias ** 2).sum()
+    )
+    return out
+
+
+def _train_epoch_weight(model, loader, cfg: Phase2Cfg):
+    model.train()
+    opt = torch.optim.Adam(model.parameters(), lr=cfg.lr)
+    for x, y in loader:
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        opt.zero_grad(set_to_none=True)
+        loss = F.cross_entropy(model(x), y) + _masked_l2(model, cfg)
+        loss.backward()
+        for l in model.layers():
+            l.zero_masked_grads_()
+        opt.step()
+        with torch.no_grad():
+            for l in model.layers():
+                l.zero_masked_parameters_()
+
+
+def _train_weight(model, loader, cfg, epochs):
+    for _ in range(epochs):
+        _train_epoch_weight(model, loader, cfg)
+
+
+def _estimate_weight_fisher(model, loader, cfg: Phase2Cfg):
+    model.train()
+    names  = ["fc1", "fc2", "fc3"]
+    stats  = {}
+    for n, l in zip(names, model.layers()):
+        stats[f"{n}.weight.grad"]   = torch.zeros_like(l.weight)
+        stats[f"{n}.weight.fisher"] = torch.zeros_like(l.weight)
+        if l.bias is not None and l.bias_mask is not None:
+            stats[f"{n}.bias.grad"]   = torch.zeros_like(l.bias)
+            stats[f"{n}.bias.fisher"] = torch.zeros_like(l.bias)
+    batches = 0
+    for x, y in loader:
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        model.zero_grad(set_to_none=True)
+        F.cross_entropy(model(x), y).backward()
+        for n, l in zip(names, model.layers()):
+            stats[f"{n}.weight.grad"]   += l.weight.grad.detach()
+            stats[f"{n}.weight.fisher"] += l.weight.grad.detach() ** 2
+            if l.bias is not None and l.bias.grad is not None and l.bias_mask is not None:
+                stats[f"{n}.bias.grad"]   += l.bias.grad.detach()
+                stats[f"{n}.bias.fisher"] += l.bias.grad.detach() ** 2
+        batches += 1
+        if batches >= cfg.fisher_batches:
+            break
+    for k in stats:
+        stats[k] /= max(1, batches)
+    return stats
+
+
+def _glauber_weight_sweep(model, stats, cfg: Phase2Cfg, r: int):
+    beta = cfg.beta_at(r)
+    names  = ["fc1", "fc2", "fc3"]
+    rho_ws = list(cfg.rho_w)
+    rho_bs = list(cfg.rho_b) + [None]
+    results = {}
+
+    for name, layer, rho_w, rho_b in zip(names, model.layers(), rho_ws, rho_bs):
+        eff_w  = layer.effective_weight()
+        fish_w = stats[f"{name}.weight.fisher"] + cfg.eps_curv
+        grad_w = stats[f"{name}.weight.grad"]
+        active = layer.weight_mask.bool()
+
+        delta = torch.empty_like(layer.weight_mask)
+        delta[active]  = -0.5 * rho_w + 0.5 * fish_w[active]  * eff_w[active] ** 2
+        if cfg.allow_regrowth:
+            delta[~active] = 0.5 * rho_w - 0.5 * grad_w[~active] ** 2 / fish_w[~active]
+        else:
+            delta[~active] = float("inf")
+
+        p = (delta < 0).float() if math.isinf(beta) else torch.sigmoid(-beta * delta)
+        flips = torch.rand_like(p) < p.clamp(0, 1)
+        if cfg.max_flip_fraction is not None:
+            max_k = int(cfg.max_flip_fraction * flips.numel())
+            if flips.sum() > max_k:
+                idx  = torch.nonzero(flips.flatten(), as_tuple=False).flatten()
+                keep = idx[torch.randperm(idx.numel(), device=idx.device)[:max_k]]
+                f2   = torch.zeros_like(flips.flatten(), dtype=torch.bool)
+                f2[keep] = True
+                flips = f2.view_as(layer.weight_mask)
+        layer.weight_mask[flips] = 1.0 - layer.weight_mask[flips]
+        # stored weight values preserved — gating via effective_weight() only
+        results[f"{name}.pruned"]  = int((flips & active).sum())
+        results[f"{name}.regrown"] = int((flips & ~active).sum())
+
+        if layer.bias is not None and layer.bias_mask is not None and rho_b is not None:
+            eff_b  = layer.effective_bias()
+            fish_b = stats[f"{name}.bias.fisher"] + cfg.eps_curv
+            grad_b = stats[f"{name}.bias.grad"]
+            act_b  = layer.bias_mask.bool()
+            db     = torch.empty_like(layer.bias_mask)
+            db[act_b]  = -0.5 * rho_b + 0.5 * fish_b[act_b]  * eff_b[act_b] ** 2
+            if cfg.allow_regrowth:
+                db[~act_b] = 0.5 * rho_b - 0.5 * grad_b[~act_b] ** 2 / fish_b[~act_b]
+            else:
+                db[~act_b] = float("inf")
+            pb = (db < 0).float() if math.isinf(beta) else torch.sigmoid(-beta * db)
+            fb = torch.rand_like(pb) < pb.clamp(0, 1)
+            layer.bias_mask[fb] = 1.0 - layer.bias_mask[fb]
+            # stored bias values preserved — gating via effective_bias() only
+
+    results["total_pruned"]  = sum(v for k, v in results.items() if k.endswith(".pruned"))
+    results["total_regrown"] = sum(v for k, v in results.items() if k.endswith(".regrown"))
+    return results
+
+
+
+def _count_implicit_dead(model) -> dict:
+    """
+    Count neurons implicitly dead via phi(0)=0:
+    A neuron (row i in layer l) is dead if all its incoming weights AND
+    its bias are masked to zero. fc1/fc2 have bias_mask; fc3 does not
+    (bias never pruned) so only weight rows are checked for fc3.
+    Returns dict: {"fc1": n, "fc2": n, "fc3": n}
+    """
+    result = {}
+    for name, layer in [("fc1", model.fc1), ("fc2", model.fc2), ("fc3", model.fc3)]:
+        w_dead = (layer.weight_mask.sum(dim=1) == 0)
+        if layer.bias_mask is not None:
+            b_dead = (layer.bias_mask == 0)
+            dead = w_dead & b_dead
+        else:
+            dead = w_dead
+        result[name] = int(dead.sum())
+    return result
+
+
+def _global_weight_sparsity(model) -> float:
+    masks  = [model.fc1.weight_mask, model.fc2.weight_mask, model.fc3.weight_mask,
+              model.fc1.bias_mask, model.fc2.bias_mask]
+    total  = sum(m.numel() for m in masks)
+    active = sum(int(m.sum()) for m in masks)
+    return 1.0 - active / total
+
+
+def run_phase2(compact_model, train_loader, train_eval_loader, test_loader, cfg: Phase2Cfg):
+    set_seed(cfg.seed + 1)
+
+    print("\n" + "="*60)
+    print("PHASE 2 — Weight pruning (weight Glauber on compact network)")
+    print(f"  rho_w={cfg.rho_w}  T_start={cfg.T_start:.1e}")
+    print("="*60)
+
+    # brief warm-up on the compact net
+    _train_weight(compact_model, train_loader, cfg, 3)
+
+    train_ce, train_acc = eval_ce(compact_model, train_eval_loader)
+    test_ce,  test_acc  = eval_ce(compact_model, test_loader)
+    energy = eval_energy_p2(compact_model, train_ce, train_eval_loader, cfg)
+    spar = _global_weight_sparsity(compact_model)
+    print(f"R00 | spar={spar:.4f} | acc={test_acc:.4f} | "
+          f"train_ce={train_ce:.4f} test_ce={test_ce:.4f} energy={energy:.4f}")
+
+    dead0 = _count_implicit_dead(compact_model)
+    records = [{
+        "round": 0, "sparsity": spar,
+        "train_ce": train_ce, "train_acc": train_acc,
+        "test_ce": test_ce,   "test_acc": test_acc,
+        "gap": train_ce - test_ce,
+        "energy": energy,
+        "pruned": 0, "regrown": 0,
+        "dead_fc1": dead0["fc1"], "dead_fc2": dead0["fc2"], "dead_fc3": dead0["fc3"],
+    }]
+
+    for r in range(1, cfg.max_rounds + 1):
+        _train_weight(compact_model, train_loader, cfg, cfg.train_epochs_per_round)
+
+        agg = {"total_pruned": 0, "total_regrown": 0}
+        for _ in range(cfg.sweeps_per_round):
+            st = _estimate_weight_fisher(compact_model, train_loader, cfg)
+            sw = _glauber_weight_sweep(compact_model, st, cfg, r)
+            for k in agg:
+                agg[k] += sw.get(k, 0)
+
+        _train_weight(compact_model, train_loader, cfg, cfg.finetune_epochs)
+
+        train_ce, train_acc = eval_ce(compact_model, train_eval_loader)
+        test_ce,  test_acc  = eval_ce(compact_model, test_loader)
+        energy = eval_energy_p2(compact_model, train_ce, train_eval_loader, cfg)
+        spar = _global_weight_sparsity(compact_model)
+        gap  = train_ce - test_ce
+
+        dead = _count_implicit_dead(compact_model)
+        rec = {
+            "round": r, "sparsity": spar,
+            "train_ce": train_ce, "train_acc": train_acc,
+            "test_ce": test_ce,   "test_acc": test_acc,
+            "gap": gap,
+            "energy": energy,
+            "pruned": agg["total_pruned"], "regrown": agg["total_regrown"],
+            "dead_fc1": dead["fc1"], "dead_fc2": dead["fc2"], "dead_fc3": dead["fc3"],
+        }
+        records.append(rec)
+        print(f"R{r:02d} | spar={spar:.4f} | acc={test_acc:.4f} | "
+              f"gap={gap:+.4f} | E={energy:.4f} | "
+              f"prune={agg['total_pruned']} regrow={agg['total_regrown']} | "
+              f"dead=({dead['fc1']},{dead['fc2']},{dead['fc3']})")
+
+        if spar >= cfg.target_sparsity:
+            print(f"  → Target weight sparsity {cfg.target_sparsity} reached.")
+            break
+
+    return compact_model, records
+
+
+# ===========================================================================
+# Entry point
+# ===========================================================================
+
+def main():
+    set_seed(0)
+    transform    = transforms.Compose([transforms.ToTensor()])
+    train_ds     = datasets.MNIST(DATA_ROOT, train=True,  download=True, transform=transform)
+    test_ds      = datasets.MNIST(DATA_ROOT, train=False, download=True, transform=transform)
+    train_loader      = DataLoader(train_ds, batch_size=128, shuffle=True,  num_workers=2)
+    train_eval_loader = DataLoader(train_ds, batch_size=256, shuffle=False, num_workers=2)
+    test_loader       = DataLoader(test_ds,  batch_size=256, shuffle=False, num_workers=2)
+
+    # ── Phase 1 ──────────────────────────────────────────────────────────
+    p1cfg = Phase1Cfg()
+    phase1_model, p1_records = run_phase1(
+        train_loader, train_eval_loader, test_loader, p1cfg
+    )
+    k1_final, k2_final = phase1_model.alive_counts()
+
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    with open(os.path.join(RESULTS_DIR, "33_phase1_records.json"), "w") as f:
+        json.dump(p1_records, f, indent=2)
+    print(f"\nPhase 1 done. Architecture: 784 → {k1_final} → {k2_final} → 10")
+    print(f"Phase 1 final acc: {p1_records[-1]['test_acc']:.4f}")
+
+    # ── Build compact network ─────────────────────────────────────────────
+    compact_model = build_compact_masked_net(phase1_model)
+
+    # quick check
+    _, acc_before = eval_ce(compact_model, test_loader)
+    print(f"  Compact model accuracy (before phase-2 training): {acc_before:.4f}")
+
+    # ── Phase 2 ──────────────────────────────────────────────────────────
+    p2cfg = Phase2Cfg()
+    compact_model, p2_records = run_phase2(
+        compact_model, train_loader, train_eval_loader, test_loader, p2cfg
+    )
+
+    ckpt_path = os.path.join(RESULTS_DIR, "33_compact_final.pt")
+    torch.save({
+        "model_state_dict": compact_model.state_dict(),
+        "k1": k1_final,
+        "k2": k2_final,
+        "phase2_weight_sparsity": p2_records[-1]["sparsity"],
+        "phase2_final_acc": p2_records[-1]["test_acc"],
+    }, ckpt_path)
+    print(f"\nCompact model checkpoint saved to: {ckpt_path}")
+
+    with open(os.path.join(RESULTS_DIR, "33_phase2_records.json"), "w") as f:
+        json.dump(p2_records, f, indent=2)
+
+    final_dead = {k: v for k, v in p2_records[-1].items() if k.startswith("dead_")}
+    summary = {
+        "phase1_rounds": len(p1_records) - 1,
+        "k1_final": k1_final,
+        "k2_final": k2_final,
+        "phase1_final_acc": p1_records[-1]["test_acc"],
+        "phase1_neuron_sparsity": p1_records[-1]["sparsity"],
+        "phase2_rounds": len(p2_records) - 1,
+        "phase2_final_acc": p2_records[-1]["test_acc"],
+        "phase2_weight_sparsity": p2_records[-1]["sparsity"],
+        "phase2_implicit_dead": final_dead,
+        "checkpoint": ckpt_path,
+    }
+    with open(os.path.join(RESULTS_DIR, "33_summary.json"), "w") as f:
+        json.dump(summary, f, indent=2)
+
+    print("\n" + "="*60)
+    print("SUMMARY")
+    for k, v in summary.items():
+        print(f"  {k}: {v}")
+    print("="*60)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,27 @@
+{
+  "experiment": "35_vgg16_perlayer_rho",
+  "rho_strategy": "per-layer calibrated at ~0.01-0.1x p10 saliency",
+  "rho_dict": {
+    "features.0": "1.00e-09",
+    "features.2": "1.00e-12",
+    "features.5": "1.00e-12",
+    "features.7": "1.00e-12",
+    "features.10": "1.00e-14",
+    "features.12": "1.00e-14",
+    "features.14": "1.00e-14",
+    "features.17": "1.00e-14",
+    "features.19": "1.00e-14",
+    "features.21": "1.00e-14",
+    "features.24": "1.00e-14",
+    "features.26": "1.00e-14",
+    "features.28": "1.00e-14",
+    "classifier.0": "1.00e-25",
+    "classifier.3": "1.00e-20",
+    "classifier.6": "1.00e-13"
+  },
+  "final_sparsity": 0.9839631356622782,
+  "final_test_acc": 0.9297,
+  "rounds": 120,
+  "peak_acc": 0.9431,
+  "peak_acc_round": 57
+}

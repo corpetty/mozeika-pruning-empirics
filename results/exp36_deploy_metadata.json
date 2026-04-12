@@ -1,0 +1,14 @@
+{
+  "exp": 36,
+  "source_checkpoint": "/home/petty/pruning-research/results/36_lenet_finetuned.pt",
+  "architecture_masked": "784->122->35->10",
+  "architecture_compact": "784->80->30->10",
+  "weight_sparsity": 0.976051779935275,
+  "acc_sparse_masked": 0.9759,
+  "acc_compact_dense": 0.9759,
+  "acc_onnx_fp32": 0.9759,
+  "acc_onnx_int8": 0.9739,
+  "dense_baseline": 0.9824,
+  "gap_to_dense_pp": 0.85,
+  "prediction_disagreements_masked_vs_compact": 0
+}

@@ -1,0 +1,18 @@
+{
+  "experiment": "35_final_export",
+  "source": "vgg16_exp35_finetuned.pt (ep42, best)",
+  "sparsity": 0.984,
+  "finetuned_acc": 0.9414,
+  "compact_params_M": 12.55,
+  "compact_pt_mb": 47,
+  "fp32_onnx_mb": 48.2,
+  "int8_onnx_mb": 12.0,
+  "vs_dense_pp": 4.2,
+  "vs_obd_finetuned_pp": 5.06,
+  "artifacts": {
+    "masked_pt": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_finetuned.pt",
+    "compact_pt": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_finetuned_compact.pt",
+    "onnx_fp32": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_finetuned_compact_fp32.onnx",
+    "onnx_int8": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_finetuned_compact_int8.onnx"
+  }
+}

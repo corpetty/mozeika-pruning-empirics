@@ -1,0 +1,18 @@
+{
+  "input": 784,
+  "fc1_alive": 80,
+  "fc2_alive": 30,
+  "output": 10,
+  "fc1_dead": 42,
+  "fc2_dead": 5,
+  "total_params": 65540,
+  "phase2_weight_sparsity": 0.976051779935275,
+  "phase2_final_acc": 0.975,
+  "compact_fp32_acc": 0.9519,
+  "onnx_fp32_acc": 0.9519,
+  "onnx_fp32_size_kb": 1.791015625,
+  "onnx_int8_acc": 0.9506,
+  "onnx_int8_size_kb": 68.2822265625,
+  "quantization_drop_pp": 0.12999999999999678,
+  "package_size_kb": 9.576171875
+}

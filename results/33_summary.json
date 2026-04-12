@@ -1,0 +1,16 @@
+{
+  "phase1_rounds": 15,
+  "k1_final": 122,
+  "k2_final": 35,
+  "phase1_final_acc": 0.9821,
+  "phase1_neuron_sparsity": 0.6074999999999999,
+  "phase2_rounds": 60,
+  "phase2_final_acc": 0.975,
+  "phase2_weight_sparsity": 0.976051779935275,
+  "phase2_implicit_dead": {
+    "dead_fc1": 42,
+    "dead_fc2": 5,
+    "dead_fc3": 0
+  },
+  "checkpoint": "/home/petty/pruning-research/experiments/../results/33_compact_final.pt"
+}

@@ -1,0 +1,13 @@
+{
+  "experiment": "35_export",
+  "sparsity": 0.9839631356622782,
+  "masked_acc": 0.9297,
+  "compact_acc": 0.9297,
+  "int8_acc": null,
+  "artifacts": {
+    "masked_pt": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_99pct.pt",
+    "compact_pt": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_compact.pt",
+    "onnx_fp32": "/home/petty/pruning-research/vgg16-fisher/vgg16_exp35_compact_fp32.onnx",
+    "onnx_int8": null
+  }
+}

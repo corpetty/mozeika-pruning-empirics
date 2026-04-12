@@ -1,0 +1,1017 @@
+
+import argparse
+import csv
+import math
+import random
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
+
+def default_device() -> str:
+    if torch.backends.mps.is_available():
+        return "mps"
+    if torch.cuda.is_available():
+        return "cuda"
+    return "cpu"
+
+
+class LeNet300100Masked(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.fc1 = nn.Linear(28 * 28, 300)
+        self.fc2 = nn.Linear(300, 100)
+        self.fc3 = nn.Linear(100, 10)
+
+        self.register_buffer("h_fc1_w", torch.ones_like(self.fc1.weight))
+        self.register_buffer("h_fc1_b", torch.ones_like(self.fc1.bias))
+        self.register_buffer("h_fc2_w", torch.ones_like(self.fc2.weight))
+        self.register_buffer("h_fc2_b", torch.ones_like(self.fc2.bias))
+        self.register_buffer("h_fc3_w", torch.ones_like(self.fc3.weight))
+        self.register_buffer("h_fc3_b", torch.ones_like(self.fc3.bias))
+
+        self.register_buffer("g1", torch.ones(self.fc1.out_features))
+        self.register_buffer("g2", torch.ones(self.fc2.out_features))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.view(x.size(0), -1)
+
+        w1 = self.fc1.weight * self.h_fc1_w
+        b1 = self.fc1.bias * self.h_fc1_b
+        z1 = F.relu(F.linear(x, w1, b1))
+        z1 = z1 * self.g1.unsqueeze(0)
+
+        w2 = self.fc2.weight * self.h_fc2_w
+        b2 = self.fc2.bias * self.h_fc2_b
+        z2 = F.relu(F.linear(z1, w2, b2))
+        z2 = z2 * self.g2.unsqueeze(0)
+
+        w3 = self.fc3.weight * self.h_fc3_w
+        b3 = self.fc3.bias * self.h_fc3_b
+        out = F.linear(z2, w3, b3)
+        return out
+
+    def named_parameter_tensors(self) -> Dict[str, nn.Parameter]:
+        return {
+            "fc1.weight": self.fc1.weight,
+            "fc1.bias": self.fc1.bias,
+            "fc2.weight": self.fc2.weight,
+            "fc2.bias": self.fc2.bias,
+            "fc3.weight": self.fc3.weight,
+            "fc3.bias": self.fc3.bias,
+        }
+
+    def named_mask_tensors(self) -> Dict[str, torch.Tensor]:
+        return {
+            "fc1.weight": self.h_fc1_w,
+            "fc1.bias": self.h_fc1_b,
+            "fc2.weight": self.h_fc2_w,
+            "fc2.bias": self.h_fc2_b,
+            "fc3.weight": self.h_fc3_w,
+            "fc3.bias": self.h_fc3_b,
+        }
+
+    def active_parameter_count(self) -> int:
+        return sum(int(mask.sum().item()) for mask in self.named_mask_tensors().values())
+
+    def total_parameter_count(self) -> int:
+        return sum(param.numel() for param in self.named_parameter_tensors().values())
+
+    def active_neuron_count(self) -> int:
+        return int(self.g1.sum().item() + self.g2.sum().item())
+
+    def total_neuron_count(self) -> int:
+        return int(self.g1.numel() + self.g2.numel())
+
+    def sparsity_report(self) -> Dict[str, float]:
+        active_params = self.active_parameter_count()
+        total_params = self.total_parameter_count()
+        active_neurons = self.active_neuron_count()
+        total_neurons = self.total_neuron_count()
+        return {
+            "parameter_sparsity": 1.0 - active_params / max(total_params, 1),
+            "neuron_sparsity": 1.0 - active_neurons / max(total_neurons, 1),
+            "fc1_active_neurons": float(self.g1.sum().item()),
+            "fc2_active_neurons": float(self.g2.sum().item()),
+        }
+
+
+@dataclass
+class TrainConfig:
+    seed: int = 0
+    device: str = default_device()
+    deterministic: bool = False
+    data_dir: str = "./data"
+    batch_size: int = 128
+    test_batch_size: int = 512
+    num_workers: int = 0
+    lr: float = 1e-3
+    weight_decay: float = 0.0
+    epochs_pretrain: int = 8
+    epochs_finetune: int = 2
+    rounds: int = 15
+    fisher_batches: int = 100
+
+    # number of sites visited per round as a fraction of currently available sites
+    h_site_fraction: float = 0.02
+    g_site_fraction: float = 0.02
+    g1_site_fraction: float = 0.0
+    g2_site_fraction: float = 0.0
+
+    # inverse temperatures for Glauber updates
+    beta_h: float = 8.0
+    beta_g: float = 8.0
+    beta_h_start: float = 8.0
+    beta_h_end: float = 8.0
+    beta_g_start: float = 8.0
+    beta_g_end: float = 8.0
+    beta_schedule: str = "constant"   # constant | linear | geometric
+    glauber_eps: float = 1e-12
+
+    # optional multiple sweeps per round
+    h_sweeps: int = 1
+    g_sweeps: int = 1
+
+    rho_h_fc1: float = 0.0
+    rho_h_fc2: float = 0.0
+    rho_h_fc3: float = 0.0
+    rho_g_fc1: float = 0.0
+    rho_g_fc2: float = 0.0
+
+    auto_rho: bool = False
+    auto_rho_h_quantile: float = 0.10
+    auto_rho_g_quantile: float = 0.10
+    auto_rho_momentum: float = 0.0
+
+    freeze_inactive_neuron_params: bool = False
+    csv_log_name: str = "history.csv"
+    save_dir: str = "./artifacts_lenet_multiscale"
+
+
+def set_seed(seed: int, deterministic: bool = False) -> None:
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+    if deterministic:
+        try:
+            torch.use_deterministic_algorithms(True)
+        except Exception:
+            pass
+
+
+@torch.no_grad()
+def apply_masks_to_parameters(model: LeNet300100Masked) -> None:
+    for name, param in model.named_parameter_tensors().items():
+        param.mul_(model.named_mask_tensors()[name])
+
+
+@torch.no_grad()
+def freeze_gradients_of_inactive_neuron_params(model: LeNet300100Masked) -> None:
+    inactive_g1 = (model.g1 < 0.5).nonzero(as_tuple=False).flatten().tolist()
+    for a in inactive_g1:
+        if model.fc1.weight.grad is not None:
+            model.fc1.weight.grad[a, :].zero_()
+        if model.fc1.bias.grad is not None:
+            model.fc1.bias.grad[a].zero_()
+        if model.fc2.weight.grad is not None:
+            model.fc2.weight.grad[:, a].zero_()
+
+    inactive_g2 = (model.g2 < 0.5).nonzero(as_tuple=False).flatten().tolist()
+    for a in inactive_g2:
+        if model.fc2.weight.grad is not None:
+            model.fc2.weight.grad[a, :].zero_()
+        if model.fc2.bias.grad is not None:
+            model.fc2.bias.grad[a].zero_()
+        if model.fc3.weight.grad is not None:
+            model.fc3.weight.grad[:, a].zero_()
+
+
+@torch.no_grad()
+def neuron_group_map(model: LeNet300100Masked) -> Dict[str, List[Tuple[str, Tuple[int, ...]]]]:
+    groups: Dict[str, List[Tuple[str, Tuple[int, ...]]]] = {}
+    for a in range(model.fc1.out_features):
+        groups[f"g1[{a}]"] = [
+            ("fc1.weight", (a, slice(None))),
+            ("fc1.bias", (a,)),
+            ("fc2.weight", (slice(None), a)),
+        ]
+    for a in range(model.fc2.out_features):
+        groups[f"g2[{a}]"] = [
+            ("fc2.weight", (a, slice(None))),
+            ("fc2.bias", (a,)),
+            ("fc3.weight", (slice(None), a)),
+        ]
+    return groups
+
+
+def build_generator(seed: int) -> torch.Generator:
+    g = torch.Generator()
+    g.manual_seed(seed)
+    return g
+
+
+def build_dataloaders(cfg: TrainConfig) -> Tuple[DataLoader, DataLoader]:
+    transform = transforms.Compose([transforms.ToTensor()])
+    train_ds = datasets.MNIST(cfg.data_dir, train=True, download=True, transform=transform)
+    test_ds = datasets.MNIST(cfg.data_dir, train=False, download=True, transform=transform)
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=cfg.batch_size,
+        shuffle=True,
+        generator=build_generator(cfg.seed),
+        num_workers=cfg.num_workers,
+        pin_memory=(cfg.device == "cuda"),
+    )
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=cfg.test_batch_size,
+        shuffle=False,
+        num_workers=cfg.num_workers,
+        pin_memory=(cfg.device == "cuda"),
+    )
+    return train_loader, test_loader
+
+
+def train_one_epoch(
+    model: LeNet300100Masked,
+    loader: DataLoader,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+    cfg: TrainConfig,
+) -> float:
+    model.train()
+    total_loss = 0.0
+    total_items = 0
+
+    for x, y in loader:
+        x = x.to(device)
+        y = y.to(device)
+
+        optimizer.zero_grad(set_to_none=True)
+        logits = model(x)
+        loss = F.cross_entropy(logits, y)
+        loss.backward()
+
+        if cfg.freeze_inactive_neuron_params:
+            freeze_gradients_of_inactive_neuron_params(model)
+
+        optimizer.step()
+        apply_masks_to_parameters(model)
+
+        batch_size = x.size(0)
+        total_loss += float(loss.item()) * batch_size
+        total_items += batch_size
+
+    return total_loss / max(total_items, 1)
+
+
+@torch.no_grad()
+def evaluate(
+    model: LeNet300100Masked,
+    loader: DataLoader,
+    device: torch.device,
+) -> Tuple[float, float]:
+    model.eval()
+    total_loss = 0.0
+    total_correct = 0
+    total_items = 0
+
+    for x, y in loader:
+        x = x.to(device)
+        y = y.to(device)
+        logits = model(x)
+        loss = F.cross_entropy(logits, y)
+
+        batch_size = x.size(0)
+        total_loss += float(loss.item()) * batch_size
+        total_correct += int((logits.argmax(dim=1) == y).sum().item())
+        total_items += batch_size
+
+    return total_loss / max(total_items, 1), total_correct / max(total_items, 1)
+
+
+def accumulate_diagonal_fisher(
+    model: LeNet300100Masked,
+    loader: DataLoader,
+    device: torch.device,
+    max_batches: int,
+) -> Dict[str, torch.Tensor]:
+    model.eval()
+    fisher = {
+        name: torch.zeros_like(param, device=device)
+        for name, param in model.named_parameter_tensors().items()
+    }
+
+    batches_used = 0
+    for x, y in loader:
+        x = x.to(device)
+        y = y.to(device)
+
+        model.zero_grad(set_to_none=True)
+        logits = model(x)
+        loss = F.cross_entropy(logits, y)
+        loss.backward()
+
+        for name, param in model.named_parameter_tensors().items():
+            if param.grad is not None:
+                fisher[name] += param.grad.detach().pow(2)
+
+        batches_used += 1
+        if batches_used >= max_batches:
+            break
+
+    if batches_used == 0:
+        raise RuntimeError("No batches used to estimate Fisher.")
+
+    for name in fisher:
+        fisher[name] /= float(batches_used)
+
+    return fisher
+
+
+@torch.no_grad()
+def compute_parameter_saliency(
+    model: LeNet300100Masked,
+    fisher: Dict[str, torch.Tensor],
+) -> Dict[str, torch.Tensor]:
+    out: Dict[str, torch.Tensor] = {}
+    for name, param in model.named_parameter_tensors().items():
+        out[name] = 0.5 * fisher[name] * param.detach().pow(2)
+    return out
+
+
+@torch.no_grad()
+def compute_neuron_group_saliency(
+    model: LeNet300100Masked,
+    fisher: Dict[str, torch.Tensor],
+) -> Dict[str, float]:
+    groups = neuron_group_map(model)
+    out: Dict[str, float] = {}
+    named_params = model.named_parameter_tensors()
+    named_masks = model.named_mask_tensors()
+
+    for gname, pieces in groups.items():
+        total = 0.0
+        for pname, idx in pieces:
+            p = named_params[pname].detach()[idx]
+            f = fisher[pname][idx]
+            m = named_masks[pname][idx]
+            total += float((0.5 * f * p.pow(2) * m).sum().item())
+        out[gname] = total
+    return out
+
+
+def get_param_rho(name: str, cfg: TrainConfig) -> float:
+    if name.startswith("fc1"):
+        return cfg.rho_h_fc1
+    if name.startswith("fc2"):
+        return cfg.rho_h_fc2
+    if name.startswith("fc3"):
+        return cfg.rho_h_fc3
+    raise ValueError(f"Unexpected parameter name: {name}")
+
+
+def get_neuron_rho(name: str, cfg: TrainConfig) -> float:
+    if name.startswith("g1["):
+        return cfg.rho_g_fc1
+    if name.startswith("g2["):
+        return cfg.rho_g_fc2
+    raise ValueError(f"Unexpected neuron name: {name}")
+
+
+@torch.no_grad()
+def parameter_mask_is_frozen_by_inactive_neuron(
+    model: LeNet300100Masked,
+    name: str,
+    idx: Tuple[int, ...],
+) -> bool:
+    if name == "fc1.weight":
+        a = idx[0]
+        return bool(model.g1[a].item() < 0.5)
+    if name == "fc1.bias":
+        a = idx[0]
+        return bool(model.g1[a].item() < 0.5)
+    if name == "fc2.weight":
+        a, j = idx
+        return bool(model.g2[a].item() < 0.5 or model.g1[j].item() < 0.5)
+    if name == "fc2.bias":
+        a = idx[0]
+        return bool(model.g2[a].item() < 0.5)
+    if name == "fc3.weight":
+        a = idx[1]
+        return bool(model.g2[a].item() < 0.5)
+    if name == "fc3.bias":
+        return False
+    raise ValueError(f"Unexpected parameter name: {name}")
+
+
+@torch.no_grad()
+def neuron_structural_cost(
+    model: LeNet300100Masked,
+    cfg: TrainConfig,
+    gname: str,
+    idx: int,
+) -> float:
+    cost = 0.0
+    if gname == "g1":
+        cost += 0.5 * get_param_rho("fc1.weight", cfg) * float(model.h_fc1_w[idx, :].sum().item())
+        cost += 0.5 * get_param_rho("fc1.bias", cfg) * float(model.h_fc1_b[idx].item())
+        cost += 0.5 * get_param_rho("fc2.weight", cfg) * float(model.h_fc2_w[:, idx].sum().item())
+    elif gname == "g2":
+        cost += 0.5 * get_param_rho("fc2.weight", cfg) * float(model.h_fc2_w[idx, :].sum().item())
+        cost += 0.5 * get_param_rho("fc2.bias", cfg) * float(model.h_fc2_b[idx].item())
+        cost += 0.5 * get_param_rho("fc3.weight", cfg) * float(model.h_fc3_w[:, idx].sum().item())
+    else:
+        raise ValueError(f"Unexpected neuron group: {gname}")
+    return cost
+
+
+@torch.no_grad()
+def _masked_quantile(values: torch.Tensor, q: float) -> float:
+    flat = values.detach().view(-1)
+    if flat.numel() == 0:
+        return 0.0
+    q = min(max(q, 0.0), 1.0)
+    return float(torch.quantile(flat, q).item())
+
+
+@torch.no_grad()
+def _active_param_layer_values(parameter_saliency: Dict[str, torch.Tensor], model: LeNet300100Masked, prefix: str) -> torch.Tensor:
+    vals = []
+    for name, tensor in parameter_saliency.items():
+        if name.startswith(prefix):
+            mask = model.named_mask_tensors()[name] > 0.5
+            active = tensor[mask]
+            if active.numel() > 0:
+                vals.append(active)
+    if not vals:
+        return torch.tensor([], device=next(iter(model.parameters())).device)
+    return torch.cat(vals)
+
+
+@torch.no_grad()
+def _active_neuron_layer_values(neuron_saliency: Dict[str, float], gate: torch.Tensor, layer_prefix: str, device: torch.device) -> torch.Tensor:
+    vals = []
+    for idx in range(gate.numel()):
+        if gate[idx] > 0.5:
+            vals.append(neuron_saliency[f"{layer_prefix}[{idx}]"])
+    if not vals:
+        return torch.tensor([], device=device)
+    return torch.tensor(vals, device=device, dtype=torch.float32)
+
+
+@torch.no_grad()
+def auto_calibrate_rho(
+    cfg: TrainConfig,
+    model: LeNet300100Masked,
+    parameter_saliency: Dict[str, torch.Tensor],
+    neuron_saliency: Dict[str, float],
+) -> Dict[str, float]:
+    device = next(iter(model.parameters())).device
+
+    fc1_param = _active_param_layer_values(parameter_saliency, model, "fc1")
+    fc2_param = _active_param_layer_values(parameter_saliency, model, "fc2")
+    fc3_param = _active_param_layer_values(parameter_saliency, model, "fc3")
+
+    g1_vals = _active_neuron_layer_values(neuron_saliency, model.g1, "g1", device)
+    g2_vals = _active_neuron_layer_values(neuron_saliency, model.g2, "g2", device)
+
+    target = {
+        "rho_h_fc1": 2.0 * _masked_quantile(fc1_param, cfg.auto_rho_h_quantile),
+        "rho_h_fc2": 2.0 * _masked_quantile(fc2_param, cfg.auto_rho_h_quantile),
+        "rho_h_fc3": 2.0 * _masked_quantile(fc3_param, cfg.auto_rho_h_quantile),
+        "rho_g_fc1": 2.0 * _masked_quantile(g1_vals, cfg.auto_rho_g_quantile),
+        "rho_g_fc2": 2.0 * _masked_quantile(g2_vals, cfg.auto_rho_g_quantile),
+    }
+
+    if cfg.auto_rho_momentum > 0.0:
+        m = cfg.auto_rho_momentum
+        target["rho_h_fc1"] = m * cfg.rho_h_fc1 + (1.0 - m) * target["rho_h_fc1"]
+        target["rho_h_fc2"] = m * cfg.rho_h_fc2 + (1.0 - m) * target["rho_h_fc2"]
+        target["rho_h_fc3"] = m * cfg.rho_h_fc3 + (1.0 - m) * target["rho_h_fc3"]
+        target["rho_g_fc1"] = m * cfg.rho_g_fc1 + (1.0 - m) * target["rho_g_fc1"]
+        target["rho_g_fc2"] = m * cfg.rho_g_fc2 + (1.0 - m) * target["rho_g_fc2"]
+
+    cfg.rho_h_fc1 = target["rho_h_fc1"]
+    cfg.rho_h_fc2 = target["rho_h_fc2"]
+    cfg.rho_h_fc3 = target["rho_h_fc3"]
+    cfg.rho_g_fc1 = target["rho_g_fc1"]
+    cfg.rho_g_fc2 = target["rho_g_fc2"]
+    return target
+
+
+def _sigmoid_prob(delta_tilde: float, beta: float) -> float:
+    x = max(min(beta * delta_tilde, 60.0), -60.0)
+    return 1.0 / (1.0 + math.exp(x))
+
+
+
+@torch.no_grad()
+def frozen_mask_for_parameter_tensor(model: LeNet300100Masked, name: str, mask: torch.Tensor) -> torch.Tensor:
+    device = mask.device
+    if name == "fc1.weight":
+        return (model.g1 < 0.5).unsqueeze(1).expand_as(mask)
+    if name == "fc1.bias":
+        return (model.g1 < 0.5)
+    if name == "fc2.weight":
+        dead_out = (model.g2 < 0.5).unsqueeze(1).expand_as(mask)
+        dead_in = (model.g1 < 0.5).unsqueeze(0).expand_as(mask)
+        return dead_out | dead_in
+    if name == "fc2.bias":
+        return (model.g2 < 0.5)
+    if name == "fc3.weight":
+        return (model.g2 < 0.5).unsqueeze(0).expand_as(mask)
+    if name == "fc3.bias":
+        return torch.zeros_like(mask, dtype=torch.bool, device=device)
+    raise ValueError(f"Unexpected parameter name: {name}")
+
+
+@torch.no_grad()
+def sample_exact_site_mask(eligible: torch.Tensor, fraction: float) -> torch.Tensor:
+    flat_eligible = eligible.view(-1)
+    n_eligible = int(flat_eligible.sum().item())
+    if n_eligible == 0:
+        return torch.zeros_like(eligible, dtype=torch.bool)
+    n_visit = int(math.floor(fraction * n_eligible))
+    if n_visit <= 0:
+        return torch.zeros_like(eligible, dtype=torch.bool)
+
+    eligible_idx = torch.nonzero(flat_eligible, as_tuple=False).flatten()
+    perm = torch.randperm(eligible_idx.numel(), device=eligible_idx.device)[:n_visit]
+    chosen_idx = eligible_idx[perm]
+    chosen = torch.zeros_like(flat_eligible, dtype=torch.bool)
+    chosen[chosen_idx] = True
+    return chosen.view_as(eligible)
+
+
+@torch.no_grad()
+def vectorized_glauber_parameter_tensor_update(
+    mask: torch.Tensor,
+    saliency: torch.Tensor,
+    frozen: torch.Tensor,
+    rho: float,
+    beta: float,
+    site_fraction: float,
+    eps: float,
+) -> int:
+    eligible = ~frozen
+    chosen = sample_exact_site_mask(eligible, site_fraction)
+    if not bool(chosen.any().item()):
+        return 0
+
+    h_val = (mask > 0.5).to(saliency.dtype)
+    denom = rho / 2.0 + eps
+    delta_tilde = (2.0 * h_val - 1.0) * (saliency / denom - 1.0)
+    p_flip = torch.sigmoid(-beta * delta_tilde)
+
+    rand = torch.rand_like(p_flip)
+    flip = chosen & (rand < p_flip)
+    mask[flip] = 1.0 - mask[flip]
+    return int(flip.sum().item())
+
+
+@torch.no_grad()
+def neuron_saliency_tensor(model: LeNet300100Masked, neuron_saliency: Dict[str, float], gname: str) -> torch.Tensor:
+    if gname == "g1":
+        return torch.tensor(
+            [neuron_saliency[f"g1[{i}]"] for i in range(model.g1.numel())],
+            device=model.g1.device,
+            dtype=torch.float32,
+        )
+    if gname == "g2":
+        return torch.tensor(
+            [neuron_saliency[f"g2[{i}]"] for i in range(model.g2.numel())],
+            device=model.g2.device,
+            dtype=torch.float32,
+        )
+    raise ValueError(f"Unexpected neuron group: {gname}")
+
+
+@torch.no_grad()
+def neuron_structural_cost_tensor(model: LeNet300100Masked, cfg: TrainConfig, gname: str) -> torch.Tensor:
+    if gname == "g1":
+        return (
+            0.5 * get_param_rho("fc1.weight", cfg) * model.h_fc1_w.sum(dim=1)
+            + 0.5 * get_param_rho("fc1.bias", cfg) * model.h_fc1_b
+            + 0.5 * get_param_rho("fc2.weight", cfg) * model.h_fc2_w.sum(dim=0)
+        ).to(torch.float32)
+    if gname == "g2":
+        return (
+            0.5 * get_param_rho("fc2.weight", cfg) * model.h_fc2_w.sum(dim=1)
+            + 0.5 * get_param_rho("fc2.bias", cfg) * model.h_fc2_b
+            + 0.5 * get_param_rho("fc3.weight", cfg) * model.h_fc3_w.sum(dim=0)
+        ).to(torch.float32)
+    raise ValueError(f"Unexpected neuron group: {gname}")
+
+
+@torch.no_grad()
+def vectorized_glauber_neuron_group_update(
+    gate: torch.Tensor,
+    saliency: torch.Tensor,
+    structural_cost: torch.Tensor,
+    rho_g: float,
+    beta_g: float,
+    site_fraction: float,
+    eps: float,
+) -> Tuple[int, int, int]:
+    eligible = torch.ones_like(gate, dtype=torch.bool)
+    chosen = sample_exact_site_mask(eligible, site_fraction)
+    if not bool(chosen.any().item()):
+        return 0, 0, 0
+
+    g_val = (gate > 0.5).to(saliency.dtype)
+    denom = rho_g / 2.0 + structural_cost + eps
+    delta_tilde = (2.0 * g_val - 1.0) * (saliency / denom - 1.0)
+    p_flip = torch.sigmoid(-beta_g * delta_tilde)
+
+    rand = torch.rand_like(p_flip)
+    flip = chosen & (rand < p_flip)
+
+    was_active = flip & (gate > 0.5)
+    was_inactive = flip & (gate < 0.5)
+
+    gate[flip] = 1.0 - gate[flip]
+    return int(flip.sum().item()), int(was_active.sum().item()), int(was_inactive.sum().item())
+
+
+@torch.no_grad()
+def glauber_update_parameters(
+    model: LeNet300100Masked,
+    parameter_saliency: Dict[str, torch.Tensor],
+    cfg: TrainConfig,
+) -> Dict[str, int]:
+    """
+    Vectorized finite-temperature Glauber updates for parameter masks h.
+    """
+    named_masks = model.named_mask_tensors()
+    flips = {name: 0 for name in named_masks}
+
+    for name, mask in named_masks.items():
+        frozen = frozen_mask_for_parameter_tensor(model, name, mask)
+        flips[name] = vectorized_glauber_parameter_tensor_update(
+            mask=mask,
+            saliency=parameter_saliency[name].to(mask.device),
+            frozen=frozen,
+            rho=get_param_rho(name, cfg),
+            beta=cfg.beta_h,
+            site_fraction=cfg.h_site_fraction,
+            eps=cfg.glauber_eps,
+        )
+
+    apply_masks_to_parameters(model)
+    return flips
+
+
+
+@torch.no_grad()
+def glauber_update_neurons(
+    model: LeNet300100Masked,
+    neuron_saliency: Dict[str, float],
+    cfg: TrainConfig,
+) -> Dict[str, Dict[str, int]]:
+    """
+    Vectorized finite-temperature Glauber updates for neuron gates g.
+    """
+    flips = {"g1": 0, "g2": 0}
+    deaths = {"g1": 0, "g2": 0}
+    rebirths = {"g1": 0, "g2": 0}
+
+    if cfg.g1_site_fraction > 0.0 or cfg.g2_site_fraction > 0.0:
+        frac_g1 = cfg.g1_site_fraction
+        frac_g2 = cfg.g2_site_fraction
+    else:
+        frac_g1 = cfg.g_site_fraction
+        frac_g2 = cfg.g_site_fraction
+
+    sal_g1 = neuron_saliency_tensor(model, neuron_saliency, "g1")
+    sal_g2 = neuron_saliency_tensor(model, neuron_saliency, "g2")
+    cost_g1 = neuron_structural_cost_tensor(model, cfg, "g1")
+    cost_g2 = neuron_structural_cost_tensor(model, cfg, "g2")
+
+    flips["g1"], deaths["g1"], rebirths["g1"] = vectorized_glauber_neuron_group_update(
+        gate=model.g1,
+        saliency=sal_g1,
+        structural_cost=cost_g1,
+        rho_g=cfg.rho_g_fc1,
+        beta_g=cfg.beta_g,
+        site_fraction=frac_g1,
+        eps=cfg.glauber_eps,
+    )
+    flips["g2"], deaths["g2"], rebirths["g2"] = vectorized_glauber_neuron_group_update(
+        gate=model.g2,
+        saliency=sal_g2,
+        structural_cost=cost_g2,
+        rho_g=cfg.rho_g_fc2,
+        beta_g=cfg.beta_g,
+        site_fraction=frac_g2,
+        eps=cfg.glauber_eps,
+    )
+
+    return {"flips": flips, "deaths": deaths, "rebirths": rebirths}
+
+
+
+@torch.no_grad()
+def count_masked_params_attached_to_inactive_neurons(model: LeNet300100Masked) -> int:
+    count = 0
+    inactive_g1 = (model.g1 < 0.5).nonzero(as_tuple=False).flatten().tolist()
+    for a in inactive_g1:
+        count += int(model.h_fc1_w[a, :].sum().item())
+        count += int(model.h_fc1_b[a].item())
+        count += int(model.h_fc2_w[:, a].sum().item())
+
+    inactive_g2 = (model.g2 < 0.5).nonzero(as_tuple=False).flatten().tolist()
+    for a in inactive_g2:
+        count += int(model.h_fc2_w[a, :].sum().item())
+        count += int(model.h_fc2_b[a].item())
+        count += int(model.h_fc3_w[:, a].sum().item())
+    return count
+
+
+def saliency_summary(parameter_saliency: Dict[str, torch.Tensor], neuron_saliency: Dict[str, float], model: LeNet300100Masked) -> Dict[str, float]:
+    out: Dict[str, float] = {}
+
+    for prefix in ["fc1", "fc2", "fc3"]:
+        vals = _active_param_layer_values(parameter_saliency, model, prefix)
+        if vals.numel() > 0:
+            out[f"{prefix}_param_saliency_min"] = float(vals.min().item())
+            out[f"{prefix}_param_saliency_median"] = float(vals.median().item())
+            out[f"{prefix}_param_saliency_max"] = float(vals.max().item())
+
+    device = next(iter(model.parameters())).device
+    for lname, gate, prefix in [("g1", model.g1, "g1"), ("g2", model.g2, "g2")]:
+        vals = _active_neuron_layer_values(neuron_saliency, gate, prefix, device)
+        if vals.numel() > 0:
+            out[f"{lname}_neuron_saliency_min"] = float(vals.min().item())
+            out[f"{lname}_neuron_saliency_median"] = float(vals.median().item())
+            out[f"{lname}_neuron_saliency_max"] = float(vals.max().item())
+    return out
+
+
+
+
+def scheduled_beta(start: float, end: float, round_idx: int, total_rounds: int, schedule: str) -> float:
+    """
+    Compute the inverse temperature for a given round.
+    round_idx is zero-based.
+    """
+    if total_rounds <= 1 or schedule == "constant":
+        return float(end if schedule != "constant" else start)
+
+    t = round_idx / float(total_rounds - 1)
+    if schedule == "linear":
+        return float(start + (end - start) * t)
+    if schedule == "geometric":
+        start_safe = max(start, 1e-12)
+        end_safe = max(end, 1e-12)
+        return float(start_safe * ((end_safe / start_safe) ** t))
+    raise ValueError(f"Unknown beta schedule: {schedule}")
+
+
+def run_experiment(cfg: TrainConfig) -> None:
+    set_seed(cfg.seed, deterministic=cfg.deterministic)
+    device = torch.device(cfg.device)
+    Path(cfg.save_dir).mkdir(parents=True, exist_ok=True)
+
+    print(f"Using device: {cfg.device}")
+    train_loader, test_loader = build_dataloaders(cfg)
+    model = LeNet300100Masked().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+
+    print("=== Pretraining ===")
+    for epoch in range(cfg.epochs_pretrain):
+        train_loss = train_one_epoch(model, train_loader, optimizer, device, cfg)
+        test_loss, test_acc = evaluate(model, test_loader, device)
+        report = model.sparsity_report()
+        delayed = count_masked_params_attached_to_inactive_neurons(model)
+        print(
+            f"Pretrain {epoch + 1:02d}/{cfg.epochs_pretrain} | "
+            f"train loss={train_loss:.4f} | test loss={test_loss:.4f} | test acc={test_acc:.4f} | "
+            f"param sparsity={report['parameter_sparsity']:.4f} | neuron sparsity={report['neuron_sparsity']:.4f} | "
+            f"inactive-neuron attached active params={delayed}"
+        )
+
+    print("\n=== Glauber prune / regrow + finetune rounds ===")
+    history: List[Dict[str, float]] = []
+
+    for rnd in range(cfg.rounds):
+        cfg.beta_h = scheduled_beta(cfg.beta_h_start, cfg.beta_h_end, rnd, cfg.rounds, cfg.beta_schedule)
+        cfg.beta_g = scheduled_beta(cfg.beta_g_start, cfg.beta_g_end, rnd, cfg.rounds, cfg.beta_schedule)
+
+        fisher = accumulate_diagonal_fisher(model, train_loader, device, cfg.fisher_batches)
+        param_sal = compute_parameter_saliency(model, fisher)
+        neur_sal = compute_neuron_group_saliency(model, fisher)
+
+        rho_update = {}
+        if cfg.auto_rho:
+            rho_update = auto_calibrate_rho(cfg, model, param_sal, neur_sal)
+
+        sal_stats = saliency_summary(param_sal, neur_sal, model)
+
+        h_flips_total = {name: 0 for name in model.named_mask_tensors()}
+        for _ in range(cfg.h_sweeps):
+            flips = glauber_update_parameters(model, param_sal, cfg)
+            for k, v in flips.items():
+                h_flips_total[k] += v
+
+        g_flips_total = {"g1": 0, "g2": 0}
+        g_deaths_total = {"g1": 0, "g2": 0}
+        g_rebirths_total = {"g1": 0, "g2": 0}
+        for _ in range(cfg.g_sweeps):
+            neuron_update_stats = glauber_update_neurons(model, neur_sal, cfg)
+            for k, v in neuron_update_stats["flips"].items():
+                g_flips_total[k] += v
+            for k, v in neuron_update_stats["deaths"].items():
+                g_deaths_total[k] += v
+            for k, v in neuron_update_stats["rebirths"].items():
+                g_rebirths_total[k] += v
+
+        train_loss = 0.0
+        for _ in range(cfg.epochs_finetune):
+            train_loss = train_one_epoch(model, train_loader, optimizer, device, cfg)
+        
+
+        test_loss, test_acc = evaluate(model, test_loader, device)
+        report = model.sparsity_report()
+        delayed = count_masked_params_attached_to_inactive_neurons(model)
+
+        row = {
+            "round": float(rnd + 1),
+            "train_loss": float(train_loss),
+            "test_loss": float(test_loss),
+            "test_acc": float(test_acc),
+            "parameter_sparsity": float(report["parameter_sparsity"]),
+            "neuron_sparsity": float(report["neuron_sparsity"]),
+            "fc1_active_neurons": float(report["fc1_active_neurons"]),
+            "fc2_active_neurons": float(report["fc2_active_neurons"]),
+            "inactive_attached_active_params": float(delayed),
+            "rho_h_fc1": float(cfg.rho_h_fc1),
+            "rho_h_fc2": float(cfg.rho_h_fc2),
+            "rho_h_fc3": float(cfg.rho_h_fc3),
+            "rho_g_fc1": float(cfg.rho_g_fc1),
+            "rho_g_fc2": float(cfg.rho_g_fc2),
+            "beta_h": float(cfg.beta_h),
+            "beta_g": float(cfg.beta_g),
+            "flips_fc1_w": float(h_flips_total["fc1.weight"]),
+            "flips_fc1_b": float(h_flips_total["fc1.bias"]),
+            "flips_fc2_w": float(h_flips_total["fc2.weight"]),
+            "flips_fc2_b": float(h_flips_total["fc2.bias"]),
+            "flips_fc3_w": float(h_flips_total["fc3.weight"]),
+            "flips_fc3_b": float(h_flips_total["fc3.bias"]),
+            "flips_g1": float(g_flips_total["g1"]),
+            "flips_g2": float(g_flips_total["g2"]),
+            "deaths_g1": float(g_deaths_total["g1"]),
+            "deaths_g2": float(g_deaths_total["g2"]),
+            "rebirths_g1": float(g_rebirths_total["g1"]),
+            "rebirths_g2": float(g_rebirths_total["g2"]),
+        }
+        row.update(sal_stats)
+        history.append(row)
+
+        print(
+            f"Round {rnd + 1:02d}/{cfg.rounds} | "
+            f"beta_h={cfg.beta_h:.4g} | beta_g={cfg.beta_g:.4g} | "
+            f"train loss={train_loss:.4f} | "
+            f"test loss={test_loss:.4f} | test acc={test_acc:.4f} | "
+            f"param sparsity={report['parameter_sparsity']:.4f} | neuron sparsity={report['neuron_sparsity']:.4f} | "
+            f"active neurons: fc1={int(report['fc1_active_neurons'])}, fc2={int(report['fc2_active_neurons'])} | "
+            f"inactive-neuron attached active params={delayed}"
+        )
+        if cfg.auto_rho:
+            print("  auto rho:", {k: round(v, 10) for k, v in rho_update.items()})
+        print(
+            "  h flips:", {k: v for k, v in h_flips_total.items() if v > 0},
+            "| g flips:", {k: v for k, v in g_flips_total.items() if v > 0},
+            "| neuron deaths:", {k: v for k, v in g_deaths_total.items() if v > 0},
+            "| neuron rebirths:", {k: v for k, v in g_rebirths_total.items() if v > 0},
+        )
+
+    save_path = Path(cfg.save_dir) / "lenet_multiscale_glauber_final.pt"
+    torch.save(
+        {
+            "model_state_dict": model.state_dict(),
+            "config": cfg.__dict__,
+            "history": history,
+        },
+        save_path,
+    )
+
+    csv_path = Path(cfg.save_dir) / cfg.csv_log_name
+    if history:
+        with csv_path.open("w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=list(history[0].keys()))
+            writer.writeheader()
+            writer.writerows(history)
+
+    print(f"\nSaved checkpoint to: {save_path}")
+    print(f"Saved CSV history to: {csv_path}")
+
+
+def parse_args() -> TrainConfig:
+    parser = argparse.ArgumentParser(description="LeNet-300-100 with vectorized consistent neuron-synapse Glauber dynamics")
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--device", type=str, default=None, choices=["cpu", "cuda", "mps"])
+    parser.add_argument("--deterministic", action="store_true")
+    parser.add_argument("--data-dir", type=str, default="./data")
+    parser.add_argument("--batch-size", type=int, default=128)
+    parser.add_argument("--test-batch-size", type=int, default=512)
+    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=0.0)
+    parser.add_argument("--epochs-pretrain", type=int, default=8)
+    parser.add_argument("--epochs-finetune", type=int, default=2)
+    parser.add_argument("--rounds", type=int, default=15)
+    parser.add_argument("--fisher-batches", type=int, default=100)
+
+    parser.add_argument("--h-site-fraction", type=float, default=0.02)
+    parser.add_argument("--g-site-fraction", type=float, default=0.02)
+    parser.add_argument("--g1-site-fraction", type=float, default=0.0)
+    parser.add_argument("--g2-site-fraction", type=float, default=0.0)
+    parser.add_argument("--beta-h", type=float, default=8.0)
+    parser.add_argument("--beta-g", type=float, default=8.0)
+    parser.add_argument("--beta-h-start", type=float, default=8.0)
+    parser.add_argument("--beta-h-end", type=float, default=8.0)
+    parser.add_argument("--beta-g-start", type=float, default=8.0)
+    parser.add_argument("--beta-g-end", type=float, default=8.0)
+    parser.add_argument("--beta-schedule", type=str, default="constant", choices=["constant", "linear", "geometric"])
+    parser.add_argument("--glauber-eps", type=float, default=1e-12)
+    parser.add_argument("--h-sweeps", type=int, default=1)
+    parser.add_argument("--g-sweeps", type=int, default=1)
+
+    parser.add_argument("--rho-h-fc1", type=float, default=0.0)
+    parser.add_argument("--rho-h-fc2", type=float, default=0.0)
+    parser.add_argument("--rho-h-fc3", type=float, default=0.0)
+    parser.add_argument("--rho-g-fc1", type=float, default=0.0)
+    parser.add_argument("--rho-g-fc2", type=float, default=0.0)
+
+    parser.add_argument("--auto-rho", action="store_true")
+    parser.add_argument("--auto-rho-h-quantile", type=float, default=0.10)
+    parser.add_argument("--auto-rho-g-quantile", type=float, default=0.10)
+    parser.add_argument("--auto-rho-momentum", type=float, default=0.0)
+
+    parser.add_argument("--freeze-inactive-neuron-params", action="store_true")
+    parser.add_argument("--save-dir", type=str, default="./artifacts_lenet_multiscale")
+    parser.add_argument("--csv-log-name", type=str, default="history.csv")
+    args = parser.parse_args()
+
+    device = args.device if args.device is not None else default_device()
+
+    return TrainConfig(
+        seed=args.seed,
+        device=device,
+        deterministic=args.deterministic,
+        data_dir=args.data_dir,
+        batch_size=args.batch_size,
+        test_batch_size=args.test_batch_size,
+        num_workers=args.num_workers,
+        lr=args.lr,
+        weight_decay=args.weight_decay,
+        epochs_pretrain=args.epochs_pretrain,
+        epochs_finetune=args.epochs_finetune,
+        rounds=args.rounds,
+        fisher_batches=args.fisher_batches,
+        h_site_fraction=args.h_site_fraction,
+        g_site_fraction=args.g_site_fraction,
+        g1_site_fraction=args.g1_site_fraction,
+        g2_site_fraction=args.g2_site_fraction,
+        beta_h=args.beta_h,
+        beta_g=args.beta_g,
+        beta_h_start=args.beta_h_start,
+        beta_h_end=args.beta_h_end,
+        beta_g_start=args.beta_g_start,
+        beta_g_end=args.beta_g_end,
+        beta_schedule=args.beta_schedule,
+        glauber_eps=args.glauber_eps,
+        h_sweeps=args.h_sweeps,
+        g_sweeps=args.g_sweeps,
+        rho_h_fc1=args.rho_h_fc1,
+        rho_h_fc2=args.rho_h_fc2,
+        rho_h_fc3=args.rho_h_fc3,
+        rho_g_fc1=args.rho_g_fc1,
+        rho_g_fc2=args.rho_g_fc2,
+        auto_rho=args.auto_rho,
+        auto_rho_h_quantile=args.auto_rho_h_quantile,
+        auto_rho_g_quantile=args.auto_rho_g_quantile,
+        auto_rho_momentum=args.auto_rho_momentum,
+        freeze_inactive_neuron_params=args.freeze_inactive_neuron_params,
+        save_dir=args.save_dir,
+        csv_log_name=args.csv_log_name,
+    )
+
+
+def main() -> None:
+    cfg = parse_args()
+    run_experiment(cfg)
+
+
+if __name__ == "__main__":
+    main()
