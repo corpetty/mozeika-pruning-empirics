@@ -1,6 +1,6 @@
 # SubRotQ Implementation Plan for Ollama/llama.cpp
 
-**Goal:** 42K max context on single GPU (3× baseline) with <2% quality loss  
+**Goal:** 60-80K max context on single GPU (2-2.5× baseline 32K) with <2% quality loss  
 **Approach:** Patch llama.cpp with SubRotQ K-cache compression  
 **Effort Estimate:** 2-3 days  
 **Status:** Planning → Implementation → Testing → Deployment
@@ -11,47 +11,67 @@
 
 ### Current State (8-bit KV cache)
 ```
-Model weights (Q4_K_M):     17 GB
-KV cache (8-bit, 28K ctx):  ~5 GB (188,416 bytes/token)
-Activations + overhead:     ~2 GB
+Model weights (Q4_K_M):     17.0 GB
+KV cache (8-bit, 32K ctx):  ~2.8 GB (empirically measured)
+Activations + overhead:     ~0.8 GB
 ─────────────────────────────────
-Total:                      ~24 GB (GPU1 only)
+Total:                      20.6 GB (measured at 32K context)
+Max context:                32,768 tokens ✅
 ```
+
+**Note:** Ollama's actual KV cache is significantly smaller than theoretical (2.8 GB vs expected 6.2 GB at 32K). Likely using GQA with 8 KV heads (not 16), FP8 quantization, or Flash Attention optimizations.
 
 ### Target State (SubRotQ K + 8-bit V)
 ```
-Model weights (Q4_K_M):     17 GB
-K cache (SubRotQ k=128/4-bit): ~2.5 GB (94,208 bytes/token at 42K ctx)
-V cache (8-bit, 42K ctx):      ~3.8 GB (94,208 bytes/token at 42K ctx)
-Activations + overhead:         ~2 GB
+Model weights (Q4_K_M):        17.0 GB
+K cache (SubRotQ k=128/4-bit): ~1.4 GB (at 70K ctx, assuming GQA n_kv_heads=8)
+V cache (8-bit, 70K ctx):      ~2.8 GB (same compression as current Ollama)
+Activations + overhead:        ~1.0 GB
 ─────────────────────────────────
-Total:                         ~25.3 GB → fits on 24GB GPU with slight overflow*
+Total:                         ~22.2 GB ✅ Fits on 24GB GPU with 1.8GB margin
+Max context:                   ~70,000 tokens (conservative target)
 ```
 
-\* May need to reduce to 40K context for safe margin, or use activation checkpointing
+**Conservative target:** 60K tokens (safe margin)  
+**Stretch target:** 80K tokens (if overhead is lower than estimated)
 
-### Memory Calculation
+### Memory Calculation (Corrected with Empirical Data)
+
+**Empirical measurement at 32K context:**
+- Total VRAM: 20.6 GB
+- Model: 17.0 GB
+- KV cache: ~2.8 GB
+- Overhead: ~0.8 GB
+- **KV bytes/token:** 2.8 GB / 32,768 = **89,478 bytes/token**
+
+This is ~47% of theoretical (188,416 bytes/token), suggesting:
+- **GQA with 8 KV heads** (not 16) → 2× reduction
+- **Possible FP8** or aggressive quantization → additional savings
+
+**Revised calculation assuming n_kv_heads=8:**
+
 ```python
-# Gemma4 26B: 46 layers, 16 KV heads, d_head=128
+# Gemma4 26B: 46 layers, 8 KV heads (GQA), d_head=128
 
-# Current 8-bit KV (both K and V at 8-bit):
-kv_per_token = 2 (K+V) × 46 layers × 16 heads × 128 dim × 1 byte
-             = 188,416 bytes/token
-             = 179.7 MB per 1K tokens
-Max at 24GB: ~28K tokens
+# Current 8-bit KV (empirical):
+kv_per_token = 89,478 bytes/token (measured)
+Max at 24GB: (24 - 17 - 0.8) GB / 89,478 = ~69K tokens
+Actual max:  32,768 tokens (Ollama configured limit)
 
 # SubRotQ K=128/4-bit + V=8-bit:
-k_per_token = 46 layers × 16 heads × (128 dim × 0.5 bytes)  # 4-bit = 0.5 byte/dim
+k_per_token = 46 layers × 8 heads × (128 dim × 0.5 bytes)  # 4-bit
+            = 23,552 bytes/token
+v_per_token = 46 layers × 8 heads × (128 dim × 1 byte)    # 8-bit (same as current)
             = 47,104 bytes/token
-v_per_token = 46 layers × 16 heads × (128 dim × 1 byte)
-            = 94,208 bytes/token
-total_per_token = 141,312 bytes/token
-                = 134.8 MB per 1K tokens
-Max at 24GB: ~44K tokens (theoretical)
-Safe target: ~40-42K tokens
+total_per_token = 70,656 bytes/token
+                = 67.4 MB per 1K tokens
+
+Max at 24GB: (24 - 17 - 1.0) GB / 70,656 = ~84K tokens
+Safe target: 60-70K tokens (with margin)
 ```
 
-**Compression ratio:** 188,416 / 141,312 = **1.33× additional gain** over 8-bit alone
+**Compression ratio:** 89,478 / 70,656 = **1.27× gain** over current Ollama 8-bit  
+**Context increase:** 32K → 60-70K = **1.9-2.2× improvement**
 
 ---
 
@@ -580,7 +600,7 @@ ollama run gemma4:26b "$(python3 -c 'print("test " * 20000)')"
 - No crashes or OOMs
 
 ✅ **Performance:**
-- Max context: ≥40K tokens on single GPU (GPU1)
+- Max context: ≥60K tokens on single GPU (GPU1), stretch goal 70-80K
 - GPU0 remains free (<1GB usage)
 - Latency overhead: ≤1.6× (acceptable for prototype)
 
@@ -605,11 +625,14 @@ ollama run gemma4:26b "$(python3 -c 'print("test " * 20000)')"
 **Risk 3: Ollama binary replacement breaks**
 - Mitigation: Keep backup of original binary, test with small model first
 
-**Risk 4: 40K context still OOMs**
-- Fallback: Target 38K context with extra safety margin
+**Risk 4: 70K context still OOMs**
+- Fallback: Target 60K context with extra safety margin, or reduce overhead via activation checkpointing
 
 **Risk 5: Quality degradation worse than expected**
 - Mitigation: If PPL >1.10×, use k=136 or 144 (slight rank increase)
+
+**Risk 6: Ollama's KV storage format is incompatible**
+- Mitigation: May need to patch llama.cpp's KV cache layer directly (not just add hooks)
 
 ---
 
