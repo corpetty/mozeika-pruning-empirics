@@ -1,0 +1,50 @@
+[
+  {
+    "target": 512,
+    "status": "success",
+    "prompt_tokens": 410,
+    "completion_tokens": 50,
+    "total_tokens": 460,
+    "response": "The provided text consists of the exact same sentence, \"The quick brown fox jumps over the lazy dog,"
+  },
+  {
+    "target": 1024,
+    "status": "success",
+    "prompt_tokens": 800,
+    "completion_tokens": 50,
+    "total_tokens": 850,
+    "response": "The provided text consists of the exact same sentence, \"The quick brown fox jumps over the lazy dog,"
+  },
+  {
+    "target": 2048,
+    "status": "success",
+    "prompt_tokens": 1590,
+    "completion_tokens": 50,
+    "total_tokens": 1640,
+    "response": "The provided text consists of the exact same sentence, \"The quick brown fox jumps over the lazy dog,"
+  },
+  {
+    "target": 3072,
+    "status": "success",
+    "prompt_tokens": 2380,
+    "completion_tokens": 24,
+    "total_tokens": 2404,
+    "response": "The text consists of the same sentence, \"The quick brown fox jumps over the lazy dog,\" repeated many"
+  },
+  {
+    "target": 4096,
+    "status": "success",
+    "prompt_tokens": 3170,
+    "completion_tokens": 24,
+    "total_tokens": 3194,
+    "response": "The text consists of **repeated instances of the sentence: \"The quick brown fox jumps over the lazy "
+  },
+  {
+    "target": 5120,
+    "status": "success",
+    "prompt_tokens": 3950,
+    "completion_tokens": 50,
+    "total_tokens": 4000,
+    "response": "The provided text consists of the exact same sentence, \"The quick brown fox jumps over the lazy dog,"
+  }
+]
