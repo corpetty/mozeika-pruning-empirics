@@ -235,15 +235,25 @@ def main():
     torch.cuda.empty_cache()
 
     total_vectors = sum(kv_data[key]['K'].shape[0] for key in kv_data)
-    sample_key = next(iter(kv_data))
-    actual_d_head = kv_data[sample_key]['K'].shape[1]
-    print(f"  Collected {total_vectors:,} K vectors (d_head={actual_d_head})")
-    print(f"  Entries: {len(kv_data)} (layer, head) pairs")
+    
+    # Group heads by dimension (for heterogeneous architectures like Gemma4)
+    dim_groups = {}
+    for key in kv_data:
+        d_head = kv_data[key]['K'].shape[1]
+        if d_head not in dim_groups:
+            dim_groups[d_head] = []
+        dim_groups[d_head].append(key)
+    
+    print(f"  Collected {total_vectors:,} K vectors across {len(kv_data)} (layer, head) pairs")
+    print(f"  Head dimension groups:")
+    for d_head, heads in sorted(dim_groups.items()):
+        print(f"    d_head={d_head}: {len(heads)} heads")
 
     # [4/4] Fit PCA
-    print(f"\n[4/4] Fitting PCA (k={args.k})...")
+    print(f"\n[4/4] Fitting PCA (target k={args.k})...")
     basis_dict = {}
     explained_variances_k = []
+    head_metadata = {}  # Store per-head d_head and k values
 
     for layer_idx in tqdm(range(num_layers), desc="Layers"):
         for head_idx in range(num_kv_heads):
@@ -253,11 +263,18 @@ def main():
                 continue
 
             K_vecs = kv_data[key]['K']  # (T, d_head)
+            actual_d_head = K_vecs.shape[1]
+            k_actual = min(args.k, actual_d_head)  # Can't exceed d_head
 
             # fit_pca returns (U_k, mean) — 2 values
-            U_k, mean_k = fit_pca(K_vecs, args.k)
+            U_k, mean_k = fit_pca(K_vecs, k_actual)
             basis_dict[f'U_L{layer_idx}_H{head_idx}'] = U_k.astype(np.float32)
             basis_dict[f'mean_L{layer_idx}_H{head_idx}'] = mean_k.astype(np.float32)
+            
+            # Store per-head metadata
+            head_metadata[key] = {'d_head': actual_d_head, 'k': k_actual}
+            basis_dict[f'd_head_L{layer_idx}_H{head_idx}'] = np.array([actual_d_head], dtype=np.int32)
+            basis_dict[f'k_L{layer_idx}_H{head_idx}'] = np.array([k_actual], dtype=np.int32)
 
             # Compute explained variance separately
             ev = compute_explained_variance(K_vecs, U_k, mean_k)
@@ -273,10 +290,13 @@ def main():
             del kv_data[key]
 
     # Save metadata
-    basis_dict['metadata_k'] = np.array(args.k)
-    basis_dict['metadata_d_head'] = np.array(actual_d_head)
+    basis_dict['metadata_k'] = np.array(args.k)  # Target k
     basis_dict['metadata_num_layers'] = np.array(num_layers)
     basis_dict['metadata_num_kv_heads'] = np.array(num_kv_heads)
+    
+    # Store dimension group counts
+    for d_head, heads in dim_groups.items():
+        basis_dict[f'metadata_dim_group_{d_head}'] = np.array([len(heads)], dtype=np.int32)
 
     # Save
     print(f"\nSaving to {args.output}...")
@@ -291,9 +311,13 @@ def main():
     avg_ev = np.mean(explained_variances_k)
     min_ev = np.min(explained_variances_k)
     max_ev = np.max(explained_variances_k)
-    print(f"\nPCA Statistics (K vectors, k={args.k}):")
+    print(f"\nPCA Statistics (K vectors, target k={args.k}):")
     print(f"  Explained variance: avg={avg_ev:.4f}, min={min_ev:.4f}, max={max_ev:.4f}")
     print(f"  Layers x KV-heads: {num_layers} x {num_kv_heads} = {num_layers * num_kv_heads}")
+    print(f"\n  Per-dimension summary:")
+    for d_head, heads in sorted(dim_groups.items()):
+        k_actual = min(args.k, d_head)
+        print(f"    d_head={d_head}: k={k_actual} ({len(heads)} heads)")
 
     print("\n" + "=" * 70)
     print("Basis generation complete!")

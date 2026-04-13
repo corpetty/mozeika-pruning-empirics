@@ -33,14 +33,13 @@ class SubRotQCache:
         self.k = k
         self.n_bits = n_bits
         self.device = device
+        self.d_head = None  # Will be set from basis data
         
         # Load PCA bases
         print(f"Loading PCA basis from {basis_path}...")
         data = np.load(basis_path)
         self.bases = {}
         self.means = {}
-        self.head_dims = {}  # (layer, head) → actual_d_head for this head
-        self.head_ks = {}    # (layer, head) → actual k for this head
         
         for key in data.files:
             if key.startswith('U_L') and not key.startswith('U_V'):
@@ -51,37 +50,19 @@ class SubRotQCache:
                 basis = torch.from_numpy(data[key]).to(device, torch.float32)
                 self.bases[(layer, head)] = basis
                 
-                # Load per-head metadata if available (new format)
-                d_head_key = f'd_head_L{layer}_H{head}'
-                k_key = f'k_L{layer}_H{head}'
-                if d_head_key in data.files:
-                    self.head_dims[(layer, head)] = int(data[d_head_key][0])
-                else:
-                    # Fallback: infer from basis shape (old format)
-                    self.head_dims[(layer, head)] = basis.shape[0]
-                
-                if k_key in data.files:
-                    self.head_ks[(layer, head)] = int(data[k_key][0])
-                else:
-                    # Fallback: infer from basis shape
-                    self.head_ks[(layer, head)] = basis.shape[1]
+                # Infer d_head from basis shape
+                if self.d_head is None:
+                    self.d_head = basis.shape[0]  # (d_head, k)
                 
                 mean_key = f'mean_L{layer}_H{head}'
                 if mean_key in data.files:
                     self.means[(layer, head)] = torch.from_numpy(data[mean_key]).to(device, torch.float32)
         
-        # Summary stats
-        if self.head_dims:
-            dim_counts = {}
-            for d in self.head_dims.values():
-                dim_counts[d] = dim_counts.get(d, 0) + 1
-            dims_str = ", ".join([f"d={d}:{cnt}heads" for d, cnt in sorted(dim_counts.items())])
-            print(f"  Loaded {len(self.bases)} K bases ({dims_str})")
-        else:
-            print(f"  Loaded {len(self.bases)} K bases (rank={k})")
+        print(f"  Loaded {len(self.bases)} K bases (rank={k}, d_head={self.d_head})")
         
         # Storage: list of tuples (K_compressed, V_full) per layer
         self.cache = []
+    
     def compress_and_store(self, past_key_values):
         """Compress K, store V as-is."""
         self.cache = []
@@ -135,23 +116,26 @@ class SubRotQCache:
                     K = K_c.to(torch.bfloat16)
                     break
                 
-                U = self.bases[key]  # (expected_d_head, k)
-                expected_d_head = self.head_dims.get(key, U.shape[0])
-                mean = self.means.get(key, torch.zeros(expected_d_head, device=K_c.device))
+                U = self.bases[key]  # (d_head, k)
+                mean = self.means.get(key, torch.zeros(self.d_head, device=K_c.device))  # (d_head,)
                 
                 # Reconstruct: K = K_proj @ U^T + mean
                 K_proj_h = K_c[:, h, :, :].to(torch.float32)  # (batch, seq_len, k)
-                K_recon = K_proj_h @ U.T  # (batch, seq_len, expected_d_head)
-                K_recon = K_recon + mean.view(1, 1, -1)  # Broadcast mean
                 
-                # Handle heterogeneous head dims (should match if basis generated correctly)
-                if expected_d_head != actual_d_head:
-                    # This shouldn't happen with correct basis, but handle gracefully
-                    if expected_d_head < actual_d_head:
-                        pad_size = actual_d_head - expected_d_head
-                        K_recon = torch.cat([K_recon, torch.zeros_like(K_recon[..., :pad_size])], dim=-1)
-                    else:
-                        K_recon = K_recon[..., :actual_d_head]
+                # U.T is (k, d_head), so result is (batch, seq_len, d_head)
+                K_recon = K_proj_h @ U.T  # (batch, seq_len, d_head)
+                # Add mean: broadcast (d_head,) → (1, 1, d_head)
+                K_recon = K_recon + mean.view(1, 1, -1)
+                
+                # Handle heterogeneous head dims: pad/truncate to match actual_d_head
+                basis_d_head = K_recon.shape[-1]
+                if basis_d_head < actual_d_head:
+                    # Pad with zeros
+                    pad_size = actual_d_head - basis_d_head
+                    K_recon = torch.cat([K_recon, torch.zeros_like(K_recon[..., :pad_size])], dim=-1)
+                elif basis_d_head > actual_d_head:
+                    # Truncate
+                    K_recon = K_recon[..., :actual_d_head]
                 
                 K[:, h, :, :] = K_recon.to(torch.bfloat16)
             

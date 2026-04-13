@@ -1,0 +1,18 @@
+{
+  "model": "google/gemma-4-E4B-it",
+  "baseline": {
+    "kv_memory_mb": 11.30712890625,
+    "perplexity": 142051.64713159687,
+    "context_length": 4096
+  },
+  "subrotq": {
+    "kv_memory_mb": 0.3515625,
+    "perplexity": 783528.6056672113,
+    "context_length": 16384,
+    "k": 128,
+    "n_bits": 4
+  },
+  "compression_ratio": 32.1625,
+  "relative_ppl": 5.51580091810797,
+  "context_scaling": 4.0
+}
