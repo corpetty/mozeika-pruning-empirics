@@ -103,11 +103,22 @@ class SubRotQCache:
                     K_compressed = K.to(torch.float16)
                     break
                 
-                U = self.bases[key]  # (d_head, k)
-                mean = self.means.get(key, torch.zeros(d_head, device=K.device))
+                U = self.bases[key]  # (expected_d_head, k)
+                expected_d_head = self.head_dims.get(key, U.shape[0])
+                mean = self.means.get(key, torch.zeros(expected_d_head, device=K.device))
                 
-                # Center
-                K_centered = K[:, h] - mean.unsqueeze(0).unsqueeze(0)  # (batch, seq_len, d_head)
+                # Center (handle dimension mismatch gracefully)
+                K_h = K[:, h]  # (batch, seq_len, actual_d_head)
+                if K_h.shape[-1] != expected_d_head:
+                    # Shouldn't happen, but handle gracefully
+                    if K_h.shape[-1] < expected_d_head:
+                        # Pad K
+                        pad_size = expected_d_head - K_h.shape[-1]
+                        K_h = torch.cat([K_h, torch.zeros_like(K_h[..., :pad_size])], dim=-1)
+                    else:
+                        # Truncate K
+                        K_h = K_h[..., :expected_d_head]
+                K_centered = K_h - mean.unsqueeze(0).unsqueeze(0)  # (batch, seq_len, expected_d_head)
                 
                 # Project: K_proj = K_centered @ U
                 K_proj = K_centered @ U  # (batch, seq_len, k)
@@ -243,6 +254,10 @@ def calculate_perplexity(model, tokenizer, text, use_subrotq=False, subrotq_cach
                     past_key_values=past_kv_decompressed,
                     use_cache=True
                 )
+                
+                # CRITICAL: Update compressed cache with new outputs
+                subrotq_cache.compress_and_store(outputs.past_key_values)
+                
             elif past_key_values is not None:
                 # Baseline: use cache directly
                 outputs = model(
@@ -256,6 +271,10 @@ def calculate_perplexity(model, tokenizer, text, use_subrotq=False, subrotq_cach
                     input_ids=input_ids[:, :i+1],
                     use_cache=True
                 )
+                
+                # Initialize SubRotQ cache on first forward pass
+                if use_subrotq:
+                    subrotq_cache.compress_and_store(outputs.past_key_values)
             
             # Get logits for next token prediction
             logits = outputs.logits[:, -1, :]  # (batch, vocab_size)
@@ -265,10 +284,9 @@ def calculate_perplexity(model, tokenizer, text, use_subrotq=False, subrotq_cach
             loss = torch.nn.functional.cross_entropy(logits, target, reduction='mean')
             total_loss += loss.item()
             
-            # Update cache
-            past_key_values = outputs.past_key_values
-            if use_subrotq:
-                subrotq_cache.compress_and_store(past_key_values)
+            # Update cache (only for baseline, SubRotQ handled above)
+            if not use_subrotq:
+                past_key_values = outputs.past_key_values
     
     avg_loss = total_loss / (seq_len - 1)
     return np.exp(avg_loss)

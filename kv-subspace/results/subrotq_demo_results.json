@@ -7,12 +7,12 @@
   },
   "subrotq": {
     "kv_memory_mb": 0.3515625,
-    "perplexity": 783528.6056672113,
+    "perplexity": 141116.53418550984,
     "context_length": 16384,
     "k": 128,
     "n_bits": 4
   },
   "compression_ratio": 32.1625,
-  "relative_ppl": 5.51580091810797,
+  "relative_ppl": 0.993417091846737,
   "context_scaling": 4.0
 }
