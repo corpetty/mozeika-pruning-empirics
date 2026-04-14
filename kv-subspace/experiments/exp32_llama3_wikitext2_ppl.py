@@ -70,8 +70,18 @@ def get_wikitext2_tokens(tokenizer, split, n_tokens, device):
 # ── Model helpers ─────────────────────────────────────────────────────────────
 
 def find_attention_layers_llama(model):
-    """Llama uses model.model.layers[i].self_attn."""
-    for i, layer in enumerate(model.model.layers):
+    """Llama uses model.model.layers[i].self_attn.
+    AutoAWQ wraps as: awq_model.model (HF CausalLM) .model (LlamaModel) .layers
+    Standard HF:      model.model (LlamaModel) .layers
+    """
+    inner = getattr(model, 'model', model)  # unwrap AutoAWQ shell
+    if hasattr(inner, 'model') and hasattr(inner.model, 'layers'):
+        layers = inner.model.layers  # AutoAWQ: awq.model.model.layers
+    elif hasattr(inner, 'layers'):
+        layers = inner.layers        # Standard HF: model.model.layers
+    else:
+        raise AttributeError(f"Cannot find .layers on {type(inner)}")
+    for i, layer in enumerate(layers):
         yield i, layer.self_attn
 
 
@@ -109,14 +119,22 @@ def collect_kvs_for_basis(model, input_ids, n_kv_heads, d_head):
 
 def chunked_cross_entropy(model, input_ids, chunk_size=512):
     """Compute PPL loss via chunked lm_head projection to avoid OOM."""
-    # Llama AWQ: model is AutoAWQForCausalLM; body at model.model, lm_head at model.lm_head
-    try:
+    # AutoAWQ structure: awq_model.model = LlamaForCausalLM (HF wrapper)
+    #                    awq_model.model.model = LlamaModel (transformer body)
+    #                    awq_model.model.lm_head = nn.Linear
+    # Standard HF:       model.model = transformer body, model.lm_head = nn.Linear
+    inner = getattr(model, 'model', model)  # unwrap AutoAWQ shell if present
+    if hasattr(inner, 'model') and hasattr(inner, 'lm_head'):
+        # AutoAWQ: inner is LlamaForCausalLM
+        transformer_body = inner.model
+        lm_head = inner.lm_head
+    elif hasattr(model, 'lm_head'):
+        # Standard HF CausalLM
         transformer_body = model.model
         lm_head = model.lm_head
-    except AttributeError:
-        # Fallback for HuggingFace CausalLM wrapper
-        transformer_body = model.model.model
-        lm_head = model.model.lm_head
+    else:
+        raise AttributeError(f"Cannot find transformer body/lm_head on {type(model)}")
+    print(f"[chunked_ce] body={type(transformer_body).__name__}, head={type(lm_head).__name__}")
 
     with torch.no_grad():
         outputs = transformer_body(input_ids=input_ids[:, :-1])

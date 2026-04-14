@@ -22,7 +22,8 @@ cd /home/petty/pruning-research/kv-subspace
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export HF_DATASETS_CACHE=/home/petty/.cache/huggingface/datasets
 
-source .venv/bin/activate
+# kv-subspace .venv lacks autoawq; use torch-env which has it
+source /home/petty/torch-env/bin/activate
 python3 experiments/exp32_llama3_wikitext2_ppl.py
 
 echo "=== Done ===" && date

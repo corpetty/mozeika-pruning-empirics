@@ -1,4 +1,4 @@
-\begin{thebibliography}{8}
+\begin{thebibliography}{16}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -14,17 +14,18 @@ Joshua Ainslie, James Lee-Thorp, Michiel de~Jong, Yury Zeiler, Sumit Sanghai,
 \newblock In \emph{Proceedings of the 2023 Conference on Empirical Methods in
   Natural Language Processing}, 2023.
 
+\bibitem[Chang et~al.(2025)Chang, Lin, Tung, Chou, Nikdan, Mahmoud, Kurtic,
+  Alistarh, Wu, and Chandra]{chang2025palu}
+Chi-Chih Chang, Wei-Cheng Lin, Chien-Yu Tung, Elsa Chou, Mehdi Nikdan, Ammar
+  Mahmoud, Eldar Kurtic, Dan Alistarh, Pu~Wu, and Vikas Chandra.
+\newblock Palu: Compressing {KV}-cache with low-rank projection.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
 \bibitem[{DeepSeek-AI}(2024)]{deepseek2024}
 {DeepSeek-AI}.
 \newblock {DeepSeek-V2}: A strong, economical, and efficient mixture-of-experts
   language model.
 \newblock \emph{arXiv preprint arXiv:2405.04434}, 2024.
-
-\bibitem[Ge et~al.(2023)Ge, Zhang, Liu, Zhang, Han, and Gao]{ge2023model}
-Suyu Ge, Yunan Zhang, Liyuan Liu, Minjia Zhang, Jiawei Han, and Jianfeng Gao.
-\newblock Model tells you what to discard: Adaptive {KV} cache compression for
-  {LLMs}.
-\newblock \emph{arXiv preprint arXiv:2310.01801}, 2023.
 
 \bibitem[Han et~al.(2025)Han, Kim, Kim, Lee, Ha, Moon, and
   Shin]{han2025polarquant}
@@ -42,6 +43,14 @@ Coleman Hooper, Sehoon Kim, Hasan Mohammadzadeh, Michael~W. Mahoney,
   {KV} cache quantization.
 \newblock \emph{arXiv preprint arXiv:2401.18079}, 2024.
 
+\bibitem[Kang et~al.(2024)Kang, Zhang, Kundu, Jeong, Liu, Krishna, and
+  Zhao]{kang2024gear}
+Hao Kang, Qingru Zhang, Souvik Kundu, Geonhwa Jeong, Zaoxing Liu, Tushar
+  Krishna, and Tuo Zhao.
+\newblock {GEAR}: An efficient {KV} cache compression recipe for near-lossless
+  generative inference of {LLM}.
+\newblock \emph{arXiv preprint arXiv:2403.05527}, 2024.
+
 \bibitem[Kaushik et~al.(2025)Kaushik, Chaudhari, Vaidya, Chellappa, and
   Yuille]{kaushik2025uwsh}
 Prakhar Kaushik, Shravan Chaudhari, Ankit Vaidya, Rama Chellappa, and Alan
@@ -49,11 +58,53 @@ Prakhar Kaushik, Shravan Chaudhari, Ankit Vaidya, Rama Chellappa, and Alan
 \newblock The universal weight subspace hypothesis, 2025.
 \newblock URL \url{https://arxiv.org/abs/2512.05117}.
 
-\bibitem[Liu et~al.(2024)Liu, Li, Schwing, and Gu]{liu2024kvsharer}
-Yifei Liu, Huimiao Li, Alexander~G. Schwing, and Jiawei Gu.
-\newblock {KVSharer}: Efficient inference via layer-wise dissimilar {KV} cache
-  sharing.
-\newblock \emph{arXiv preprint arXiv:2407.00519}, 2024.
+\bibitem[Li et~al.(2025)]{li2025squat}
+Zongyue Li et~al.
+\newblock {SQuat}: Subspace-orthogonal {KV} cache quantization.
+\newblock \emph{arXiv preprint}, 2025.
+
+\bibitem[Liu et~al.(2024)Liu, Yuan, Jin, Zhong, Xu, Braverman, Chen, and
+  Hu]{liu2024kivi}
+Zirui Liu, Jiayi Yuan, Hongye Jin, Shaochen Zhong, Zhaozhuo Xu, Vladimir
+  Braverman, Beidi Chen, and Xia Hu.
+\newblock {KIVI}: A tuning-free asymmetric 2bit quantization for {KV} cache.
+\newblock \emph{arXiv preprint arXiv:2402.02750}, 2024.
+
+\bibitem[Park et~al.(2025)]{park2025matryoshka}
+Junhyuck Park et~al.
+\newblock {MatryoshkaKV}: Adaptive {KV} compression via learned nesting.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[Staniszewski and {\L}a{\'n}cucki(2026)]{staniszewski2025kvtc}
+Mateusz Staniszewski and Adrian {\L}a{\'n}cucki.
+\newblock {KVTC}: {KV} cache compression via {PCA} and entropy coding.
+\newblock In \emph{International Conference on Learning Representations}, 2026.
+\newblock Accepted as ICLR 2026.
+
+\bibitem[Wu et~al.(2025{\natexlab{a}})]{wu2025polarquant2}
+Yuqing Wu et~al.
+\newblock {PolarQuant}: Exploiting {RoPE} structure for efficient {KV} cache
+  quantization.
+\newblock \emph{arXiv preprint}, 2025{\natexlab{a}}.
+\newblock Distinct from Han et al.\ (2025); exploits 2D RoPE-rotated dimension
+  pairs.
+
+\bibitem[Wu et~al.(2025{\natexlab{b}})]{wu2025svdq}
+Zhongwei Wu et~al.
+\newblock {SVDq}: Importance-aware {SVD}-based quantization for the {KV} cache.
+\newblock \emph{arXiv preprint}, 2025{\natexlab{b}}.
+
+\bibitem[Xiao et~al.(2024)Xiao, Tian, Chen, Han, and
+  Lewis]{xiao2024streamingllm}
+Guangxuan Xiao, Yuandong Tian, Beidi Chen, Song Han, and Mike Lewis.
+\newblock Efficient streaming language models with attention sinks.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Yang et~al.(2024)]{yang2024eigen}
+Letian Yang et~al.
+\newblock Eigen attention: Attention in the eigenbasis of the head subspace.
+\newblock In \emph{Proceedings of the 2024 Conference on Empirical Methods in
+  Natural Language Processing}, 2024.
 
 \bibitem[Zhang et~al.(2023)Zhang, Sheng, Zhou, Chen, Zheng, Cai, Song, Tian,
   R{\'e}, Barrett, Wang, and Chen]{zhang2023h2o}
