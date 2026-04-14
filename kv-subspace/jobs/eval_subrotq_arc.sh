@@ -17,7 +17,11 @@ sudo systemctl stop ollama
 cd /home/petty/pruning-research/kv-subspace
 source .venv/bin/activate
 
-# Run SubRotQ evaluation
+# Clean GPU memory first
+python -c "import torch; torch.cuda.empty_cache()" 2>/dev/null || true
+
+# Run SubRotQ evaluation  
+export CUDA_VISIBLE_DEVICES=0
 python scripts/eval_lm_harness.py \
     --model google/gemma-4-E4B-it \
     --tasks arc_easy \
