@@ -304,7 +304,7 @@ baseline within measurement noise, at $4.00{\times}$ compression.
     \midrule
     Qwen3-14B-AWQ    & Qwen3   & 6.57 & \textcolor{darkgreen}{0.98$\times$} & 1.23$\times$ \\
     Mistral-7B-v0.3  & Mistral & 4.26 & \textcolor{darkgreen}{1.00$\times$} & \textcolor{darkgreen}{1.09$\times$} \\
-    Llama-3.1-8B-AWQ & LLaMA   & 5.40 & \textcolor{darkgreen}{1.00$\times$} & \textcolor{darkgreen}{1.04$\times$} \\
+    Llama-3.1-8B-AWQ & LLaMA   & 6.08 & \textcolor{darkgreen}{1.01$\times$} & \textcolor{darkgreen}{1.05$\times$} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -322,7 +322,7 @@ baseline within measurement noise, at $4.00{\times}$ compression.
 All three architectures achieve lossless or near-lossless compression at
 $k{=}128$/4-bit (Table~\ref{tab:cross_arch}, Figure~\ref{fig:cross_arch}).
 $k{=}112$ is architecture-dependent: Qwen3-14B degrades to $1.23{\times}$ while
-Llama-3.1 degrades only to $1.04{\times}$.
+Llama-3.1 degrades only to $1.05{\times}$.
 
 \paragraph{Qwen3 family scaling.}
 \begin{table}[h]
@@ -463,9 +463,9 @@ force K into a lower-dimensional manifold.
     \toprule
     Config & Description & Rel PPL & Viable? \\
     \midrule
-    K-only $k{=}112$/4-bit  & K compressed, V full rank        & \textcolor{darkgreen}{1.042$\times$} & \checkmark \\
+    K-only $k{=}112$/4-bit  & K compressed, V full rank        & \textcolor{darkgreen}{1.051$\times$} & \checkmark \\
     V-only $k{=}112$/4-bit  & V compressed, K full rank        & 12.14$\times$ & $\times$ \\
-    K+V $k{=}128$/4-bit     & Both full-rank 4-bit             & \textcolor{darkgreen}{1.085$\times$} & \checkmark \\
+    K+V $k{=}128$/4-bit     & Both full-rank 4-bit             & \textcolor{darkgreen}{1.008$\times$} & \checkmark \\
     K+V $k{=}124$/4-bit     & 3.1\% truncation of V            & 3.45$\times$ & $\times$ \\
     \bottomrule
   \end{tabular}
