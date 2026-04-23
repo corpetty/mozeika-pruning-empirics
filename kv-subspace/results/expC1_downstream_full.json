@@ -1,0 +1,98 @@
+{
+  "baseline": {
+    "config": "baseline",
+    "k": 128,
+    "bits": 16,
+    "compress": false,
+    "tasks": {
+      "arc_challenge": {
+        "accuracy": 0.684,
+        "n_fewshot": 25,
+        "limit": 1000,
+        "elapsed_s": 3524.1
+      },
+      "hellaswag": {
+        "accuracy": 0.71,
+        "n_fewshot": 10,
+        "limit": 1000,
+        "elapsed_s": 3586.8
+      },
+      "arc_easy": {
+        "accuracy": 0.816,
+        "n_fewshot": 0,
+        "limit": 1000,
+        "elapsed_s": 305.1
+      },
+      "winogrande": {
+        "accuracy": 0.74,
+        "n_fewshot": 5,
+        "limit": 1000,
+        "elapsed_s": 322.5
+      }
+    }
+  },
+  "k128_4bit": {
+    "config": "k128_4bit",
+    "k": 128,
+    "bits": 4,
+    "compress": true,
+    "tasks": {
+      "arc_challenge": {
+        "accuracy": 0.672,
+        "n_fewshot": 25,
+        "limit": 1000,
+        "elapsed_s": 15195.6
+      },
+      "hellaswag": {
+        "accuracy": 0.699,
+        "n_fewshot": 10,
+        "limit": 1000,
+        "elapsed_s": 16034.5
+      },
+      "arc_easy": {
+        "accuracy": 0.812,
+        "n_fewshot": 0,
+        "limit": 1000,
+        "elapsed_s": 896.8
+      },
+      "winogrande": {
+        "accuracy": 0.724,
+        "n_fewshot": 5,
+        "limit": 1000,
+        "elapsed_s": 2032.0
+      }
+    }
+  },
+  "k96_4bit": {
+    "config": "k96_4bit",
+    "k": 96,
+    "bits": 4,
+    "compress": true,
+    "tasks": {
+      "arc_challenge": {
+        "accuracy": 0.554,
+        "n_fewshot": 25,
+        "limit": 1000,
+        "elapsed_s": 14950.8
+      },
+      "hellaswag": {
+        "accuracy": 0.601,
+        "n_fewshot": 10,
+        "limit": 1000,
+        "elapsed_s": 16029.4
+      },
+      "arc_easy": {
+        "accuracy": 0.608,
+        "n_fewshot": 0,
+        "limit": 1000,
+        "elapsed_s": 704.2
+      },
+      "winogrande": {
+        "accuracy": 0.655,
+        "n_fewshot": 5,
+        "limit": 1000,
+        "elapsed_s": 1453.6
+      }
+    }
+  }
+}

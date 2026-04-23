@@ -1,0 +1,147 @@
+{
+  "model": "Qwen/Qwen3-14B-AWQ",
+  "calib_tokens": 2048,
+  "corpus": "emozilla/pg19 test",
+  "ctx_lengths": [
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    16384,
+    32768
+  ],
+  "configs": [
+    "baseline",
+    "k128_4bit",
+    "k96_4bit"
+  ],
+  "rows": [
+    {
+      "ctx_len": 512,
+      "config": "baseline",
+      "ppl": 19.4296,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 512,
+      "config": "k128_4bit",
+      "ppl": 21.3392,
+      "rel_ppl": 1.0983
+    },
+    {
+      "ctx_len": 512,
+      "config": "k96_4bit",
+      "ppl": 49.8094,
+      "rel_ppl": 2.5636
+    },
+    {
+      "ctx_len": 1024,
+      "config": "baseline",
+      "ppl": 28.436,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 1024,
+      "config": "k128_4bit",
+      "ppl": 29.7425,
+      "rel_ppl": 1.0459
+    },
+    {
+      "ctx_len": 1024,
+      "config": "k96_4bit",
+      "ppl": 61.8678,
+      "rel_ppl": 2.1757
+    },
+    {
+      "ctx_len": 2048,
+      "config": "baseline",
+      "ppl": 29.3673,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 2048,
+      "config": "k128_4bit",
+      "ppl": 29.8007,
+      "rel_ppl": 1.0148
+    },
+    {
+      "ctx_len": 2048,
+      "config": "k96_4bit",
+      "ppl": 60.4642,
+      "rel_ppl": 2.0589
+    },
+    {
+      "ctx_len": 4096,
+      "config": "baseline",
+      "ppl": 24.3761,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 4096,
+      "config": "k128_4bit",
+      "ppl": 25.1253,
+      "rel_ppl": 1.0307
+    },
+    {
+      "ctx_len": 4096,
+      "config": "k96_4bit",
+      "ppl": 47.4125,
+      "rel_ppl": 1.945
+    },
+    {
+      "ctx_len": 8192,
+      "config": "baseline",
+      "ppl": 23.8609,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 8192,
+      "config": "k128_4bit",
+      "ppl": 24.5823,
+      "rel_ppl": 1.0302
+    },
+    {
+      "ctx_len": 8192,
+      "config": "k96_4bit",
+      "ppl": 47.7261,
+      "rel_ppl": 2.0002
+    },
+    {
+      "ctx_len": 16384,
+      "config": "baseline",
+      "ppl": 23.4137,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 16384,
+      "config": "k128_4bit",
+      "ppl": 24.0789,
+      "rel_ppl": 1.0284
+    },
+    {
+      "ctx_len": 16384,
+      "config": "k96_4bit",
+      "ppl": 49.121,
+      "rel_ppl": 2.098
+    },
+    {
+      "ctx_len": 32768,
+      "config": "baseline",
+      "ppl": 22.6705,
+      "rel_ppl": 1.0
+    },
+    {
+      "ctx_len": 32768,
+      "config": "k128_4bit",
+      "ppl": 23.4537,
+      "rel_ppl": 1.0345
+    },
+    {
+      "ctx_len": 32768,
+      "config": "k96_4bit",
+      "ppl": 52.8441,
+      "rel_ppl": 2.331
+    }
+  ]
+}

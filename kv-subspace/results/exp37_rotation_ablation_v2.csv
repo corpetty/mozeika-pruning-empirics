@@ -1,0 +1,8 @@
+label,k,bits,ppl,rel_ppl,note
+baseline,128,16,6.5676,1.0,"fp16 KV cache, no compression"
+plain_4bit,128,4,6.4974,0.9893,"uniform quant raw K, no PCA, no rotation"
+raw_rotation_128,128,4,6.6126,1.0069,full d×d rotation of raw K + quant all d dims + rotate back
+pca_only_128,128,4,6.6255,1.0088,"PCA k=128 (no truncation) → quant → unproject, no rotation"
+subrotq_128,128,4,6.4468,0.9816,"PCA k=128 + 128×128 rotation + quant (full SubRotQ, no truncation)"
+pca_only_112,112,4,8.1429,1.2399,"PCA k=112 (truncate 16 dims) → quant → unproject, no rotation"
+subrotq_112,112,4,8.1213,1.2366,"PCA k=112 + 112×112 rotation + quant (full SubRotQ, truncated)"

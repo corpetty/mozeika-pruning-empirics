@@ -1,0 +1,7 @@
+method,k,bits,ppl,rel_ppl,note
+baseline,128,16,6.5676,1.0,
+plain_4bit,128,4,6.4974,0.9893,"per-channel uniform, no PCA/rotation (A1 reference)"
+subrotq,112,4,8.0759,1.2297,PCA k=112 + random rotation + uniform 4-bit
+polarquant,112,4,12.5782,1.9152,PCA k=112 + random rotation + polar coordinate 4-bit
+subrotq,128,4,6.4421,0.9809,PCA k=128 + random rotation + uniform 4-bit
+polarquant,128,4,11.817,1.7993,PCA k=128 + random rotation + polar coordinate 4-bit

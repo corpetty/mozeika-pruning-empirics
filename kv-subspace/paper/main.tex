@@ -474,12 +474,11 @@ force K into a lower-dimensional manifold.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.85\textwidth]{fig5_subrotq_vs_polarquant.pdf}
-  \caption{\emph{Left:} V compression scan on Qwen3-14B-AWQ with K fixed at
-  $k{=}112$/4-bit. Rel.\ PPL (log scale) remains far above the budget for all
-  $k_V < 128$. \emph{Right:} K vs.\ V compression on Llama-3.1-8B (no
-  QK-norm). V-only at $k{=}112$ gives $12.14{\times}$ PPL; $k_V{=}124$ gives
-  $3.45{\times}$. Architecture-independent failure.}
-  \label{fig:v_fail}
+  \caption{SubRotQ vs.\ PolarQuant at 4-bit on Qwen3-14B-AWQ (WikiText-2).
+  SubRotQ achieves lower rel.\ PPL at every $k$ value tested.
+  At 8-bit the two methods are equivalent (not shown).
+  Gap is largest at $k{=}128$: SubRotQ $0.98{\times}$ vs.\ PolarQuant $1.80{\times}$.}
+  \label{fig:subrotq_polar}
 \end{figure}
 
 The QK-norm hypothesis is \textbf{rejected}. Llama-3.1 without QK-norm shows
@@ -499,10 +498,11 @@ negative sensitivity (mild regularization under compression).
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.70\textwidth]{fig6_k_v_asymmetry.pdf}
-  \caption{Per-layer $\Delta$PPL under K ablation ($k{=}64$/4-bit) on
-  Qwen3-14B-AWQ. Late layers are most sensitive. Some early layers show negative
-  sensitivity (compression helps marginally).}
-  \label{fig:layer_sens}
+  \caption{K vs.\ V compression asymmetry. \emph{Left:} K-only rel.\ PPL
+  curve for Llama-3.1-8B; V-only at $k{=}112$ reaches $12.14{\times}$.
+  \emph{Right:} Best-config comparison across architectures confirming
+  V compression fails universally regardless of QK-norm.}
+  \label{fig:kv_asym}
 \end{figure}
 
 \paragraph{Adaptive scheduling validated with error bars (Exps.~18, 28).}
@@ -520,15 +520,6 @@ Calibrating on one domain (fiction, code, news, dialogue) and evaluating on
 another incurs a modest penalty at $k{=}128$/4-bit: worst cross-domain pair is
 within $0.05{\times}$ $\relppl$ of same-domain calibration. At $k{=}96$/4-bit,
 sensitivity increases markedly.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.85\textwidth]{fig7_cross_domain.pdf}
-  \caption{Cross-domain calibration transfer heatmaps. \emph{Left:}
-  $k{=}128$/4-bit is robust (all cells $\approx 1.0$). \emph{Right:}
-  $k{=}96$/4-bit is brittle for some off-diagonal pairs.}
-  \label{fig:cross_domain}
-\end{figure}
 
 \textbf{Practical recommendation:} A single calibration pass on a diverse 2K-token
 corpus (WikiText-2 train) generalizes safely at $k{=}128$.
@@ -558,6 +549,32 @@ SubRotQ outperforms PolarQuant at 4-bit at all $k$ values. At 8-bit, the methods
 are equivalent. Random rotation (QR decomposition) is simpler to implement and
 performs better than polar coordinate $k$-means quantization at aggressive
 bit depths.
+
+%--------------------------------------
+\subsection{Component Ablation (Exp.~37)}
+\label{sec:ablation}
+
+To isolate the contribution of each algorithmic component, we compare four
+variants at $k{=}128$ (no truncation) and two at $k{=}112$ (12.5\% truncation)
+on Qwen3-14B-AWQ, WikiText-2 evaluation.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{fig7_rotation_ablation.pdf}
+  \caption{Component ablation at $k{=}128$ (no truncation, \emph{left})
+  and $k{=}112$ (truncation regime, \emph{right}). At $k{=}128$ the random
+  rotation provides a modest benefit ($0.982{\times}$ vs.\ $1.009{\times}$ PCA-only).
+  At $k{=}112$ rotation contributes negligibly ($\Delta = 0.003{\times}$): when
+  truncation dominates, the quantizer choice is immaterial.}
+  \label{fig:ablation}
+\end{figure}
+
+Key findings: (1) plain 4-bit (no PCA, no rotation) achieves $0.989{\times}$,
+competitive with SubRotQ $0.982{\times}$ at $k{=}128$---when $k = d_{\text{head}}$
+the PCA basis is a full-rank rotation with no dimensionality reduction;
+(2) rotation adds a real but small benefit at $k{=}128$; (3) at $k{=}112$,
+neither PCA-only nor SubRotQ can recover from truncation loss, confirming that
+practitioners should maximize $k$ before tuning the quantizer.
 
 %--------------------------------------
 \subsection{Latency and Throughput (Exps.~26, 29)}

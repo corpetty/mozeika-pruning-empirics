@@ -1,0 +1,9 @@
+method,k,bits,ppl,rel_ppl,note
+baseline,128,16,6.5676,1.0,no compression
+plain_4bit,128,4,6.4974,0.9893,"no PCA, no rotation"
+pca_only,112,4,8.1429,1.2399,"PCA k=112 → quantize, no rotation"
+rotation_only,112,4,6.5387,0.9956,"rotate raw K (embed k×k in identity), no PCA"
+subrotq,112,4,8.1213,1.2366,PCA k=112 + random rotation + 4-bit
+pca_only,128,4,6.6255,1.0088,"PCA k=128 → quantize, no rotation"
+rotation_only,128,4,6.6126,1.0069,"rotate raw K (embed k×k in identity), no PCA"
+subrotq,128,4,6.4468,0.9816,PCA k=128 + random rotation + 4-bit
